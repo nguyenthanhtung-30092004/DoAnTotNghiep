@@ -20,6 +20,64 @@ const navLinks = [
       {
         label: "Giày Road",
         to: "/products/giay-road",
+        children: [
+          { label: "Giày road nam", to: "/products/giay-road/nam" },
+          { label: "Giày road nữ", to: "/products/giay-road/nu" },
+        ],
+      },
+      {
+        label: "Áo",
+        to: "/products/giay-road",
+        children: [
+          { label: "Áo nam", to: "/products/ao/nam" },
+          { label: "Áo nữ", to: "/products/ao/nu" },
+        ],
+      },
+      {
+        label: "Quần",
+        to: "/products/giay-road",
+        children: [
+          { label: "Quần nam", to: "/products/quan/nam" },
+          { label: "Quần nữ", to: "/products/quan/nu" },
+        ],
+      },
+      {
+        label: "Phụ kiện",
+        to: "/products/giay-road",
+        children: [
+          { label: "Mũ", to: "/products/quan/nam" },
+          { label: "băng đô", to: "/products/quan/nu" },
+          { label: "Kính", to: "/products/quan/nu" },
+          { label: "Đèn tral", to: "/products/quan/nu" },
+          { label: "Khăn ống", to: "/products/quan/nu" },
+          { label: "Calf tay", to: "/products/quan/nu" },
+          { label: "Calg chân", to: "/products/quan/nu" },
+          { label: "Gậy trail", to: "/products/quan/nu" },
+          { label: "Vest trail", to: "/products/quan/nu" },
+          { label: "Tất", to: "/products/quan/nu" },
+          { label: "Bình mềm", to: "/products/quan/nu" },
+          { label: "Starbalm", to: "/products/quan/nu" },
+        ],
+      },
+      {
+        label: "Thiết bị",
+        to: "/products/giay-road",
+        children: [
+          { label: "Đồng hồ", to: "/products/quan/nam" },
+          { label: "Phụ kiện đồng hồ", to: "/products/quan/nu" },
+          { label: "Tai nghe", to: "/products/quan/nu" },
+          { label: "Máy massage", to: "/products/quan/nu" },
+        ],
+      },
+      {
+        label: "Dinh dưỡng",
+        to: "/products/giay-road",
+        children: [
+          { label: "Gel", to: "/products/quan/nam" },
+          { label: "Năng lượng phục hồi", to: "/products/quan/nu" },
+          { label: "Muối - sủi điện giải", to: "/products/quan/nu" },
+          { label: "Thanh bar - Bánh năng lượng", to: "/products/quan/nu" },
+        ],
       },
     ],
   },
