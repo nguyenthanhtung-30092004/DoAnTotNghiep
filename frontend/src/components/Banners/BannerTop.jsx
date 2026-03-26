@@ -1,10 +1,13 @@
 import React from "react";
 import { Button } from "../ui/Button";
 import banner from "../../assets/banner.png";
-
+import { motion } from "framer-motion";
 const BannerTop = () => {
   return (
-    <section
+    <motion.section
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
       className="relative overflow-hidden bg-accent min-h-[600px] flex items-center justify-center"
       style={{
         backgroundImage: `url(${banner})`,
@@ -19,7 +22,7 @@ const BannerTop = () => {
       <div className="container relative z-10 py-16 md:py-24 lg:py-32 flex flex-col items-center text-center">
         {/* Text Content */}
         <div className="space-y-6 animate-fade-up max-w-3xl">
-          <span className="inline-block text-xs text-black font-semibold uppercase tracking-widest text-primary bg-primary rounded-full px-3 py-1">
+          <span className="inline-block text-xs text-white font-semibold uppercase tracking-widest text-primary bg-primary rounded-full px-3 py-1">
             New Arrivals 2026
           </span>
 
@@ -45,7 +48,7 @@ const BannerTop = () => {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

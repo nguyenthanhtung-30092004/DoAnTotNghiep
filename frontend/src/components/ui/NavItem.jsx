@@ -48,7 +48,7 @@ const MegaNavItem = ({ item }) => {
                 {/* TIÊU ĐỀ CỘT */}
                 <Link
                   to={column.to}
-                  className="flex items-end pb-3 min-h-[3rem] font-bold text-gray-900 text-lg uppercase tracking-wider border-b-2 border-gray-200 hover:border-green-400 transition-colors"
+                  className="flex items-end pb-3 min-h-[3rem] font-bold text-primary text-lg uppercase tracking-wider border-b-2 border-gray-200 hover:border-green-400 transition-colors"
                 >
                   {column.label}
                 </Link>
