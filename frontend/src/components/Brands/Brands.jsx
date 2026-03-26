@@ -10,7 +10,7 @@ const categories = [
   { name: "Dinh dưỡng", count: "30 sản phẩm", emoji: "🥤", bg: "bg-primary/5" },
 ];
 
-const Categories = () => {
+const Brands = () => {
   // Nhân bản mảng 3 lần để tạo hiệu ứng vòng lặp (giống prepent/append)
   const extendedCategories = [...categories, ...categories, ...categories];
 
@@ -65,30 +65,23 @@ const Categories = () => {
     <section className="py-20 w-full bg-background-soft">
       <div className="container relative flex flex-col items-center">
         {/* Title */}
-        <div className="text-center w-full mb-10">
-          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-            Browser
-          </span>
-          <h2 className="text-3xl font-bold mt-1">Shop by Category</h2>
-        </div>
-
         {/* Content - Bọc ngoài cùng */}
         <div
-          className="overflow-hidden w-[80%]"
+          className="overflow-hidden w-[100%]"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           <div
             className={`flex ${isTransitioning ? "transition-transform duration-500 ease-in-out" : ""}`}
             style={{
-              transform: `translateX(-${currentIndex * (100 / 3)}%)`,
+              transform: `translateX(-${currentIndex * (100 / 5)}%)`,
             }}
             onTransitionEnd={handleTransitionEnd}
           >
             {extendedCategories.map((cat, i) => (
               <div
                 key={`${cat.name}-${i}`}
-                className="w-1/3 flex-shrink-0 px-3"
+                className="w-1/5 flex-shrink-0 px-3"
               >
                 <a
                   href="#"
@@ -112,13 +105,13 @@ const Categories = () => {
         {/* Buttons */}
         <button
           onClick={prevSlide}
-          className="size-12 absolute top-1/2 translate-y-[30px] left-24 rounded-full flex items-center justify-center text-white bg-primary hover:bg-primary/90 transition-colors z-10"
+          className="size-12 absolute top-1/2 -translate-y-1/2 -left-[30px] rounded-full flex items-center justify-center text-foreground hover:text-white hover:bg-primary bg-accent transition-colors z-10"
         >
           <ChevronLeft />
         </button>
         <button
           onClick={nextSlide}
-          className="size-12 absolute top-1/2 translate-y-[30px] right-24 rounded-full flex items-center justify-center text-white bg-primary hover:bg-primary/90 transition-colors z-10"
+          className="size-12 absolute top-1/2 -translate-y-1/2 -right-[30px] rounded-full flex items-center justify-center text-foreground hover:text-white bg-accent hover:bg-primary/90 transition-colors z-10"
         >
           <ChevronRight />
         </button>
@@ -127,4 +120,4 @@ const Categories = () => {
   );
 };
 
-export default Categories;
+export default Brands;
