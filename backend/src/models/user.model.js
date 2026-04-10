@@ -1,11 +1,12 @@
 "use strict";
 
-const { model, Schema, Types } = require("mongoose"); // Erase if already required
-const DOCUEMNT_NAME = "User";
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
+const DOCUMENT_NAME = "User";
 const COLLECTION_NAME = "users";
 
 // Declare the Schema of the Mongo model
-var userSchema = new mongoose.Schema(
+var userSchema = new Schema(
   {
     fullName: {
       type: String,
@@ -21,18 +22,24 @@ var userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    status: {
+    phoneNumber: {
       type: String,
-      enum: ["active", "inactive"],
-      default: "inactive",
+      trim: true,
+      default: "",
     },
-    verify: {
-      type: Schema.Types.Boolean,
-      default: false,
+    address: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    isActive: {
+      type: Boolean,
+      default: true, // Mặc định tạo tài khoản là hoạt động
     },
     roles: {
-      type: Array,
-      default: [],
+      type: String,
+      enum: ["CUSTOMER", "ADMIN"],
+      default: "CUSTOMER",
     },
   },
   {
@@ -42,4 +49,4 @@ var userSchema = new mongoose.Schema(
 );
 
 //Export the model
-module.exports = mongoose.model(DOCUEMNT_NAME, userSchema);
+module.exports = mongoose.model(DOCUMENT_NAME, userSchema);
