@@ -67,7 +67,7 @@ const Brands = () => {
         {/* Title */}
         {/* Content - Bọc ngoài cùng */}
         <div
-          className="overflow-hidden w-[100%]"
+          className="overflow-hidden w-[90%]"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -105,13 +105,13 @@ const Brands = () => {
         {/* Buttons */}
         <button
           onClick={prevSlide}
-          className="size-12 absolute top-1/2 -translate-y-1/2 -left-[30px] rounded-full flex items-center justify-center text-foreground hover:text-white hover:bg-primary bg-accent transition-colors z-10"
+          className="size-12 absolute top-1/2 -translate-y-1/2 -left-0 rounded-full flex items-center justify-center text-foreground hover:text-white hover:bg-primary bg-accent transition-colors z-10"
         >
           <ChevronLeft />
         </button>
         <button
           onClick={nextSlide}
-          className="size-12 absolute top-1/2 -translate-y-1/2 -right-[30px] rounded-full flex items-center justify-center text-foreground hover:text-white bg-accent hover:bg-primary/90 transition-colors z-10"
+          className="size-12 absolute top-1/2 -translate-y-1/2 -right-0 rounded-full flex items-center justify-center text-foreground hover:text-white bg-accent hover:bg-primary/90 transition-colors z-10"
         >
           <ChevronRight />
         </button>
