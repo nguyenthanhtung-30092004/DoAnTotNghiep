@@ -14,15 +14,7 @@ app.use(compression());
 require("./dbs/init.mongodb");
 
 // init routes
-app.get("/", (req, res, next) => {
-  const strCompress = "Hello World!";
-  return res.status(200).json({
-    success: true,
-    message: "Hello World!",
-    metadata: strCompress.repeat(1000), // Tạo một chuỗi dài để kiểm tra tính năng nén
-  });
-});
-
+app.use("/", require("./routes"));
 // handling error
 
 module.exports = app;
