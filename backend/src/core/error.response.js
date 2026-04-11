@@ -30,7 +30,6 @@ class BadRequestError extends ErrorResponse {
   }
 }
 
-// MENTOR TẶNG THÊM: Lỗi xác thực (Dùng cho vụ sai Token / API Key)
 class AuthFailureError extends ErrorResponse {
   constructor(
     message = ReasonPhrases.UNAUTHORIZED, // "Unauthorized"
@@ -40,9 +39,18 @@ class AuthFailureError extends ErrorResponse {
   }
 }
 
+class NotFoundError extends ErrorResponse {
+  constructor(
+    message = ReasonPhrases.NOT_FOUND, // "Not Found"
+    statusCode = StatusCodes.NOT_FOUND, // 404
+  ) {
+    super(message, statusCode);
+  }
+}
 module.exports = {
   ErrorResponse,
   ConflictRequestError,
   BadRequestError,
+  NotFoundError,
   AuthFailureError,
 };
