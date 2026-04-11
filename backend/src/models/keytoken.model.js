@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 const DOCUMENT_NAME = "KeyToken";
 const COLLECTION_NAME = "keytokens";
-// Declare the Schema of the Mongo model
+
 var keytokenSchema = new Schema(
   {
     user: {
@@ -20,9 +20,13 @@ var keytokenSchema = new Schema(
       type: String,
       required: true,
     },
-    refreshToken: {
+    refreshTokensUsed: {
       type: Array,
       default: [],
+    },
+    refreshToken: {
+      type: String,
+      required: true,
     },
   },
   {
@@ -31,5 +35,4 @@ var keytokenSchema = new Schema(
   },
 );
 
-//Export the model
 module.exports = model(DOCUMENT_NAME, keytokenSchema);
