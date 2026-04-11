@@ -3,6 +3,7 @@
 ### signup
 POST {{url_dev}}user/signup
 Content-Type: application/json 
+x_api_key: b96c4a6b44cadf1d6c1be985e8dc71e7addff92046f718dd81c25de47ced1b8b4cb3ad2dc705fe5ae742152288cb0b8339104180ac86312917bcbded7ce4d61d
 
 {
     "fullName": "Nguyễn Thanh Tùng",
