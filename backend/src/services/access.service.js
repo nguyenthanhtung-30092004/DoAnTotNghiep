@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const KeyTokenService = require("./keyToten.service");
 const { createTokenPair } = require("../auth/authUtils");
+const { getInfoData } = require("../utils");
 const RoleUser = {
   CUSTOMER: "CUSTOMER",
   ADMIN: "ADMIN",
@@ -39,32 +40,21 @@ class AccessService {
       });
 
       if (newUser) {
-        // create PrivateToken, PublicToken
-        const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
-          modulusLength: 4096,
-          publicKeyEncoding: {
-            type: "pkcs1",
-            format: "pem",
-          },
-          privateKeyEncoding: {
-            type: "pkcs1",
-            format: "pem",
-          },
-        });
+        const privateKey = crypto.randomBytes(64).toString("hex");
+        const publicKey = crypto.randomBytes(64).toString("hex");
         // Public Key CryptoGraphy Standards!
         console.log({ privateKey, publicKey }); // Save collection KeyUser
-
-        const publicKeyString = await KeyTokenService.createKeyToken({
+        const keyStore = await KeyTokenService.createKeyToken({
           userId: newUser._id,
           publicKey,
+          privateKey,
         });
-        if (!publicKeyString) {
+        if (!keyStore) {
           return {
             code: "xxxx",
             message: "PublicKeyString error!",
           };
         }
-        const publicKeyObject = crypto.createPublicKey(publicKeyString);
         // Created token pair
         const tokens = await createTokenPair(
           {
@@ -72,20 +62,17 @@ class AccessService {
             email,
             role: newUser.role,
           },
-          publicKeyString,
+          publicKey,
           privateKey,
         );
         console.log(`Created Token Success::`, tokens);
         return {
           code: 201,
           metadata: {
-            user: {
-              _id: newUser._id,
-              email: newUser.email,
-              fullName: newUser.fullName,
-              phoneNumber: newUser.phoneNumber,
-              address: newUser.address,
-            },
+            user: getInfoData({
+              fields: ["_id", "email", "fullName", "phoneNumber", "address"],
+              object: newUser,
+            }),
             tokens,
           },
         };
