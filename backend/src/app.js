@@ -4,12 +4,26 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const app = express();
 
 // init midlleware
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(compression());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "x_api_key",
+      "x_client_id",
+    ],
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

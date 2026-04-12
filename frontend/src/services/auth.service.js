@@ -1,17 +1,29 @@
-import axios from "axios";
+import instance from "./axios";
+import {
+  API_LOGIN,
+  API_LOGOUT,
+  API_REFRESH_TOKEN,
+  API_SIGNUP,
+} from "../utils/constants/api";
 
 const authService = {
   signUp: async (userData) => {
-    return await axios.post("/user/signup", userData);
+    const res = await instance.post(API_SIGNUP, userData);
+    return res.data;
   },
   login: async (credentials) => {
-    return await axios.post("/user/login", credentials);
+    const res = await instance.post(API_LOGIN, credentials);
+    console.log(res.data);
+    return res.data;
   },
   logout: async () => {
-    return await axios.post("/user/logout");
+    const res = await instance.post(API_LOGOUT);
+    console.log(res.data);
+    return res.data;
   },
   refreshToken: async () => {
-    return await axios.post("/user/refresh-token");
+    const res = await instance.post(API_REFRESH_TOKEN);
+    return res.data;
   },
 };
 export default authService;

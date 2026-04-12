@@ -1,0 +1,171 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Footprints, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Button } from "../../components/ui/Button";
+import { Label } from "../../components/ui/Label";
+import { Input } from "../../components/ui/Input";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../redux/feature/authSlice";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+
+const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { isLoading, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.warning("Vui lòng nhập đầy đủ Email và Mật khẩu!");
+      return;
+    }
+    try {
+      await dispatch(loginUser({ email, password })).unwrap();
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
+      {/* Background blur */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-[450px] h-[450px] rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-[450px] h-[450px] rounded-full bg-primary/10 blur-3xl" />
+      </div>
+
+      <div className="w-full max-w-xl relative z-10">
+        {/* Logo */}
+        <Link to="/" className="flex items-center justify-center gap-2 mb-10">
+          <Footprints className="h-9 w-9 text-primary" />
+          <span className="text-3xl font-semibold tracking-tight">
+            RunVault
+          </span>
+        </Link>
+
+        {/* Card */}
+        <div className="rounded-3xl border bg-card p-10 shadow-xl">
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-semibold">Welcome back</h1>
+            <p className="text-sm text-muted-foreground mt-2">
+              Sign in to your account to continue
+            </p>
+          </div>
+
+          {/* Social */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <Button
+              variant="outline"
+              className="h-12 rounded-xl text-sm font-medium"
+            >
+              Google
+            </Button>
+            <Button
+              variant="outline"
+              className="h-12 rounded-xl text-sm font-medium"
+            >
+              Apple
+            </Button>
+          </div>
+
+          {/* Divider */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-card px-3 text-muted-foreground">
+                or continue with email
+              </span>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus-visible:ring-2 focus-visible:ring-primary"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Password</Label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-0 focus-visible:ring-2 focus-visible:ring-primary"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 rounded-full text-sm font-semibold mt-2 gap-2"
+            >
+              {isLoading ? "Signing In..." : "Sign In"}
+              {!isLoading && <ArrowRight className="h-4 w-4" />}
+            </Button>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          Don’t have an account?{" "}
+          <Link
+            to="/register"
+            className="font-semibold text-primary hover:underline"
+          >
+            Create account
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

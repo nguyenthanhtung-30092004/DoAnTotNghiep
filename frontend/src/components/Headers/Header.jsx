@@ -3,6 +3,15 @@ import React, { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "../ui/Button";
 import NavItem from "../ui/NavItem";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../redux/feature/authSlice";
+import { Avatar, Dropdown, Space } from "antd";
+import {
+  DownOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 const navLinks = [
   { label: "Home", to: "/" },
   {
@@ -86,7 +95,25 @@ const navLinks = [
 ];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const userMenuItems = [
+    {
+      key: "1",
+      label: <Link to="/account">Hồ sơ cá nhân</Link>,
+      icon: <SettingOutlined />,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "2",
+      label: "Đăng xuất",
+      icon: <LogoutOutlined />,
+      danger: true,
+      onClick: () => dispatch(logoutUser()),
+    },
+  ];
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
@@ -122,12 +149,24 @@ const Header = () => {
             </Button>
           </Link>
 
-          {/* User */}
-          <Link to="/account">
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
-              <User className="h-5 w-5" />
-            </Button>
-          </Link>
+          <div className="relative">
+            {user ? (
+              <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
+                <Space style={{ cursor: "pointer" }}>
+                  <Avatar
+                    style={{ backgroundColor: "#1890ff" }}
+                    icon={<UserOutlined />}
+                  />
+                  <span className="hidden lg:inline">{user.fullName}</span>
+                  <DownOutlined style={{ fontSize: "10px" }} />
+                </Space>
+              </Dropdown>
+            ) : (
+              <Link to="/login">
+                <Button type="primary">Đăng nhập</Button>
+              </Link>
+            )}
+          </div>
 
           {/* Mobile toggle */}
           <Button
