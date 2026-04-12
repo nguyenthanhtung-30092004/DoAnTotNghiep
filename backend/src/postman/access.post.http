@@ -3,12 +3,29 @@
 ### signup
 POST {{url_dev}}user/signup
 Content-Type: application/json 
-x_api_key: b96c4a6b44cadf1d6c1be985e8dc71e7addff92046f718dd81c25de47ced1b8b4cb3ad2dc705fe5ae742152288cb0b8339104180ac86312917bcbded7ce4d61d
+x_api_key: f2bf5ef588db7a0b88cc75c9d8b945a605a9d9474ca8b6fc35a9fc5f8b5fead0201cc06bfd17c61a187f80c4f01cbbe7970271dcfdc20f375e8e107d8d06393a
 
 {
-    "fullName": "Nguyễn Thanh Tùng",
-    "email": "tungnt2k4yyy00@gmail.com",
-    "password" : "30092004",
-    "phoneNumber": "0971684280",
-    "address": "A51 Ngô Thì Nhậm, La Khê, Hà Đông, Hà Nội"
+    "fullName": "Đỗ Thị Mai Anh",
+    "email": "maianhdothi@gmail.com",
+    "password" : "23032004",
+    "phoneNumber": "",
+    "address": ""
 }
+
+### login
+POST {{url_dev}}user/login
+Content-Type: application/json 
+x_api_key: f2bf5ef588db7a0b88cc75c9d8b945a605a9d9474ca8b6fc35a9fc5f8b5fead0201cc06bfd17c61a187f80c4f01cbbe7970271dcfdc20f375e8e107d8d06393a
+
+{
+    "email": "test2@gmail.com",
+    "password" : "1234"
+}
+
+### logout
+POST {{url_dev}}user/logout
+Content-Type: application/json 
+x_api_key: f2bf5ef588db7a0b88cc75c9d8b945a605a9d9474ca8b6fc35a9fc5f8b5fead0201cc06bfd17c61a187f80c4f01cbbe7970271dcfdc20f375e8e107d8d06393a
+x_client_id: 69db4ba32020d7603092fff8
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWRiNGJhMzIwMjBkNzYwMzA5MmZmZjgiLCJlbWFpbCI6InRlc3QyQGdtYWlsLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc3NTk3OTk1NiwiZXhwIjoxNzc2MTUyNzU2fQ.lXi7Azr856tkPhjlNRALGHUAhDZGIOqGL4jD44tCUUQ

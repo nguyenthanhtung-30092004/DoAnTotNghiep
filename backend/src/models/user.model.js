@@ -36,7 +36,7 @@ var userSchema = new Schema(
       type: Boolean,
       default: true, // Mặc định tạo tài khoản là hoạt động
     },
-    roles: {
+    role: {
       type: String,
       enum: ["CUSTOMER", "ADMIN"],
       default: "CUSTOMER",

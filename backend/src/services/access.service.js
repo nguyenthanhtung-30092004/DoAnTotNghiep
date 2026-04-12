@@ -4,9 +4,13 @@ const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const KeyTokenService = require("./keyToten.service");
-const { createTokenPair } = require("../auth/authUtils");
+const { createTokenPair, verifyJWT } = require("../auth/authUtils");
 const { getInfoData } = require("../utils");
-const { BadRequestError, AuthFailureError } = require("../core/error.response");
+const {
+  BadRequestError,
+  AuthFailureError,
+  ForbiddenError,
+} = require("../core/error.response");
 const { findByEmail } = require("./user.service");
 const RoleUser = {
   CUSTOMER: "CUSTOMER",
@@ -14,65 +18,79 @@ const RoleUser = {
 };
 
 class AccessService {
-  static logout = async ({ keyStore }) => {
-    const delKey = await KeyTokenService.removeKeyById(keyStore._id);
-    console.log(`delKey::`, delKey);
-    return delKey;
+  static handlerRefreshToken = async (refreshToken) => {
+    // 1. Check token đã dùng chưa
+    const foundTokenUsed =
+      await KeyTokenService.findByRefreshTokenUsed(refreshToken);
+    if (foundTokenUsed) {
+      await KeyTokenService.deleteKeyByUserId(foundTokenUsed.user);
+      throw new ForbiddenError("Something wrong happened! Please relogin.");
+    }
+
+    // 2. Check token hiện hành
+    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
+    if (!holderToken) throw new AuthFailureError("User not registered!");
+
+    // 3. Verify token
+    const { userId, email } = await verifyJWT(
+      refreshToken,
+      holderToken.privateKey,
+    );
+
+    // 4. Check User
+    const foundUser = await findByEmail({ email });
+    if (!foundUser) throw new AuthFailureError("User not registered!");
+
+    // 5. Tạo cặp mới
+    const tokens = await createTokenPair(
+      { userId, email },
+      holderToken.publicKey,
+      holderToken.privateKey,
+    );
+
+    // 6. Update DB
+    await holderToken.updateOne({
+      $set: { refreshToken: tokens.refreshToken },
+      $addToSet: { refreshTokensUsed: refreshToken },
+    });
+
+    return { user: { userId, email }, tokens };
   };
 
-  /* 
-    1 - Check Email
-    2 - match Password
-    3 - create AccessToken and RefreshToken
-    4 - generate Token
-    5 - get data return login
-  */
   static login = async ({ email, password }) => {
-    // Xóa tham số refreshToken ở đây vì lúc login chưa có token
     const foundUser = await findByEmail({ email });
+    if (!foundUser) throw new BadRequestError("User not registered!");
 
-    // 1. Kiểm tra User tồn tại
-    if (!foundUser) {
-      throw new BadRequestError("User not registered!");
-    }
-
-    // 2. Kiểm tra mật khẩu (ĐÃ THÊM AWAIT)
     const match = await bcrypt.compare(password, foundUser.password);
-    if (!match) {
-      throw new AuthFailureError("Authentication error!");
-    }
+    if (!match) throw new AuthFailureError("Authentication error!");
 
-    // 3. Tạo Key cặp
     const privateKey = crypto.randomBytes(64).toString("hex");
     const publicKey = crypto.randomBytes(64).toString("hex");
 
-    // 4. Tạo token
     const tokens = await createTokenPair(
-      {
-        userId: foundUser._id,
-        email,
-        role: foundUser.role,
-      },
+      { userId: foundUser._id, email, role: foundUser.role },
       publicKey,
       privateKey,
     );
 
-    // Lưu vào DB (ĐÃ BỔ SUNG userId)
     await KeyTokenService.createKeyToken({
-      userId: foundUser._id, // THIẾU CÁI NÀY LÀ KHÔNG LƯU ĐƯỢC VÀO DB
+      userId: foundUser._id,
       refreshToken: tokens.refreshToken,
       privateKey,
       publicKey,
     });
 
-    // 5. Trả dữ liệu
     return {
       user: getInfoData({
-        fields: ["_id", "email", "fullName", "phoneNumber", "address"],
+        fields: ["_id", "email", "fullName"],
         object: foundUser,
       }),
       tokens,
     };
+  };
+
+  static logout = async ({ keyStore }) => {
+    return await KeyTokenService.removeKeyById(keyStore._id);
   };
 
   static signUp = async ({
@@ -123,18 +141,21 @@ class AccessService {
         publicKey,
         privateKey,
       );
+      await KeyTokenService.createKeyToken({
+        userId: newUser._id,
+        publicKey,
+        privateKey,
+        refreshToken: tokens.refreshToken,
+      });
 
       console.log(`Created Token Success::`, tokens);
 
       return {
-        code: 201,
-        metadata: {
-          user: getInfoData({
-            fields: ["_id", "email", "fullName", "phoneNumber", "address"],
-            object: newUser,
-          }),
-          tokens,
-        },
+        user: getInfoData({
+          fields: ["_id", "email", "fullName", "phoneNumber", "address"],
+          object: newUser,
+        }),
+        tokens,
       };
     }
 

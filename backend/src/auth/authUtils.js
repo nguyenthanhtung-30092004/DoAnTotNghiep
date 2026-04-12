@@ -1,8 +1,8 @@
 "use strict";
 const JWT = require("jsonwebtoken");
 const { asyncHandler } = require("../helpers/asyncHandler");
-const { findByUserId } = require("../services/keyToten.service");
-const { NotFoundError } = require("../core/error.response");
+const { AuthFailureError, NotFoundError } = require("../core/error.response");
+const keyTokenModel = require("../models/keyToken.model");
 
 const HEADER = {
   API_KEY: "x_api_key",
@@ -10,58 +10,71 @@ const HEADER = {
   AUTHORIZATION: "authorization",
 };
 
+// Hàm tạo cặp Token
 const createTokenPair = async (payload, publicKey, privateKey) => {
   try {
-    // AccessToken
     const accessToken = await JWT.sign(payload, publicKey, {
-        expiresIn: "2 days",
-      }),
-      refreshToken = await JWT.sign(payload, privateKey, {
-        expiresIn: "7 days",
-      });
-
-    JWT.verify(accessToken, publicKey, (err, decode) => {
-      if (err) {
-        console.error(`Error verify::`, err);
-      } else {
-        console.log(`Decode::`, decode);
-      }
+      expiresIn: "2 days",
+    });
+    const refreshToken = await JWT.sign(payload, privateKey, {
+      expiresIn: "7 days",
     });
     return { accessToken, refreshToken };
-  } catch (error) {}
+  } catch (error) {
+    return error;
+  }
 };
 
+const verifyJWT = async (token, secretKey) => {
+  return await JWT.verify(token, secretKey);
+};
+
+// Middleware xác thực cho Web App (Dùng Cookie)
 const authentication = asyncHandler(async (req, res, next) => {
-  /*  
-    1 - Check userId missing
-    2 - get accessToken
-    3 - verify accessToken
-    4 - check user in dbs
-    5 - check keyStore with userId
-    6 - Ok all => return next() 
+  /*
+    1. Lấy userId từ Header (bắt buộc để biết ai đang gọi)
+    2. Lấy accessToken từ Cookie
+    3. Tìm keyStore của user này
+    4. Verify token
   */
   const userId = req.headers[HEADER.CLIENT_ID];
-  if (!userId) {
-    throw new AuthFailureError("Invalid Request!");
-  }
+  if (!userId) throw new AuthFailureError("Invalid Request!");
 
-  const keyStore = await findByUserId(userId);
-  if (!keyStore) {
+  const accessToken = req.cookies.accessToken;
+  if (!accessToken) throw new AuthFailureError("Invalid Request!");
+
+  // Tìm các keyStore của user
+  const keyStores = await keyTokenModel.find({ user: userId });
+  if (!keyStores || keyStores.length === 0)
     throw new NotFoundError("Not found keyStore!");
+
+  // Duyệt qua các keyStore để tìm cái khớp với token này (Hỗ trợ đa thiết bị)
+  let currentKeyStore = null;
+  let decodedUser = null;
+
+  for (const store of keyStores) {
+    try {
+      const decode = JWT.verify(accessToken, store.publicKey);
+      if (decode.userId === userId) {
+        currentKeyStore = store;
+        decodedUser = decode;
+        break;
+      }
+    } catch (e) {
+      continue;
+    }
   }
 
-  const accessToken = req.headers[HEADER.AUTHORIZATION];
-  if (!accessToken) {
-    throw new AuthFailureError("Invalid Request!");
-  }
-  try {
-    const decodeUser = JWT.verify(accessToken, keyStore.publicKey);
-    if (userId !== decodeUser.userId)
-      throw new AuthFailureError("Invalid User!");
-    req.keyStore = keyStore;
-    return next();
-  } catch (error) {
-    throw error;
-  }
+  if (!currentKeyStore)
+    throw new AuthFailureError("Session expired or invalid!");
+
+  req.keyStore = currentKeyStore;
+  req.user = decodedUser;
+  return next();
 });
-module.exports = { createTokenPair, authentication };
+
+module.exports = {
+  createTokenPair,
+  authentication,
+  verifyJWT,
+};
