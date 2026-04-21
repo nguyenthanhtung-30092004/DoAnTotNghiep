@@ -16,7 +16,7 @@ const navLinks = [
   { label: "Home", to: "/" },
   {
     label: "Products",
-    to: "#",
+    to: "/shop",
     children: [
       {
         label: "Giày Trail",
