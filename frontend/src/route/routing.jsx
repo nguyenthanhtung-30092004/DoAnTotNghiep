@@ -39,6 +39,10 @@ const router = createBrowserRouter([
     path: "/shop",
     element: <Shop />,
   },
+  {
+    path: "/shop/:categorySlug", // Link động: Bắt mọi danh mục con
+    element: <Shop />,
+  },
 ]);
 
 export default router;

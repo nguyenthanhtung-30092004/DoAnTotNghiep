@@ -1,29 +1,47 @@
 import { ChevronDown } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const MegaNavItem = ({ item }) => {
   const hasMegaMenu = item?.children && item.children.length > 0;
 
+  // 1. Tạo state để ép đóng menu
+  const [forceClose, setForceClose] = useState(false);
+
+  // 2. Hàm xử lý khi click vào Link -> Ép đóng
+  const handleLinkClick = () => {
+    setForceClose(true);
+  };
+
+  // 3. Hàm xử lý khi rê chuột ra ngoài rồi rê vào lại -> Mở khóa hiển thị
+  const handleMouseEnter = () => {
+    setForceClose(false);
+  };
+
   return (
-    <div className="group h-full flex items-center">
+    <div
+      className="group h-full flex items-center"
+      onMouseEnter={handleMouseEnter} // Reset trạng thái khi rê chuột vào
+    >
       {/* Nút hiển thị trên Nav */}
       <Link
         to={item.to}
+        onClick={handleLinkClick} // Đóng khi click vào tiêu đề gốc
         className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-foreground hover:bg-accent transition-colors"
       >
         {item.label}
         {hasMegaMenu && (
-          <ChevronDown className="size-4 text-gray-500 transition-transform duration-300 group-hover:rotate-180" />
+          <ChevronDown
+            className={`size-4 text-gray-500 transition-transform duration-300 ${!forceClose ? "group-hover:rotate-180" : ""}`}
+          />
         )}
       </Link>
 
-      {/* BẢNG MEGA MENU */}
-      {hasMegaMenu && (
+      {/* BẢNG MEGA MENU - Chỉ render khi forceClose = false */}
+      {hasMegaMenu && !forceClose && (
         <div
           className="
             /* --- 1. CẦU NỐI VÔ HÌNH (CHỐNG TRƯỢT CHUỘT) --- */
-            /* Tạo một vùng trong suốt cao 32px (-top-8) và rộng full màn hình (w-full) ở sát mép trên của bảng */
             before:content-[''] before:absolute before:-top-8 before:left-0 before:w-full before:h-8 before:bg-transparent
 
             /* 2. Vị trí bảng: Dính chặt vào Header */
@@ -48,6 +66,7 @@ const MegaNavItem = ({ item }) => {
                 {/* TIÊU ĐỀ CỘT */}
                 <Link
                   to={column.to}
+                  onClick={handleLinkClick} // Đóng khi click vào tiêu đề cột
                   className="flex items-end pb-3 min-h-[3rem] font-bold text-primary text-lg uppercase tracking-wider border-b-2 border-gray-200 hover:border-green-400 transition-colors"
                 >
                   {column.label}
@@ -60,6 +79,7 @@ const MegaNavItem = ({ item }) => {
                       <Link
                         key={subItem.label}
                         to={subItem.to}
+                        onClick={handleLinkClick} // Đóng khi click vào link con
                         className="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-foreground hover:bg-accent hover:ml-2 transition-all duration-300"
                       >
                         {subItem.label}

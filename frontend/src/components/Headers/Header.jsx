@@ -20,72 +20,75 @@ const navLinks = [
     children: [
       {
         label: "Giày Trail",
-        to: "/products/giay-trail",
+        to: "/shop/giay-trail",
         children: [
-          { label: "Giày trail nam", to: "/products/giay-trail/nam" },
-          { label: "Giày trail nữ", to: "/products/giay-trail/nu" },
+          { label: "Giày trail nam", to: "/shop/giay-trail-nam" },
+          { label: "Giày trail nữ", to: "/shop/giay-trail-nu" },
         ],
       },
       {
         label: "Giày Road",
-        to: "/products/giay-road",
+        to: "/shop/giay-road",
         children: [
-          { label: "Giày road nam", to: "/products/giay-road/nam" },
-          { label: "Giày road nữ", to: "/products/giay-road/nu" },
+          { label: "Giày road nam", to: "/shop/giay-road-nam" },
+          { label: "Giày road nữ", to: "/shop/giay-road-nu" },
         ],
       },
       {
         label: "Áo",
-        to: "/products/giay-road",
+        to: "/shop/ao",
         children: [
-          { label: "Áo nam", to: "/products/ao/nam" },
-          { label: "Áo nữ", to: "/products/ao/nu" },
+          { label: "Áo nam", to: "/shop/ao-nam" },
+          { label: "Áo nữ", to: "/shop/ao-nu" },
         ],
       },
       {
         label: "Quần",
-        to: "/products/giay-road",
+        to: "/shop/quan",
         children: [
-          { label: "Quần nam", to: "/products/quan/nam" },
-          { label: "Quần nữ", to: "/products/quan/nu" },
+          { label: "Quần nam", to: "/shop/quan-nam" },
+          { label: "Quần nữ", to: "/shop/quan-nu" },
         ],
       },
       {
         label: "Phụ kiện",
-        to: "/products/giay-road",
+        to: "/shop/phu-kien",
         children: [
-          { label: "Mũ", to: "/products/quan/nam" },
-          { label: "băng đô", to: "/products/quan/nu" },
-          { label: "Kính", to: "/products/quan/nu" },
-          { label: "Đèn tral", to: "/products/quan/nu" },
-          { label: "Khăn ống", to: "/products/quan/nu" },
-          { label: "Calf tay", to: "/products/quan/nu" },
-          { label: "Calg chân", to: "/products/quan/nu" },
-          { label: "Gậy trail", to: "/products/quan/nu" },
-          { label: "Vest trail", to: "/products/quan/nu" },
-          { label: "Tất", to: "/products/quan/nu" },
-          { label: "Bình mềm", to: "/products/quan/nu" },
-          { label: "Starbalm", to: "/products/quan/nu" },
+          { label: "Mũ", to: "/shop/mu" },
+          { label: "băng đô", to: "/shop/bang-do" },
+          { label: "Kính", to: "/shop/kinh" },
+          { label: "Đèn tral", to: "/shop/den-trail" },
+          { label: "Khăn ống", to: "/shop/khan-ong" },
+          { label: "Calf tay", to: "/shop/calf-tay" },
+          { label: "Calg chân", to: "/shop/calg-chan" },
+          { label: "Gậy trail", to: "/shop/gay-trail" },
+          { label: "Vest trail", to: "/shop/vest-trail" },
+          { label: "Tất", to: "/shop/tat" },
+          { label: "Bình mềm", to: "/shop/binh-mem" },
+          { label: "Starbalm", to: "/shop/starbalm" },
         ],
       },
       {
         label: "Thiết bị",
-        to: "/products/giay-road",
+        to: "/shop/thiet-bi",
         children: [
-          { label: "Đồng hồ", to: "/products/quan/nam" },
-          { label: "Phụ kiện đồng hồ", to: "/products/quan/nu" },
-          { label: "Tai nghe", to: "/products/quan/nu" },
-          { label: "Máy massage", to: "/products/quan/nu" },
+          { label: "Đồng hồ", to: "/shop/dongho" },
+          { label: "Phụ kiện đồng hồ", to: "/shop/phu-kien-dong-ho" },
+          { label: "Tai nghe", to: "/shop/tai-nghe" },
+          { label: "Máy massage", to: "/shop/may-massage" },
         ],
       },
       {
         label: "Dinh dưỡng",
-        to: "/products/giay-road",
+        to: "/shop/dinh-duong",
         children: [
-          { label: "Gel", to: "/products/quan/nam" },
-          { label: "Năng lượng phục hồi", to: "/products/quan/nu" },
-          { label: "Muối - sủi điện giải", to: "/products/quan/nu" },
-          { label: "Thanh bar - Bánh năng lượng", to: "/products/quan/nu" },
+          { label: "Gel", to: "/shop/gel" },
+          { label: "Năng lượng phục hồi", to: "/shop/nang-luong-phuc-hoi" },
+          { label: "Muối - sủi điện giải", to: "/shop/muoi-sui-dien-giai" },
+          {
+            label: "Thanh bar - Bánh năng lượng",
+            to: "/shop/thanh-bar-banh-nang-luong",
+          },
         ],
       },
     ],
@@ -182,11 +185,53 @@ const Header = () => {
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <nav className="md:hidden border-t px-4 py-3">
+        <nav className="md:hidden border-t px-4 py-3 h-[calc(100vh-64px)] overflow-y-auto pb-20 bg-white">
           {navLinks.map((link) => (
-            <Link key={link.label} to={link.to} className="block py-2 text-sm">
-              {link.label}
-            </Link>
+            <div
+              key={link.label}
+              className="py-2 border-b border-gray-50 last:border-0"
+            >
+              <Link
+                to={link.to}
+                className="block text-[15px] font-bold text-gray-900"
+                onClick={() => setMobileOpen(false)} // ĐÓNG MENU KHI CLICK
+              >
+                {link.label}
+              </Link>
+
+              {/* Nếu có menu con (Products xổ xuống) thì render nó ra */}
+              {link.children && (
+                <div className="pl-4 mt-2 space-y-3 border-l-2 border-[#22C55E]/20">
+                  {link.children.map((child) => (
+                    <div key={child.label}>
+                      <Link
+                        to={child.to}
+                        className="block text-[14px] text-[#22C55E] font-semibold mb-1.5"
+                        onClick={() => setMobileOpen(false)} // ĐÓNG MENU KHI CLICK
+                      >
+                        {child.label}
+                      </Link>
+
+                      {/* Cấp 3: Giày trail nam, nữ... */}
+                      {child.children && (
+                        <div className="pl-3 space-y-2">
+                          {child.children.map((subChild) => (
+                            <Link
+                              key={subChild.label}
+                              to={subChild.to}
+                              className="block text-[13px] text-gray-600 hover:text-[#22C55E]"
+                              onClick={() => setMobileOpen(false)} // ĐÓNG MENU KHI CLICK
+                            >
+                              - {subChild.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
       )}
