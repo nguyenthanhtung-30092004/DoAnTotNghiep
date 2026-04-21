@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Footprints, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
-import { Button } from "../../components/ui/Button";
-import { Label } from "../../components/ui/Label";
-import { Input } from "../../components/ui/Input";
+import { Button } from "../components/ui/Button";
+import { Label } from "../components/ui/Label";
+import { Input } from "../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../redux/feature/authSlice";
+import { loginUser } from "../redux/feature/authSlice";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import google_icon from "../assets/icon-google.png";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,25 +56,26 @@ const Login = () => {
         <div className="rounded-3xl border bg-card p-10 shadow-xl">
           {/* Title */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-semibold">Welcome back</h1>
+            <h1 className="text-3xl font-semibold">Chào mừng trở lại</h1>
             <p className="text-sm text-muted-foreground mt-2">
-              Sign in to your account to continue
+              Đăng nhập vào tài khoản của bạn để tiếp tục
             </p>
           </div>
 
           {/* Social */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="flex items-center justify-center gap-4 mb-6">
             <Button
               variant="outline"
-              className="h-12 rounded-xl text-sm font-medium"
+              className="h-12 w-full rounded-xl text-sm font-medium"
             >
+              <div className="size-[30px] flex items-center justify-center overflow-hidden">
+                <img
+                  src={google_icon}
+                  alt="Google"
+                  className="block w-[70px] h-[70px] object-cover"
+                />
+              </div>
               Google
-            </Button>
-            <Button
-              variant="outline"
-              className="h-12 rounded-xl text-sm font-medium"
-            >
-              Apple
             </Button>
           </div>
 
@@ -84,7 +86,7 @@ const Login = () => {
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="bg-card px-3 text-muted-foreground">
-                or continue with email
+                Hoặc tiếp tục với email
               </span>
             </div>
           </div>
@@ -98,7 +100,7 @@ const Login = () => {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="vidu@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus-visible:ring-2 focus-visible:ring-primary"
@@ -109,12 +111,12 @@ const Login = () => {
             {/* Password */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Password</Label>
+                <Label>Mật khẩu</Label>
                 <Link
                   to="/forgot-password"
                   className="text-xs text-primary hover:underline"
                 >
-                  Forgot password?
+                  Quên mật khẩu?
                 </Link>
               </div>
 
@@ -147,7 +149,7 @@ const Login = () => {
               disabled={isLoading}
               className="w-full h-12 rounded-full text-sm font-semibold mt-2 gap-2"
             >
-              {isLoading ? "Signing In..." : "Sign In"}
+              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
               {!isLoading && <ArrowRight className="h-4 w-4" />}
             </Button>
           </form>
@@ -155,12 +157,12 @@ const Login = () => {
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Don’t have an account?{" "}
+          Bạn chưa có tài khoản?{" "}
           <Link
             to="/signup"
             className="font-semibold text-primary hover:underline"
           >
-            Create account
+            Tạo tài khoản mới
           </Link>
         </p>
       </div>

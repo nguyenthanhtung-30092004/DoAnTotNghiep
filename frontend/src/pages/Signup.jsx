@@ -11,11 +11,10 @@ import {
   Check,
 } from "lucide-react";
 
-import { Button } from "../../components/ui/Button";
-import { Label } from "../../components/ui/Label";
-import { Input } from "../../components/ui/Input";
-
 import { toast } from "react-toastify";
+import { Button } from "../components/ui/Button";
+import { Label } from "../components/ui/Label";
+import { Input } from "../components/ui/Input";
 
 const passwordRules = [
   { label: "At least 8 characters", test: (p) => p.length >= 8 },
