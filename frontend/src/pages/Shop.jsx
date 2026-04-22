@@ -171,7 +171,7 @@ const ProductCard = ({ product }) => (
     className="group relative bg-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col border"
   >
     {product.tag && (
-      <span className="absolute top-3 left-3 z-10 bg-[#22C55E] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+      <span className="absolute top-3 left-3 z-10 bg-red-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
         {product.tag}
       </span>
     )}
@@ -180,7 +180,7 @@ const ProductCard = ({ product }) => (
       <div className="absolute inset-0 bg-black/5 transition-colors duration-300 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
         <Button
           size="sm"
-          className="shadow-lg text-xs gap-1.5 bg-[#22C55E] hover:bg-[#1da850] text-white"
+          className="shadow-lg text-sm gap-1.5 bg-[#22C55E] hover:bg-[#1da850] text-white"
         >
           <ShoppingCart className="h-3.5 w-3.5" />
           Thêm vào giỏ
@@ -188,23 +188,23 @@ const ProductCard = ({ product }) => (
       </div>
     </div>
     <div className="p-4 flex flex-col gap-1.5 flex-1 bg-white">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="text-[14px] font-medium uppercase tracking-wider text-muted-foreground">
         {product.brand}
       </p>
-      <h3 className="font-semibold text-sm leading-snug text-gray-900">
+      <h3 className="font-semibold text-[15px] leading-snug text-gray-900">
         {product.name}
       </h3>
       <div className="flex items-center gap-1 mt-auto pt-1">
         <Star className="h-3.5 w-3.5 fill-[#EAB308] text-[#EAB308]" />
-        <span className="text-xs font-medium text-gray-700">
+        <span className="text-sm font-medium text-gray-700">
           {product.rating}
         </span>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           ({product.reviews})
         </span>
       </div>
       <div className="flex items-center gap-2 mt-1">
-        <span className="font-bold text-[#22C55E]">${product.price}</span>
+        <span className="font-bold text-red-500">${product.price}</span>
         {product.originalPrice && (
           <span className="text-sm text-muted-foreground line-through">
             ${product.originalPrice}

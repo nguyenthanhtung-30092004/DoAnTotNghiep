@@ -118,8 +118,8 @@ const Header = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl py-7">
+      <div className="container flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
           <Footprints className="h-6 w-6 text-primary" />
@@ -137,7 +137,7 @@ const Header = () => {
         <div className="flex items-center gap-2">
           {/* Search */}
           <div className="hidden sm:flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <Search className="h-6 w-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search..."
@@ -199,7 +199,7 @@ const Header = () => {
                 {link.label}
               </Link>
 
-              {/* Nếu có menu con (Products xổ xuống) thì render nó ra */}
+              {/* Nếu có menu con Products xổ xuống thì render nó ra */}
               {link.children && (
                 <div className="pl-4 mt-2 space-y-3 border-l-2 border-[#22C55E]/20">
                   {link.children.map((child) => (

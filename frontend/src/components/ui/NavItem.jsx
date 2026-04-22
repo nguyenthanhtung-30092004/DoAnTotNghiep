@@ -27,7 +27,7 @@ const MegaNavItem = ({ item }) => {
       <Link
         to={item.to}
         onClick={handleLinkClick} // Đóng khi click vào tiêu đề gốc
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-foreground hover:bg-accent transition-colors"
+        className="relative flex items-center gap-2 px-3 py-2 text-base font-medium text-black rounded-lg hover:text-foreground transition-colors after:absolute after:h-[1px] after:bg-black after:w-0 after:left-1/2 after:-translate-x-1/2 after:bottom-0 hover:after:w-full after:transition-all after:duration-300"
       >
         {item.label}
         {hasMegaMenu && (
@@ -42,7 +42,7 @@ const MegaNavItem = ({ item }) => {
         <div
           className="
             /* --- 1. CẦU NỐI VÔ HÌNH (CHỐNG TRƯỢT CHUỘT) --- */
-            before:content-[''] before:absolute before:-top-8 before:left-0 before:w-full before:h-8 before:bg-transparent
+            before:content-[''] before:absolute before:-top-5 before:left-0 before:w-full before:h-8 before:bg-transparent
 
             /* 2. Vị trí bảng: Dính chặt vào Header */
             absolute z-50 left-0 top-full w-full

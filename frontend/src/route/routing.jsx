@@ -8,6 +8,7 @@ import Signup from "../pages/Signup";
 import ResetPassword from "../pages/ResetPassword";
 import Products from "../pages/Shop";
 import Shop from "../pages/Shop";
+import ProductDetail from "../pages/ProductDetail";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: "/shop/:categorySlug", // Link động: Bắt mọi danh mục con
     element: <Shop />,
+  },
+  {
+    path: "/product/:productId", // Link động: Bắt mọi sản phẩm
+    element: <ProductDetail />,
   },
 ]);
 
