@@ -9,6 +9,7 @@ import ResetPassword from "../pages/ResetPassword";
 import Products from "../pages/Shop";
 import Shop from "../pages/Shop";
 import ProductDetail from "../pages/ProductDetail";
+import Cart from "../pages/Cart";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
   {
     path: "/product/:productId", // Link động: Bắt mọi sản phẩm
     element: <ProductDetail />,
+  },
+  {
+    path: "/cart",
+    element: <Cart />,
   },
 ]);
 
