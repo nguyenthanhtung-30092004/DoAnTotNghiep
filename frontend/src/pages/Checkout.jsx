@@ -31,7 +31,7 @@ const Checkout = () => {
             href="/cart"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Back to Cart
+            Quay lại giỏ hàng
           </a>
         </div>
       </div>
@@ -104,11 +104,11 @@ const Checkout = () => {
           <div className="flex-1 min-w-0">
             {status === 1 ? (
               <form className="bg-card rounded-2xl shadow-card p-6 space-y-5">
-                <h2 className="text-lg font-bold">Shipping Information</h2>
+                <h2 className="text-lg font-bold">Thông tin giao hàng</h2>
 
                 <div>
                   <label className="block text-xs font-semibold mb-1.5">
-                    Full Name
+                    Họ và tên
                   </label>
                   <input
                     type="text"
@@ -132,7 +132,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold mb-1.5">
-                      Phone
+                      Số điện thoại
                     </label>
                     <input
                       type="tel"
@@ -145,7 +145,7 @@ const Checkout = () => {
 
                 <div>
                   <label className="block text-xs font-semibold mb-1.5">
-                    Street Address
+                    Địa chỉ
                   </label>
                   <input
                     type="text"
@@ -157,7 +157,7 @@ const Checkout = () => {
 
                 <div className="">
                   <label className="block text-xs font-semibold mb-1.5">
-                    Country
+                    Quốc gia
                   </label>
                   <select className="w-full h-11 rounded-xl border px-4 text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-primary bg-background border-border">
                     <option>United States</option>
@@ -170,13 +170,13 @@ const Checkout = () => {
                   onClick={() => setPlusStatus(2)}
                   className="inline-flex items-center justify-center gap-2 font-semibold bg-primary text-primary-foreground hover:bg-secondary shadow-lg hover:shadow-xl h-14 rounded-xl px-10 text-base w-full transition-all duration-200"
                 >
-                  Continue to Payment
+                  Tiếp tục thanh toán
                 </button>
               </form>
             ) : status === 2 ? (
               <div className="space-y-6">
                 <div className="bg-card rounded-2xl shadow-card p-6 space-y-4">
-                  <h2 className="text-lg font-bold">Payment Method</h2>
+                  <h2 className="text-lg font-bold">Phương thức thanh toán</h2>
                   <div className="space-y-3">
                     <button className="w-full flex items-center gap-4 p-4 rounded-xl border-2 translate-all duration-200 text-left active:scale-[0.99] border-primary bg-accent shadow-soft">
                       <div className="size-10 rounded-lg flex items-center justify-center shrink-0 bg-primary text-primary-foreground">
@@ -199,7 +199,7 @@ const Checkout = () => {
                   <div className="space-y-4 pt-4 border-t border-border">
                     <div>
                       <label className="block text-xs font-semibold mb-1.5">
-                        Card Number
+                        Số thẻ
                       </label>
                       <input
                         type="text"
@@ -211,7 +211,7 @@ const Checkout = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold mb-1.5">
-                          Expiry Date
+                          Ngày hết hạn
                         </label>
                         <input
                           type="text"
@@ -222,7 +222,7 @@ const Checkout = () => {
                       </div>
                       <div>
                         <label className="block text-xs font-semibold mb-1.5">
-                          CVC
+                          Mã CVC
                         </label>
                         <input
                           type="text"
@@ -234,12 +234,12 @@ const Checkout = () => {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold mb-1.5">
-                        Name on Card
+                        Tên trên thẻ
                       </label>
                       <input
                         type="text"
                         id="cardholder-name"
-                        placeholder="Full name as shown on card"
+                        placeholder="Họ tên in trên thẻ"
                         className="w-full h-11 rounded-xl border border-border px-4 text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-primary bg-background"
                       />
                     </div>
@@ -252,25 +252,25 @@ const Checkout = () => {
                     type="button"
                     className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-all duration-200 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 rounded-xl px-8 flex-1"
                   >
-                    Back
+                    Quay lại
                   </button>
                   <button
                     onClick={() => setPlusStatus(3)}
                     type="button"
                     className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-200 border border-input bg-primary hover:bg-secondary shadow-lg hover:shadow-xl text-base text-primary-foreground h-12 rounded-xl px-8 flex-1"
                   >
-                    Review Order
+                    Xem lại đơn hàng
                   </button>
                 </div>
               </div>
             ) : status === 3 ? (
               <div className="space-y-6">
                 <div className="bg-card rounded-2xl shadow-card p-6">
-                  <h2 className="text-lg font-bold mb-4">Review Your Order</h2>
+                  <h2 className="text-lg font-bold mb-4">Xem lại đơn hàng</h2>
                   <div className="flex items-start justify-between pb-4 border-b border-border mb-4">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                        Shipping to
+                        Giao tới
                       </p>
                       <p className="text-sm font-medium">Nguyễn Thanh Tùng</p>
                       <p className="text-sm text-muted-foreground">
@@ -284,14 +284,14 @@ const Checkout = () => {
                       onClick={() => setPlusStatus(1)}
                       className="text-xs text-primary hover:underline underline-offset-4"
                     >
-                      Edit
+                      Chỉnh sửa
                     </button>
                   </div>
                   <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
                     <div>
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                          Payment
+                          Thanh toán
                         </p>
                         <p className="text-sm font-medium">
                           Credit / Debit Card
@@ -307,7 +307,7 @@ const Checkout = () => {
                     </button>
                   </div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                    Items (3)
+                    Sản phẩm (3)
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
@@ -362,7 +362,7 @@ const Checkout = () => {
                 </div>
 
                 <button className="inline-flex items-center justify-center whitespace-nowrap font-semibold transition-all duration-200 bg-primary text-primary-foreground hover:bg-secondary shadow-lg hover:shadow-xl h-14 rounded-xl px-10 text-base w-full gap-2">
-                  Place Order
+                  Đặt hàng
                 </button>
               </div>
             ) : null}
@@ -373,7 +373,7 @@ const Checkout = () => {
                 className="bg-card rounded-2xl shadow-card p-6 lg:sticky
              lg:top-20"
               >
-                <h2 className="text-lg font-bold mb-4">Order Summary</h2>
+                <h2 className="text-lg font-bold mb-4">Tóm tắt đơn hàng</h2>
                 <div className="space-y-3 pb-4 border-b border-border mb-4">
                   <div className="flex items-center gap-3">
                     <div className="size-10 rounded-lg bg-accent flex items-center justify-center text-lg shrink-0">
@@ -427,22 +427,24 @@ const Checkout = () => {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal (4)</span>
+                    <span className="text-muted-foreground">Tạm tính (4)</span>
                     <span className="font-medium tabular-nums">$713.00</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="text-muted-foreground">Vận chuyển</span>
                     <span className="font-medium tabular-nums">
-                      <span className="text-primary font-semibold">Free</span>
+                      <span className="text-primary font-semibold">
+                        Miễn phí
+                      </span>
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tax</span>
+                    <span className="text-muted-foreground">Thuế</span>
                     <span className="font-medium tabular-nums">$57.04</span>
                   </div>
                   <div className="border-t border-border pt-3 mt-2">
                     <div className="flex justify-between">
-                      <span className="font-bold">Total</span>
+                      <span className="font-bold">Tổng cộng</span>
                       <span className="font-bold text-lg tabular-nums">
                         $780.04
                       </span>
@@ -453,21 +455,15 @@ const Checkout = () => {
 
               <div className="bg-card rounded-2xl shadow-card p-5 space-y-3">
                 <div className="flex items-center gap-3">
-                  <LockKeyhole className="size-4 text-primary" />
-                  <span className="text-xs text-muted-foreground">
-                    Secure 256-bit SSL encryption
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
                   <Shield className="size-4 text-primary" />
                   <span className="text-xs text-muted-foreground">
-                    Purchase protection guarantee
+                    Bảo vệ người mua
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <RotateCcw className="size-4 text-primary" />
                   <span className="text-xs text-muted-foreground">
-                    30-day hassle-free returns
+                    Đổi trả trong 30 ngày
                   </span>
                 </div>
               </div>

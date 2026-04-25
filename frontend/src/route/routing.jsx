@@ -11,6 +11,7 @@ import Shop from "../pages/Shop";
 import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
+import Account from "../pages/Account";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: <ResetPassword />,
+  },
+  {
+    path: "/account",
+    element: <Account />,
   },
   {
     path: "/shop",

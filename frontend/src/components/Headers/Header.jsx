@@ -98,6 +98,7 @@ const navLinks = [
 ];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+
   const userMenuItems = [
     {
       key: "1",
@@ -117,6 +118,7 @@ const Header = () => {
   ];
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const [login, setLogin] = useState(false);
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl py-7">
       <div className="container flex items-center justify-between">
@@ -165,8 +167,13 @@ const Header = () => {
                 </Space>
               </Dropdown>
             ) : (
-              <Link to="/login">
-                <Button type="primary">Đăng nhập</Button>
+              <Link
+                to={`${login ? "/login" : "/account"}`}
+                onClick={() => setLogin(!login)}
+              >
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
               </Link>
             )}
           </div>
