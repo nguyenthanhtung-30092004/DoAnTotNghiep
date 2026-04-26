@@ -5,12 +5,10 @@ const Profile = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">
-          Profile Information
-        </h2>
+        <h2 className="text-xl font-bold text-foreground">Thông tin cá nhân</h2>
         <button className="inline-flex items-center justify-center whitespace-nowrap text-sm font-semibold transition-all duration-200 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 gap-2 rounded-xl">
           <Pen className="size-4" />
-          Edit Profile
+          Chỉnh sửa
         </button>
       </div>
 
@@ -24,11 +22,11 @@ const Profile = () => {
               Nguyen Thanh Tung
             </h3>
             <p className="text-sm text-muted-foreground">
-              Member since January 2025
+              Thành viên từ tháng 1, 2025
             </p>
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
               <span className="size-1.5 rounded-full bg-primary"></span>
-              Active
+              Đang hoạt động
             </div>
           </div>
         </div>
@@ -36,13 +34,13 @@ const Profile = () => {
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">
-          Personal Details
+          Thông tin chi tiết
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2  md:col-span-2">
+          <div className="space-y-2 md:col-span-2">
             <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-xs flex items-center gap-1.5">
               <User className="size-3" />
-              Full Name
+              Họ và tên
             </label>
             <input
               type="text"
@@ -50,6 +48,7 @@ const Profile = () => {
               value="Nguyen Thanh Tung"
             />
           </div>
+
           <div className="space-y-2">
             <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-xs flex items-center gap-1.5">
               <Mail className="size-3" />
@@ -61,10 +60,11 @@ const Profile = () => {
               value="nguyenthanhtung@gmail.com"
             />
           </div>
+
           <div className="space-y-2">
             <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-xs flex items-center gap-1.5">
               <Phone className="size-3" />
-              Phone
+              Số điện thoại
             </label>
             <input
               type="text"
@@ -72,10 +72,11 @@ const Profile = () => {
               value="0123456789"
             />
           </div>
+
           <div className="space-y-2 sm:col-span-2">
             <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-xs flex items-center gap-1.5">
               <Calendar className="size-3" />
-              Date of Birth
+              Ngày sinh
             </label>
             <input
               type="text"

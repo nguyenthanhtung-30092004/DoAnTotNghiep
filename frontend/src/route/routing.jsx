@@ -12,6 +12,7 @@ import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 import Account from "../pages/Account";
+import OrderDetail from "../pages/OrderDetail";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: "/account",
     element: <Account />,
+  },
+  {
+    path: "/order/:orderId", // Link động: Bắt mọi sản phẩm
+    element: <OrderDetail />,
   },
   {
     path: "/shop",
