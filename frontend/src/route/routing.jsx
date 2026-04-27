@@ -13,6 +13,8 @@ import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 import Account from "../pages/Account";
 import OrderDetail from "../pages/OrderDetail";
+import AdminLayout from "../admin/AdminLayout";
+import AdminDashboard from "../admin/pages/AdminDashboard";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -67,6 +69,16 @@ const router = createBrowserRouter([
   {
     path: "/checkout",
     element: <Checkout />,
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <AdminDashboard />,
+      },
+    ],
   },
 ]);
 
