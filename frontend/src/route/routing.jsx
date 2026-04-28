@@ -15,6 +15,8 @@ import Account from "../pages/Account";
 import OrderDetail from "../pages/OrderDetail";
 import AdminLayout from "../admin/AdminLayout";
 import AdminDashboard from "../admin/pages/AdminDashboard";
+import AdminProducts from "../admin/pages/AdminProducts";
+import AdminCategories from "../admin/pages/AdminCategories";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -77,6 +79,14 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <AdminDashboard />,
+      },
+      {
+        path: "products",
+        element: <AdminProducts />,
+      },
+      {
+        path: "categories",
+        element: <AdminCategories />,
       },
     ],
   },
