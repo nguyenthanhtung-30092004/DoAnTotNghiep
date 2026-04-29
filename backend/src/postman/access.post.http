@@ -24,8 +24,4 @@ x_api_key: f2bf5ef588db7a0b88cc75c9d8b945a605a9d9474ca8b6fc35a9fc5f8b5fead0201cc
 }
 
 ### logout
-POST {{url_dev}}user/logout
-Content-Type: application/json 
-x_api_key: f2bf5ef588db7a0b88cc75c9d8b945a605a9d9474ca8b6fc35a9fc5f8b5fead0201cc06bfd17c61a187f80c4f01cbbe7970271dcfdc20f375e8e107d8d06393a
-x_client_id: 69db4ba32020d7603092fff8
-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWRiNGJhMzIwMjBkNzYwMzA5MmZmZjgiLCJlbWFpbCI6InRlc3QyQGdtYWlsLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc3NTk3OTk1NiwiZXhwIjoxNzc2MTUyNzU2fQ.lXi7Azr856tkPhjlNRALGHUAhDZGIOqGL4jD44tCUUQ
+POST {{url_dev}}user/logo 
