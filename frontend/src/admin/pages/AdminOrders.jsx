@@ -206,18 +206,18 @@ const AdminOrders = () => {
               </tr>
               <tr className="border-b border-slate-100 hover:bg-slate-50">
                 <td className="px-5 py-3 font-mono text-xs font-semibold text-indigo-600">
-                  RV-2026-1846
+                  RV-2026-1843
                 </td>
                 <td className="px-5 py-3">
-                  <p className="font-medium text-slate-900">Trần Thị Bình</p>
-                  <p className="text-xs text-slate-500">binh.tran@mail.com</p>
+                  <p className="font-medium text-slate-900">Hoàng Quốc Việt</p>
+                  <p className="text-xs text-slate-500">viet.hoang@mail.com</p>
                 </td>
-                <td className="px-5 py-3 text-slate-600">2026-04-21</td>
-                <td className="px-5 py-3 text-slate-700 text-center">3</td>
+                <td className="px-5 py-3 text-slate-600">2026-04-19</td>
+                <td className="px-5 py-3 text-slate-700 text-center">1</td>
                 <td className="px-5 py-3 font-semibold text-slate-900">
-                  1.180.000 ₫
+                  320.000 ₫
                 </td>
-                <td className="px-5 py-3 text-slate-600">Momo</td>
+                <td className="px-5 py-3 text-slate-600">Credit Card</td>
                 <td className="px-5 py-3">
                   <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
                     Đã thanh toán
@@ -236,18 +236,18 @@ const AdminOrders = () => {
               </tr>
               <tr className="border-b border-slate-100 hover:bg-slate-50">
                 <td className="px-5 py-3 font-mono text-xs font-semibold text-indigo-600">
-                  RV-2026-1847
+                  RV-2026-1842
                 </td>
                 <td className="px-5 py-3">
-                  <p className="font-medium text-slate-900">Nguyễn Văn An</p>
-                  <p className="text-xs text-slate-500">an.nguyen@gmail.com</p>
+                  <p className="font-medium text-slate-900">Vũ Thanh Hà</p>
+                  <p className="text-xs text-slate-500">ha.vu@mail.com</p>
                 </td>
-                <td className="px-5 py-3 text-slate-600">2026-04-22</td>
+                <td className="px-5 py-3 text-slate-600">2026-04-19</td>
                 <td className="px-5 py-3 text-slate-700 text-center">1</td>
                 <td className="px-5 py-3 font-semibold text-slate-900">
-                  2.690.000 ₫
+                  2.800.000 ₫
                 </td>
-                <td className="px-5 py-3 text-slate-600">VNPay</td>
+                <td className="px-5 py-3 text-slate-600"> Momo</td>
                 <td className="px-5 py-3">
                   <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                     Đang giao
@@ -266,16 +266,16 @@ const AdminOrders = () => {
               </tr>
               <tr className="border-b border-slate-100 hover:bg-slate-50">
                 <td className="px-5 py-3 font-mono text-xs font-semibold text-indigo-600">
-                  RV-2026-1845
+                  RV-2026-1841
                 </td>
                 <td className="px-5 py-3">
-                  <p className="font-medium text-slate-900">Lê Hoàng Cường</p>
-                  <p className="text-xs text-slate-500">cuong.le@mail.com</p>
+                  <p className="font-medium text-slate-900">Đỗ Khánh Linh</p>
+                  <p className="text-xs text-slate-500">linh.do@mail.com</p>
                 </td>
-                <td className="px-5 py-3 text-slate-600">2026-04-21</td>
-                <td className="px-5 py-3 text-slate-700 text-center">1</td>
+                <td className="px-5 py-3 text-slate-600">2026-04-18</td>
+                <td className="px-5 py-3 text-slate-700 text-center">2</td>
                 <td className="px-5 py-3 font-semibold text-slate-900">
-                  590.000 ₫
+                  980.000 ₫
                 </td>
                 <td className="px-5 py-3 text-slate-600">COD</td>
                 <td className="px-5 py-3">

@@ -19,6 +19,8 @@ import AdminProducts from "../admin/pages/AdminProducts";
 import AdminCategories from "../admin/pages/AdminCategories";
 import AdminBrands from "../admin/pages/AdminBrands";
 import AdminOrders from "../admin/pages/AdminOrders";
+import AdminUsers from "../admin/pages/AdminUsers";
+import AdminCoupons from "../admin/pages/AdminCoupons";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -97,6 +99,14 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <AdminOrders />,
+      },
+      {
+        path: "users",
+        element: <AdminUsers />,
+      },
+      {
+        path: "coupons",
+        element: <AdminCoupons />,
       },
     ],
   },
