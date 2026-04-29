@@ -49,7 +49,7 @@ const AdminDashboard = () => {
   const totalOrders = data.reduce((s, d) => s + d.orders, 0);
 
   return (
-    <div className="space-y-6 max-w-7xl">
+    <div className="space-y-6 w-full">
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

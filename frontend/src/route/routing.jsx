@@ -17,6 +17,8 @@ import AdminLayout from "../admin/AdminLayout";
 import AdminDashboard from "../admin/pages/AdminDashboard";
 import AdminProducts from "../admin/pages/AdminProducts";
 import AdminCategories from "../admin/pages/AdminCategories";
+import AdminBrands from "../admin/pages/AdminBrands";
+import AdminOrders from "../admin/pages/AdminOrders";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -87,6 +89,14 @@ const router = createBrowserRouter([
       {
         path: "categories",
         element: <AdminCategories />,
+      },
+      {
+        path: "brands",
+        element: <AdminBrands />,
+      },
+      {
+        path: "orders",
+        element: <AdminOrders />,
       },
     ],
   },

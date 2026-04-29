@@ -9,6 +9,7 @@ import {
   Search,
   ShoppingCart,
   Star,
+  Tags,
   Ticket,
   Users,
   X,
@@ -62,6 +63,14 @@ const AdminLayout = () => {
           >
             <FolderTree className="size-4 shrink-0" />
             <span>Quản lý danh mục</span>
+          </a>
+          {/* Quản lý thương hiệu */}
+          <a
+            href="/admin/brands"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <Tags className="size-4 shrink-0" />
+            <span>Quản lý thương hiệu</span>
           </a>
 
           {/* Quản lý đơn hàng */}
