@@ -111,7 +111,7 @@ const AdminLayout = () => {
 
           {/* Quản lý đánh giá */}
           <a
-            href="/admin/posts"
+            href="/admin/reviews"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           >
             <Star className="size-4 shrink-0" />
