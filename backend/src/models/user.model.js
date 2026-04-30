@@ -3,12 +3,19 @@ const Schema = mongoose.Schema;
 
 const userModel = new Schema(
   {
-    fullName: { type: String, require: true },
-    email: { type: String, require: true },
-    password: { type: String, require: true },
+    fullName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ["customer", "admin"],
+      default: "customer",
+    },
+    refreshToken: {
+      type: String,
+      default: null,
+    },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 module.exports = mongoose.model("User", userModel);

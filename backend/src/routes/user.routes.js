@@ -5,5 +5,7 @@ const usersController = require("../controllers/users.controller");
 const { asyncHandler } = require("../auth/checkAuth");
 
 router.post("/register", asyncHandler(usersController.register));
+router.post("/login", asyncHandler(usersController.login));
+router.post("/refresh-token", asyncHandler(usersController.refreshToken));
 
 module.exports = router;
