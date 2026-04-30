@@ -9,6 +9,7 @@ const bcrypt = require("bcrypt");
 const { createAccessToken, createRefreshToken } = require("../auth/checkAuth");
 const jwt = require("jsonwebtoken");
 const setCookie = require("../utils/setCookie");
+const otpGenerator = require("otp-generator");
 
 class UsersController {
   async register(req, res) {
@@ -139,6 +140,23 @@ class UsersController {
     res.clearCookie("refreshToken");
 
     return res.json({ message: "Logout thành công" });
+  }
+
+  async forgotPassword(req, res) {
+    const { email } = req.body;
+    const findUser = userModel.findOne({ email });
+    if (!findUser) {
+      throw new NotFoundError("Email không tồn tại");
+    }
+
+    const otp = otpGenerator.generate(6, {
+      digits: true,
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    console.log(otp);
   }
 }
 
