@@ -124,6 +124,22 @@ class UsersController {
       accessToken: newAccessToken,
     });
   }
+
+  async logout(req, res) {
+    const token = req.cookies.refreshToken;
+
+    if (token) {
+      const user = await userModel.findOne({ refreshToken: token });
+      if (user) {
+        user.refreshToken = null;
+        await user.save();
+      }
+    }
+
+    res.clearCookie("refreshToken");
+
+    return res.json({ message: "Logout thành công" });
+  }
 }
 
 module.exports = new UsersController();
