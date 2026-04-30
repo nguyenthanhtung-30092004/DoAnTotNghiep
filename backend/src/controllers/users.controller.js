@@ -1,3 +1,5 @@
+const { ConflictRequestError } = require("../core/error.response");
+const { Created } = require("../core/success.response");
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
 
@@ -8,9 +10,7 @@ class UsersController {
     // Tìm kiếm và kiểm tra xem email đã tồn tại hay chưa
     const findUser = await userModel.findOne({ email });
     if (findUser) {
-      return res.status(400).json({
-        message: "Email đã tồn tại",
-      });
+      throw new ConflictRequestError("Email đã tồn tại");
     }
 
     // Nếu chưa tồn tại, mã hóa mật khẩu
@@ -23,10 +23,11 @@ class UsersController {
       email,
       password: hashedPassword,
     });
-    return res.status(201).json({
+
+    new Created({
       message: "Đăng ký thành công",
-      data: { fullName, email },
-    });
+      metadata: newUser,
+    }).send(res);
   }
 }
 
