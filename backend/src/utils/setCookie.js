@@ -1,9 +1,9 @@
-const setCookie = (res, refreshToken) => {
-  res.cookie("refreshToken", refreshToken, {
+const setCookie = (res, name, value, ms) => {
+  res.cookie(name, value, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    maxAge: ms, // Truyền trực tiếp số miliseconds vào đây
   });
 };
 

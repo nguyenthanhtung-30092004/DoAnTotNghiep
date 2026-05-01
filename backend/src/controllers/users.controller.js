@@ -58,8 +58,11 @@ class UsersController {
     newUser.refreshToken = refreshToken;
     await newUser.save();
 
-    // set cookie
-    setCookie(res, refreshToken);
+    // Set AccessToken sống trong 1 giờ
+    setCookie(res, "accessToken", accessToken, 1 * 60 * 60 * 1000);
+
+    // Set RefreshToken sống trong 30 ngày
+    setCookie(res, "refreshToken", refreshToken, 30 * 24 * 60 * 60 * 1000);
 
     const userResponse = newUser.toObject();
     delete userResponse.password;
@@ -104,7 +107,9 @@ class UsersController {
     user.refreshToken = refreshToken;
     await user.save();
 
-    setCookie(res, refreshToken);
+    setCookie(res, "accessToken", accessToken, 1 * 60 * 60 * 1000); // 1 giờ
+
+    setCookie(res, "refreshToken", refreshToken, 30 * 24 * 60 * 60 * 1000); // 30 ngày
 
     return new Created({
       message: "Đăng nhập thành công",
