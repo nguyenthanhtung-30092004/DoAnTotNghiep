@@ -3,13 +3,16 @@ const {
   NotFoundError,
   AuthFailureError,
 } = require("../core/error.response");
-const { Created } = require("../core/success.response");
+const { Created, OK } = require("../core/success.response");
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const { createAccessToken, createRefreshToken } = require("../auth/checkAuth");
+const SendMailForgotPassword = require("../utils/mailForgotPassword");
+
 const jwt = require("jsonwebtoken");
 const setCookie = require("../utils/setCookie");
 const otpGenerator = require("otp-generator");
+const otpModel = require("../models/otp.model");
 
 class UsersController {
   async register(req, res) {
@@ -17,6 +20,14 @@ class UsersController {
 
     if (!fullName || !email || !password) {
       throw new ConflictRequestError("Thiếu thông tin đăng ký");
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      throw new ConflictRequestError("Email không hợp lệ");
+    }
+
+    if (password.length < 6) {
+      throw new ConflictRequestError("Password phải >= 6 ký tự");
     }
 
     const findUser = await userModel.findOne({ email });
@@ -65,35 +76,34 @@ class UsersController {
 
   async login(req, res) {
     const { email, password } = req.body;
-    const findUser = await userModel.findOne({ email });
 
-    // Kiểm tra xem có tài khoản không
-    if (!findUser) {
-      throw new NotFoundError("Tài khoản hoặc mật khẩu không chính xác!");
+    if (!email || !password) {
+      throw new ConflictRequestError("Thiếu thông tin");
     }
 
-    // Kiểm tra mật khẩu
-    const isMatchPassword = await bcrypt.compare(password, findUser.password);
-    if (!isMatchPassword) {
-      throw new AuthFailureError("Tài khoản hoặc mật khẩu không chính xác!");
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      throw new AuthFailureError("Sai email hoặc mật khẩu");
     }
 
-    // Tạo accessToken và refreshToken
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      throw new AuthFailureError("Sai email hoặc mật khẩu");
+    }
+
     const accessToken = createAccessToken({
-      id: findUser._id,
-      role: findUser.role,
+      id: user._id,
+      role: user.role,
     });
 
     const refreshToken = createRefreshToken({
-      id: findUser._id,
-      role: findUser.role,
+      id: user._id,
+      role: user.role,
     });
 
-    // Lưu refreshToken
-    findUser.refreshToken = refreshToken;
-    await findUser.save();
+    user.refreshToken = refreshToken;
+    await user.save();
 
-    // set cookie
     setCookie(res, refreshToken);
 
     return new Created({
@@ -105,25 +115,29 @@ class UsersController {
   }
 
   async refreshToken(req, res) {
-    const token = req.cookies.refreshToken;
-    if (!token) {
-      return res.status(401).json({ message: "No token" });
+    try {
+      const token = req.cookies.refreshToken;
+      if (!token) {
+        throw new AuthFailureError("Chưa đăng nhập");
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+      const user = await userModel.findById(decoded.id);
+      if (!user || user.refreshToken !== token) {
+        throw new AuthFailureError("Token không hợp lệ");
+      }
+
+      const newAccessToken = createAccessToken({
+        id: user._id,
+        role: user.role,
+      });
+      return new OK({
+        metadata: { accessToken: newAccessToken },
+      }).send(res);
+    } catch (error) {
+      throw new AuthFailureError("Token hết hạn hoặc không hợp lệ");
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-
-    const user = await userModel.findById(decoded.id);
-    if (!user || user.refreshToken !== token) {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-
-    const newAccessToken = createAccessToken({
-      id: user._id,
-      role: user.role,
-    });
-    return res.json({
-      accessToken: newAccessToken,
-    });
   }
 
   async logout(req, res) {
@@ -139,15 +153,27 @@ class UsersController {
 
     res.clearCookie("refreshToken");
 
-    return res.json({ message: "Logout thành công" });
+    return new OK({ message: "Logout thành công" }).send(res);
   }
 
   async forgotPassword(req, res) {
     const { email } = req.body;
-    const findUser = userModel.findOne({ email });
-    if (!findUser) {
+
+    if (!email) {
+      throw new ConflictRequestError("Thiếu Email");
+    }
+
+    const user = await userModel.findOne({ email });
+    if (!user) {
       throw new NotFoundError("Email không tồn tại");
     }
+
+    const lastOtp = await otpModel.findOne({ email });
+    if (lastOtp && lastOtp.createdAt > Date.now() - 60 * 1000) {
+      throw new ConflictRequestError("Vui lòng chờ 60s để gửi lại OTP");
+    }
+
+    await otpModel.deleteMany({ email });
 
     const otp = otpGenerator.generate(6, {
       digits: true,
@@ -156,7 +182,79 @@ class UsersController {
       specialChars: false,
     });
 
-    console.log(otp);
+    const newOtp = await otpModel.create({
+      otp,
+      email,
+    });
+
+    await SendMailForgotPassword(email, otp);
+
+    return new OK({
+      message: "Mã OTP đã được gửi đến email của bạn",
+      metadata: true,
+    }).send(res);
+  }
+
+  async verifyOtp(req, res) {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      throw new ConflictRequestError("Thiếu dữ liệu");
+    }
+
+    const record = await otpModel.findOne({ otp, email });
+
+    if (!record) {
+      throw new AuthFailureError("OTP không đúng");
+    }
+
+    if (record.expiredAt < new Date()) {
+      throw new AuthFailureError("OTP đã hết hạn");
+    }
+
+    const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: "5m",
+    });
+
+    res.cookie("resetToken", resetToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 5 * 60 * 1000,
+    });
+
+    return new OK({ message: "OTP hợp lệ" }).send(res);
+  }
+
+  async resetPassword(req, res) {
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      throw new ConflictRequestError("Password không hợp lệ");
+    }
+
+    const token = req.cookies.resetToken;
+
+    if (!token) {
+      throw new AuthFailureError("Thiếu token");
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      throw new AuthFailureError("Token không hợp lệ hoặc hết hạn");
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await userModel.updateOne({ email: decoded.email }, { password: hashed });
+
+    await otpModel.deleteMany({ email: decoded.email });
+    res.clearCookie("resetToken");
+
+    return new OK({
+      message: "Đổi mật khẩu thành công",
+    }).send(res);
   }
 }
 

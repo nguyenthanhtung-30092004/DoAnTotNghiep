@@ -30,7 +30,7 @@ const SendMailForgotPassword = async (email, otp) => {
     });
 
     const info = await transport.sendMail({
-      from: `"Moho" <${process.env.EMAIL_USER}>`,
+      from: `"Runner-Shop" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Yêu cầu đặt lại mật khẩu",
       text: `Mã OTP để đặt lại mật khẩu của bạn là: ${otp}`,

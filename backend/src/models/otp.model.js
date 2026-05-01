@@ -5,17 +5,11 @@ const otpModel = new Schema(
   {
     otp: { type: String, required: true },
     email: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now1`` },
-    role: {
-      type: String,
-      enum: ["customer", "admin"],
-      default: "customer",
-    },
-    refreshToken: {
-      type: String,
-      default: null,
+    expiredAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 5 * 60 * 1000), // 5 phút
     },
   },
   { timestamps: true },
 );
-module.exports = mongoose.model("User", userModel);
+module.exports = mongoose.model("Otp", otpModel);
