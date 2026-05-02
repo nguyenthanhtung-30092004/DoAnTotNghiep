@@ -16,9 +16,10 @@ import { Button } from "../components/ui/Button";
 import { Label } from "../components/ui/Label";
 import { Input } from "../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
+import { register } from "../redux/feature/authSlice";
 
 const passwordRules = [
-  { label: "At least 8 characters", test: (p) => p.length >= 8 },
+  { label: "At least 8 characters", test: (p) => p.length >= 6 },
   { label: "One uppercase letter", test: (p) => /[A-Z]/.test(p) },
   { label: "One number", test: (p) => /\d/.test(p) },
 ];
@@ -27,7 +28,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   // State quản lý Form
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -35,24 +36,21 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!fullName || !email || !password) {
       toast.warning("Vui lòng nhập đầy đủ email và mật khẩu!");
       return;
     }
-    // 2. Kiểm tra định dạng Email (Validate FE)
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Email không đúng định dạng!");
-      return;
-    }
-
-    // 3. Kiểm tra độ dài mật khẩu (Khớp với rule Backend: >= 6 ký tự)
-    if (password.length < 6) {
-      toast.error("Mật khẩu phải có ít nhất 6 ký tự!");
-      return;
+    try {
+      const res = await dispatch(
+        register({ fullName, email, password }),
+      ).unwrap();
+      console.log(res);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -142,8 +140,8 @@ const Signup = () => {
                 <Input
                   type="text"
                   placeholder="Alex Runner"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="pl-10 rounded-xl h-11 bg-muted/50 border-0 focus-visible:ring-primary"
                   required
                 />

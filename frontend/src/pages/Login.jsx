@@ -27,14 +27,10 @@ const Login = () => {
       toast.warning("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-
     try {
       const res = await dispatch(loginUser({ email, password })).unwrap();
-      toast.success("Đăng nhập thành công!");
       navigate("/");
-    } catch (error) {
-      toast.error(error || "Đăng nhập thất bại");
-    }
+    } catch (error) {}
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
