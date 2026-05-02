@@ -21,10 +21,26 @@ import {
 import Profile from "../components/Account/Profile";
 import Orders from "../components/Account/Orders";
 import Address from "../components/Account/Address";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
+import { logoutUser } from "../redux/feature/authSlice";
+import { toast } from "react-toastify";
 
 const Account = () => {
   const [activeTab, setActiveTab] = useState("profile");
-
+  const { isLoading, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      const res = await dispatch(logoutUser()).unwrap();
+      console.log("Logout success:", res);
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error(error || "Đăng xuất thất bại");
+    }
+  };
   return (
     <div>
       <Header />
@@ -96,7 +112,10 @@ const Account = () => {
               {/* Gạch chân 2 */}
               <div className="h-px bg-border mx-2 my-1 hidden md:block"></div>
 
-              <button className="hidden md:flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full">
+              <button
+                onClick={handleLogout}
+                className="hidden md:flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full"
+              >
                 <LogOut className="size-4" />
                 <span>Đăng xuất</span>
               </button>

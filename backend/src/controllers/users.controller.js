@@ -111,11 +111,15 @@ class UsersController {
 
     setCookie(res, "refreshToken", refreshToken, 30 * 24 * 60 * 60 * 1000); // 30 ngày
 
+    const userRepon = {
+      id: user._id,
+      name: user.fullName,
+      email: user.email,
+      role: user.role,
+    };
     return new Created({
       message: "Đăng nhập thành công",
-      metadata: {
-        accessToken,
-      },
+      metadata: userRepon,
     }).send(res);
   }
 
@@ -157,6 +161,7 @@ class UsersController {
     }
 
     res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
 
     return new OK({ message: "Logout thành công" }).send(res);
   }

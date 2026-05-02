@@ -1,15 +1,22 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const cors = require("cors"); // ✅ THIẾU
+const bodyParser = require("body-parser");
+
 const app = express();
 const port = 3000;
 
-const bodyParser = require("body-parser");
-
 // Connect DB
 const connectDB = require("./configs/connectDB");
-connectDB();
 
-// Middleware
+// Middleware (⚠️ CORS phải đặt trên cùng)
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -19,6 +26,7 @@ app.use(cookieParser());
 const routes = require("./routes/index.routes");
 routes(app);
 
+// Error handler
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
 

@@ -18,21 +18,22 @@ const Login = () => {
   const { isLoading, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. Kiểm tra trống
     if (!email || !password) {
-      toast.warning("Vui lòng nhập đầy đủ Email và Mật khẩu!");
+      toast.warning("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
+
     try {
-      await dispatch(loginUser({ email, password })).unwrap();
+      const res = await dispatch(loginUser({ email, password })).unwrap();
+      toast.success("Đăng nhập thành công!");
+      navigate("/");
     } catch (error) {
-      toast.error(error);
+      toast.error(error || "Đăng nhập thất bại");
     }
   };
   return (

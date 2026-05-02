@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Footprints,
   Mail,
@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { Button } from "../components/ui/Button";
 import { Label } from "../components/ui/Label";
 import { Input } from "../components/ui/Input";
+import { useDispatch, useSelector } from "react-redux";
 
 const passwordRules = [
   { label: "At least 8 characters", test: (p) => p.length >= 8 },
@@ -31,14 +32,28 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleRegister = (e) => {
     e.preventDefault();
-    if (!agreed) {
-      toast.warning("Please agree to the terms and conditions.");
+
+    if (!email || !password) {
+      toast.warning("Vui lòng nhập đầy đủ email và mật khẩu!");
       return;
     }
-    // Giao diện tĩnh: Tạm thời hiện toast báo thành công
-    toast.success("Account created! Welcome to RunVault.");
+    // 2. Kiểm tra định dạng Email (Validate FE)
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Email không đúng định dạng!");
+      return;
+    }
+
+    // 3. Kiểm tra độ dài mật khẩu (Khớp với rule Backend: >= 6 ký tự)
+    if (password.length < 6) {
+      toast.error("Mật khẩu phải có ít nhất 6 ký tự!");
+      return;
+    }
   };
 
   return (

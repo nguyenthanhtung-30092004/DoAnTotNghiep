@@ -24,4 +24,19 @@ router.post(
   asyncHandler(categoryController.createCategory),
 );
 
+router.put(
+  "/update/:id",
+  authAdmin,
+  upload.single("thumbnail"),
+  asyncHandler(categoryController.updateCategory),
+);
+router.delete(
+  "/delete/:id",
+  authAdmin,
+  upload.single("thumbnail"),
+  asyncHandler(categoryController.deleteCategory),
+);
+
+router.get("/list", asyncHandler(categoryController.getAllCategory));
+
 module.exports = router;
