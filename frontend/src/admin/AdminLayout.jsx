@@ -15,9 +15,22 @@ import {
   X,
 } from "lucide-react";
 import React from "react";
-import { Outlet } from "react-router";
+import { useDispatch } from "react-redux";
+import { Outlet, useNavigate } from "react-router";
+import { logoutUser } from "../redux/feature/authSlice";
+import { toast } from "react-toastify";
 
 const AdminLayout = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      const res = await dispatch(logoutUser()).unwrap();
+      navigate("/login");
+    } catch (error) {
+      console.log("Logout error:", error);
+    }
+  };
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
@@ -120,7 +133,10 @@ const AdminLayout = () => {
         </nav>
 
         <div className="p-3 border-t border-slate-200">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+          >
             <LogOut className="size-4" />
             Đăng xuất
           </button>

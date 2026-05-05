@@ -55,7 +55,6 @@ const ResetPassword = () => {
       await dispatch(verifyOtp({ email, otp })).unwrap();
 
       // 2. Reset password
-      // Truyền email đi cùng nếu Backend yêu cầu xác định user
       await dispatch(resetPassword({ newPassword: password })).unwrap();
 
       toast.success("Cập nhật mật khẩu thành công! Đang chuyển hướng...");

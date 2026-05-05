@@ -38,7 +38,6 @@ const Account = () => {
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error(error || "Đăng xuất thất bại");
     }
   };
   return (

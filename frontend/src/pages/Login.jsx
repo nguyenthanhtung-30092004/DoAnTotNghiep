@@ -18,6 +18,11 @@ const Login = () => {
   const { isLoading, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === "admin" ? "/admin" : "/");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,12 +33,11 @@ const Login = () => {
       return;
     }
     try {
-      const res = await dispatch(loginUser({ email, password })).unwrap();
-      navigate("/");
+      await dispatch(loginUser({ email, password }));
     } catch (error) {}
   };
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
+    <div className="max-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
       {/* Background blur */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[450px] h-[450px] rounded-full bg-primary/10 blur-3xl" />

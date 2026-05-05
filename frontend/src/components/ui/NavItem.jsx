@@ -27,7 +27,7 @@ const MegaNavItem = ({ item }) => {
       <Link
         to={item.to}
         onClick={handleLinkClick} // Đóng khi click vào tiêu đề gốc
-        className="relative flex items-center gap-2 px-3 py-2 text-base font-medium text-black rounded-lg hover:text-foreground transition-colors after:absolute after:h-[1px] after:bg-black after:w-0 after:left-1/2 after:-translate-x-1/2 after:bottom-0 hover:after:w-full after:transition-all after:duration-300"
+        className="relative flex items-center gap-2 px-3 py-2 text-base font-medium text-muted-foreground rounded-lg hover:text-foreground transition-colors after:absolute after:h-[2px] after:bg-black after:w-0 after:left-1/2 after:-translate-x-1/2 after:bottom-0 hover:after:w-full after:transition-all after:duration-300"
       >
         {item.label}
         {hasMegaMenu && (

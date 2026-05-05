@@ -10,13 +10,12 @@ const {
 } = require("../core/error.response");
 
 const mongoose = require("mongoose");
-const { get } = require("http");
 
 function getPublicId(url) {
   const parts = url.split("/");
   const uploadIndex = parts.indexOf("upload");
   if (uploadIndex === -1) {
-    throw new BadRequestError("Đường dẫn ảnh không tồn tịa");
+    throw new BadRequestError("Đường dẫn ảnh không tồn tại");
   }
   const pathParts = parts.slice(uploadIndex + 1);
   const pathWithoutVersion = pathParts[0].startsWith("v")
