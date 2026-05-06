@@ -1,11 +1,13 @@
 const {
   BadRequestError,
   ConflictRequestError,
+  NotFoundError,
 } = require("../core/error.response");
 const fs = require("fs/promises");
 const brandModel = require("../models/brand.model");
 const cloudinary = require("../configs/cloudDinary");
-const { Created } = require("../core/success.response");
+const { Created, OK } = require("../core/success.response");
+const { getPublicId } = require("../utils/getPublicImage");
 
 class BrandController {
   async createBrand(req, res) {
@@ -54,11 +56,66 @@ class BrandController {
   }
 
   async updateBrand(req, res) {
-    let uploadImage = null;
+    let uploadedImage = null;
     try {
       const { id } = req.params;
       let { nameBrand, slugBrand, description, outStanding } = req.body;
-    } catch (error) {}
+
+      const brand = await brandModel.findById(id);
+      if (!brand) {
+        throw new NotFoundError("Không tìm thấy thương hiệu");
+      }
+
+      if (slugBrand && slugBrand !== brand.slugBrand) {
+        const existing = await brandModel.findOne({ slugBrand });
+        if (existing) {
+          throw new ConflictRequestError("Slug đã tồn tại");
+        }
+      }
+
+      let logoBrand = brand.logoBrand;
+
+      if (req.file) {
+        const oldLogoBrand = brand.logoBrand;
+        uploadedImage = await cloudinary.uploader.upload(req.file.path, {
+          folder: "brand",
+          public_id: `brand/${slugBrand || brand.slugBrand}-${Date.now()}`,
+        });
+        logoBrand = uploadedImage.secure_url;
+
+        if (oldLogoBrand) {
+          await cloudinary.uploader
+            .destroy(getPublicId(oldLogoBrand))
+            .catch(() => {});
+        }
+      }
+
+      const updated = await brandModel.findByIdAndUpdate(
+        id,
+        {
+          nameBrand,
+          slugBrand,
+          description,
+          outStanding,
+          logoBrand,
+        },
+        { new: true },
+      );
+
+      return new OK({
+        message: "Cập nhật danh mục thành công",
+        metadata: updated,
+      }).send(res);
+    } catch (error) {
+      if (uploadedImage?.public_id) {
+        await cloudinary.uploader.destroy(uploadedImage.public_id);
+      }
+      throw error;
+    } finally {
+      if (req.file?.path) {
+        await fs.unlink(req.file.path).catch(() => {});
+      }
+    }
   }
 }
 

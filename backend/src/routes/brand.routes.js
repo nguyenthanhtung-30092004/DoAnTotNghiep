@@ -23,4 +23,12 @@ router.post(
   upload.single("logoBrand"),
   asyncHandler(brandController.createBrand),
 );
+
+router.put(
+  "/update/:id",
+  authAdmin,
+  upload.single("logoBrand"),
+  asyncHandler(brandController.updateBrand),
+);
+
 module.exports = router;
