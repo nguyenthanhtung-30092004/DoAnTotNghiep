@@ -172,7 +172,7 @@ class CategoryController {
     try {
       const { id } = req.params;
       if (!id) {
-        throw new BadRequestError("Thiếu thôn tin danh mục");
+        throw new BadRequestError("Thiếu thông tin danh mục");
       }
       const category = await categoryModel.findById(id);
       if (!category) {

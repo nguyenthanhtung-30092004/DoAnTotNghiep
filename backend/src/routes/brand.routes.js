@@ -31,4 +31,11 @@ router.put(
   asyncHandler(brandController.updateBrand),
 );
 
+router.get("/listbrand", asyncHandler(brandController.getAllBrand));
+router.delete(
+  "/delete/:id",
+  authAdmin,
+  asyncHandler(brandController.deleteBrand),
+);
+router;
 module.exports = router;

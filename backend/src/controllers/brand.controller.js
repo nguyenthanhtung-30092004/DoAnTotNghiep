@@ -8,8 +8,17 @@ const brandModel = require("../models/brand.model");
 const cloudinary = require("../configs/cloudDinary");
 const { Created, OK } = require("../core/success.response");
 const { getPublicId } = require("../utils/getPublicImage");
+const categoryModel = require("../models/category.model");
 
 class BrandController {
+  async getAllBrand(req, res) {
+    const brands = await brandModel.find();
+    return new OK({
+      message: "Lấy danh sách danh mục thành công",
+      metadata: brands,
+    }).send(res);
+  }
+
   async createBrand(req, res) {
     let uploadImage = null;
     try {
@@ -115,6 +124,33 @@ class BrandController {
       if (req.file?.path) {
         await fs.unlink(req.file.path).catch(() => {});
       }
+    }
+  }
+
+  async deleteBrand(req, res) {
+    let publicId = null;
+    try {
+      const { id } = req.params;
+      if (!id) {
+        throw new BadRequestError("Thiếu thông tin thương hiệu");
+      }
+      const brand = await brandModel.findById(id);
+      if (!brand) {
+        throw new NotFoundError("Thương hiệu không tồn tại");
+      }
+      if (brand.logoBrand) {
+        publicId = getPublicId(brand.logoBrand);
+      }
+      await brand.deleteOne();
+      if (publicId) {
+        await cloudinary.uploader.destroy(publicId).catch(() => {});
+      }
+      return new OK({
+        message: "Xóa thương hiệu thành công",
+        metadata: brand,
+      }).send(res);
+    } catch (error) {
+      throw error;
     }
   }
 }
