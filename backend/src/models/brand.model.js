@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const brandModel = new Schema(
+const brandSchema = new Schema(
   {
     nameBrand: {
       type: String,
@@ -28,4 +28,4 @@ const brandModel = new Schema(
     timestamps: true,
   },
 );
-module.exports = mongoose.model("Brand", brandModel);
+module.exports = mongoose.model("Brand", brandSchema);

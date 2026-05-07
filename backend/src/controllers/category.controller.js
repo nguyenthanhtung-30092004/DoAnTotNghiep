@@ -1,6 +1,5 @@
 const cloudinary = require("../configs/cloudDinary");
 const fs = require("fs/promises");
-const categoryModel = require("../models/category.model");
 
 const { Created, OK } = require("../core/success.response");
 const {
@@ -10,6 +9,7 @@ const {
 } = require("../core/error.response");
 
 const mongoose = require("mongoose");
+const categoryModel = require("../models/category.model");
 
 function getPublicId(url) {
   const parts = url.split("/");
