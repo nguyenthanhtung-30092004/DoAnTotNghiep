@@ -1,38 +1,10 @@
-const cloudinary = require("../configs/cloudDinary");
-const fs = require("fs/promises");
-
 const { Created, OK } = require("../core/success.response");
-const {
-  BadRequestError,
-  ConflictRequestError,
-  NotFoundError,
-} = require("../core/error.response");
-
-const mongoose = require("mongoose");
-const categoryModel = require("../models/category.model");
-
-function getPublicId(url) {
-  const parts = url.split("/");
-  const uploadIndex = parts.indexOf("upload");
-  if (uploadIndex === -1) {
-    throw new BadRequestError("Đường dẫn ảnh không tồn tại");
-  }
-  const pathParts = parts.slice(uploadIndex + 1);
-  const pathWithoutVersion = pathParts[0].startsWith("v")
-    ? pathParts.slice(1)
-    : pathParts;
-  const publicIdWithExt = pathWithoutVersion.join("/");
-  const publicId = publicIdWithExt.substring(
-    0,
-    publicIdWithExt.lastIndexOf("."),
-  );
-
-  return publicId;
-}
+const { BadRequestError } = require("../core/error.response");
+const categoryService = require("../services/category.service");
 
 class CategoryController {
   async getAllCategory(req, res) {
-    const categories = await categoryModel.find();
+    const categories = await categoryService.getAllCategories();
     return new OK({
       message: "Lấy danh sách danh mục thành công",
       metadata: {
@@ -40,162 +12,53 @@ class CategoryController {
       },
     }).send(res);
   }
+
   async createCategory(req, res) {
-    let uploadedImage = null;
+    const { name, slug, parentId, description } = req.body;
+    const newCategory = await categoryService.createCategory({
+      file: req.file,
+      name,
+      slug,
+      parentId,
+      description,
+    });
 
-    try {
-      if (!req.file) {
-        throw new BadRequestError("Vui lòng upload ảnh");
-      }
-
-      let { name, slug, parentId, description } = req.body;
-
-      if (!name || !slug) {
-        throw new BadRequestError("Thiếu name hoặc slug");
-      }
-
-      const existing = await categoryModel.findOne({ slug });
-      if (existing) {
-        throw new ConflictRequestError("Slug đã tồn tại");
-      }
-
-      if (!parentId || parentId === "") {
-        parentId = undefined;
-      } else {
-        parentId = new mongoose.Types.ObjectId(parentId);
-      }
-
-      uploadedImage = await cloudinary.uploader.upload(req.file.path, {
-        folder: "category",
-        public_id: `category/${slug}-${Date.now()}`,
-      });
-
-      const newCategory = await categoryModel.create({
-        name,
-        slug,
-        parentId,
-        description,
-        thumbnail: uploadedImage.secure_url,
-      });
-
-      return new Created({
-        message: "Tạo danh mục thành công",
-        metadata: newCategory,
-      }).send(res);
-    } catch (error) {
-      if (uploadedImage?.public_id) {
-        await cloudinary.uploader.destroy(uploadedImage.public_id);
-      }
-
-      throw error;
-    } finally {
-      if (req.file?.path) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
-    }
+    return new Created({
+      message: "Tạo danh mục thành công",
+      metadata: newCategory,
+    }).send(res);
   }
 
   async updateCategory(req, res) {
-    let uploadedImage = null;
+    const { id } = req.params;
+    const { name, slug, parentId, description } = req.body;
 
-    try {
-      const { id } = req.params;
-      let { name, slug, parentId, description } = req.body;
+    const updated = await categoryService.updateCategory({
+      id,
+      file: req.file,
+      name,
+      slug,
+      parentId,
+      description,
+    });
 
-      const category = await categoryModel.findById(id);
-      if (!category) {
-        throw new NotFoundError("Không tìm thấy danh mục");
-      }
-
-      if (slug && slug !== category.slug) {
-        const existing = await categoryModel.findOne({ slug });
-        if (existing) {
-          throw new ConflictRequestError("Slug đã tồn tại");
-        }
-      }
-
-      if (!parentId || parentId === "") {
-        parentId = undefined;
-      } else {
-        parentId = new mongoose.Types.ObjectId(parentId);
-      }
-
-      let thumbnail = category.thumbnail;
-
-      if (req.file) {
-        const oldThumbnail = category.thumbnail;
-
-        uploadedImage = await cloudinary.uploader.upload(req.file.path, {
-          folder: "category",
-          public_id: `category/${slug || category.slug}-${Date.now()}`,
-        });
-
-        thumbnail = uploadedImage.secure_url;
-
-        if (oldThumbnail) {
-          await cloudinary.uploader
-            .destroy(getPublicId(oldThumbnail))
-            .catch(() => {});
-        }
-      }
-
-      const updated = await categoryModel.findByIdAndUpdate(
-        id,
-        {
-          name,
-          slug,
-          parentId,
-          description,
-          thumbnail,
-        },
-        { new: true },
-      );
-
-      return new OK({
-        message: "Cập nhật danh mục thành công",
-        metadata: updated,
-      }).send(res);
-    } catch (error) {
-      if (uploadedImage?.public_id) {
-        await cloudinary.uploader.destroy(uploadedImage.public_id);
-      }
-      throw error;
-    } finally {
-      if (req.file?.path) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
-    }
+    return new OK({
+      message: "Cập nhật danh mục thành công",
+      metadata: updated,
+    }).send(res);
   }
 
   async deleteCategory(req, res) {
-    let publicId = null;
-    try {
-      const { id } = req.params;
-      if (!id) {
-        throw new BadRequestError("Thiếu thông tin danh mục");
-      }
-      const category = await categoryModel.findById(id);
-      if (!category) {
-        throw new NotFoundError("Danh mục không tồn tại");
-      }
-      const hasChild = await categoryModel.findOne({ parentId: id });
-      if (hasChild) {
-        throw new BadRequestError("Danh mục có danh mục con, không thể xóa");
-      }
-      if (category.thumbnail) {
-        publicId = getPublicId(category.thumbnail);
-      }
-      await category.deleteOne();
-      if (publicId) {
-        await cloudinary.uploader.destroy(publicId).catch(() => {});
-      }
-      return new OK({
-        message: "Xóa danh mục thành công",
-        metadata: category,
-      }).send(res);
-    } catch (error) {
-      throw error;
+    const { id } = req.params;
+    if (!id) {
+      throw new BadRequestError("Thiếu thông tin danh mục");
     }
+    const category = await categoryService.deleteCategory(id);
+    
+    return new OK({
+      message: "Xóa danh mục thành công",
+      metadata: category,
+    }).send(res);
   }
 }
 
