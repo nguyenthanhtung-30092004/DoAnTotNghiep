@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -44,7 +42,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased tracking-tight;
+    font-family: 'Inter', sans-serif;
   }
 
   h1,
@@ -60,7 +59,7 @@
 /* ================= COMPONENTS ================= */
 @layer components {
   .container {
-    @apply max-w-[1480px] px-5 mx-auto w-full;
+    @apply max-w-[1480px] px-12 mx-auto w-full;
   }
 }
 

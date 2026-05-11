@@ -8,6 +8,8 @@ import {
   RotateCcw,
   Shield,
 } from "lucide-react";
+import { useState } from "react";
+
 
 const ProductInfo = ({
   product,
@@ -16,80 +18,97 @@ const ProductInfo = ({
   quantity,
   onQuantityChange,
 }) => {
-  // Tính % giảm giá để hiển thị UI
+  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+
+  const onColorChange = (color) => {
+    setSelectedColor(color);
+  };
+
   const discount = product.originalPrice
     ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) * 100,
-      )
+      ((product.originalPrice - product.price) / product.originalPrice) * 100,
+    )
     : 0;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="overflow-hidden flex flex-col gap-6">
       {/* Brand + Name */}
       <div>
-        <p className="text-sm font-medium uppercase tracking-widest text-green-500 mb-1">
+        {/* <p className="text-sm font-medium uppercase tracking-widest text-green-500 mb-1">
           {product.brand}
-        </p>
-        <h1 className="text-3xl sm:text-4xl font-black leading-tight tracking-tight text-gray-900">
+        </p> */}
+        <h1 className="text-3xl sm:text-4xl font- font-bold leading-tight tracking-tight text-gray-900">
           {product.name}
         </h1>
       </div>
 
-      {/* Rating UI */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className={`h-4 w-4 ${
-                i < Math.floor(product.rating)
-                  ? "fill-green-500 text-green-500"
-                  : "text-gray-200"
-              }`}
-            />
-          ))}
-        </div>
-        <span className="text-sm font-semibold">{product.rating}</span>
-        <span className="text-sm text-gray-500">
-          ({product.reviewCount} nhận xét)
-        </span>
-      </div>
 
       {/* Price Section */}
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-black text-gray-900">
-          ${product.price}
+        <span className="text-[28px] font-semibold text-[#E53935]">
+          {product.price}
         </span>
         {product.originalPrice && (
           <>
-            <span className="text-lg text-gray-400 line-through">
+            <span className="text-lg text-[#9E9E9E] line-through">
               ${product.originalPrice}
             </span>
-            <span className="text-sm font-bold text-green-600 bg-accent px-2 py-0.5 rounded-full">
-              −{discount}%
+            <span className="text-[13px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 rounded-full">
+              −{16}%
             </span>
           </>
         )}
       </div>
 
+      {/* Color Selection UI */}
+      <div className="">
+        <div className="flex items-center justify-between mb-3 w-[80%]">
+          <h3 className="text-base font-semibold text-gray-900">
+            Chọn màu sắc
+          </h3>
+
+          <span className="text-sm text-gray-500">
+            {selectedColor?.name}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 flex-wrap">
+          {product.colors.map((color) => (
+            <button
+              key={color.name}
+              onClick={() => onColorChange(color)}
+              className={`relative size-7 rounded-full border-2 transition-all duration-200
+          ${selectedColor?.name === color.name
+                  ? "border-black scale-95"
+                  : "border-gray-200 hover:border-gray-400"
+                }
+        `}
+              style={{
+                backgroundColor: color.value,
+              }}
+            >
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Size Selection UI */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-900">Chọn Size</h3>
-          <button className="text-sm text-green-500 hover:underline underline-offset-4">
+        <div className="flex items-center justify-between mb-3 w-[80%]">
+          <h3 className="text-base font-semibold text-gray-900">Chọn size</h3>
+          <button className="text-sm text-black font-semibold underline underline-offset-4">
             Bảng quy đổi size
           </button>
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+        <div className="flex gap-2 flex-wrap w-[90%]">
           {product.sizes.map((size) => (
             <button
               key={size}
               onClick={() => onSizeChange(size)}
-              className={`h-11 rounded-xl border text-sm font-medium transition-all duration-200 
-                ${
-                  selectedSize === size
-                    ? "border-green-500 bg-green-500 text-white shadow-md scale-95"
-                    : "border-gray-200 hover:border-gray-400 text-gray-900"
+              className={`h-[35px] w-[50px] rounded-xl border text-sm font-medium transition-all duration-200 
+                ${selectedSize === size
+                  ? "border-green-500 bg-green-500 text-white shadow-md scale-95"
+                  : "border-gray-200 hover:border-gray-400 text-gray-900"
                 }`}
             >
               {size}
@@ -99,7 +118,7 @@ const ProductInfo = ({
       </div>
 
       {/* Quantity UI */}
-      <div>
+      {/* <div>
         <h3 className="text-sm font-semibold mb-3 text-gray-900">Số lượng</h3>
         <div className="inline-flex items-center border border-gray-200 rounded-xl overflow-hidden">
           <button
@@ -118,11 +137,11 @@ const ProductInfo = ({
             <Plus className="h-4 w-4" />
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Buttons Action UI */}
       <div className="flex gap-3 pt-2">
-        <button className="flex-1 flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-2xl hover:bg-green-600 transition-all font-bold shadow-lg active:scale-95">
+        <button className="flex-1 flex items-center justify-center gap-2 bg-black text-white py-4 rounded-full hover:bg-green-600 transition-all font-bold shadow-lg active:scale-95">
           <ShoppingCart className="h-5 w-5" />
           Thêm vào giỏ hàng
         </button>
@@ -132,7 +151,7 @@ const ProductInfo = ({
       </div>
 
       {/* Trust Badges UI */}
-      <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-100">
+      {/* <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-100">
         {[
           { icon: Truck, label: "Miễn phí ship", sub: "Đơn từ $75" },
           { icon: RotateCcw, label: "Đổi trả 30 ngày", sub: "Dễ dàng" },
@@ -144,7 +163,7 @@ const ProductInfo = ({
             <p className="text-[9px] text-gray-400">{sub}</p>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };

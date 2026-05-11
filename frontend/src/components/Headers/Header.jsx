@@ -118,8 +118,8 @@ const Header = () => {
     },
   ];
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl">
-      <div className="container h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl relative">
+      <div className="container relative h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">
           <Footprints className="h-6 w-6 text-primary" />

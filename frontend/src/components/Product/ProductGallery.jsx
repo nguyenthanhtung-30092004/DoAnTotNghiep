@@ -22,11 +22,11 @@ const ProductGallery = ({ images, name }) => {
         ))}
       </div>
       <div className="flex-1 relative">
-        <div className="aspect-square rounded-2xl bg-gray-100 overflow-hidden">
+        <div className="h-[500px] rounded-2xl bg-gray-100 overflow-hidden">
           <img
             src={images[activeIndex]}
             alt={name}
-            className="w-full h-full object-contain p-6"
+            className="w-full h-full object-cover p-6"
           />
         </div>
       </div>
