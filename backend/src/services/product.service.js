@@ -39,21 +39,26 @@ class ProductService {
 
       if (!foundCategory) throw new NotFoundError("Danh mục không tồn tại");
       if (!foundBrand) throw new NotFoundError("Thương hiệu không tồn tại");
-      if (existingProduct) throw new ConflictRequestError("Tên sản phẩm đã tồn tại");
+      if (existingProduct)
+        throw new ConflictRequestError("Tên sản phẩm đã tồn tại");
 
       for (const file of files || []) {
         const isThumbnail = file.fieldname === "thumbnail";
         const isVariantImage = /^variantImages-\d+$/.test(file.fieldname);
 
         if (!isThumbnail && !isVariantImage) {
-          throw new BadRequestError(`Field upload không hợp lệ: ${file.fieldname}`);
+          throw new BadRequestError(
+            `Field upload không hợp lệ: ${file.fieldname}`,
+          );
         }
       }
 
       let thumbnail = null;
       const uploadPromises = [];
 
-      const thumbnailFile = files?.find((file) => file.fieldname === "thumbnail");
+      const thumbnailFile = files?.find(
+        (file) => file.fieldname === "thumbnail",
+      );
       if (thumbnailFile) {
         const thumbnailTask = cloudinary.uploader
           .upload(thumbnailFile.path, {
@@ -82,7 +87,8 @@ class ProductService {
             })
             .then((res) => {
               uploadedImages.push(res.public_id);
-              if (!variants[variantIndex].images) variants[variantIndex].images = [];
+              if (!variants[variantIndex].images)
+                variants[variantIndex].images = [];
               variants[variantIndex].images.push({
                 url: res.secure_url,
                 publicId: res.public_id,
@@ -108,7 +114,7 @@ class ProductService {
       if (uploadedImages.length > 0) {
         await Promise.all(
           uploadedImages.map((publicId) =>
-            cloudinary.uploader.destroy(publicId).catch(() => { }),
+            cloudinary.uploader.destroy(publicId).catch(() => {}),
           ),
         );
       }
@@ -116,7 +122,7 @@ class ProductService {
     } finally {
       if (files?.length > 0) {
         await Promise.all(
-          files.map((file) => fs.unlink(file.path).catch(() => { })),
+          files.map((file) => fs.unlink(file.path).catch(() => {})),
         );
       }
     }
@@ -152,10 +158,17 @@ class ProductService {
 
     let sortOption = { createdAt: -1 };
     switch (sort) {
-      case "oldest": sortOption = { createdAt: 1 }; break;
-      case "name_asc": sortOption = { name: 1 }; break;
-      case "name_desc": sortOption = { name: -1 }; break;
-      default: sortOption = { createdAt: -1 };
+      case "oldest":
+        sortOption = { createdAt: 1 };
+        break;
+      case "name_asc":
+        sortOption = { name: 1 };
+        break;
+      case "name_desc":
+        sortOption = { name: -1 };
+        break;
+      default:
+        sortOption = { createdAt: -1 };
     }
 
     const [products, total] = await Promise.all([
@@ -183,14 +196,15 @@ class ProductService {
 
   async getDetailProduct(id) {
     if (!id) throw new BadRequestError("Thiếu id sản phẩm");
-    
+
     const product = await productModel
       .findOne({ _id: id, isDeleted: false })
       .populate("category", "nameCategory")
       .populate("brand", "nameBrand");
 
-    if (!product) throw new NotFoundError("Sản phẩm không tồn tại hoặc đã bị xóa");
-    
+    if (!product)
+      throw new NotFoundError("Sản phẩm không tồn tại hoặc đã bị xóa");
+
     return product;
   }
 
@@ -223,7 +237,7 @@ class ProductService {
         brand,
         isPublished,
       };
-      
+
       if (variants) {
         updateData.variants = variants;
       }
@@ -233,7 +247,7 @@ class ProductService {
         if (currentProduct.thumbnail?.publicId) {
           await cloudinary.uploader
             .destroy(currentProduct.thumbnail.publicId)
-            .catch(() => { });
+            .catch(() => {});
         }
 
         const upThum = await cloudinary.uploader.upload(thumbnailFile.path, {
@@ -247,17 +261,48 @@ class ProductService {
       }
 
       if (files?.length > 0 && updateData.variants) {
+        const groupedFiles = {};
+
         for (const file of files) {
           const match = file.fieldname.match(/variantImages-(\d+)/);
+
           if (!match) continue;
+
           const idx = Number(match[1]);
-          if (updateData.variants[idx]) {
+
+          if (!groupedFiles[idx]) {
+            groupedFiles[idx] = [];
+          }
+
+          groupedFiles[idx].push(file);
+        }
+
+        for (const idx in groupedFiles) {
+          const variantIndex = Number(idx);
+
+          // xóa ảnh cũ
+          const oldVariant = currentProduct.variants[variantIndex];
+
+          if (oldVariant?.images?.length > 0) {
+            await Promise.all(
+              oldVariant.images.map((img) =>
+                cloudinary.uploader.destroy(img.publicId).catch(() => {}),
+              ),
+            );
+          }
+
+          // reset images
+          updateData.variants[variantIndex].images = [];
+
+          // upload ảnh mới
+          for (const file of groupedFiles[idx]) {
             const upImg = await cloudinary.uploader.upload(file.path, {
               folder: "products/variants",
             });
+
             uploadedImages.push(upImg.public_id);
-            if (!updateData.variants[idx].images) updateData.variants[idx].images = [];
-            updateData.variants[idx].images.push({
+
+            updateData.variants[variantIndex].images.push({
               url: upImg.secure_url,
               publicId: upImg.public_id,
             });
@@ -276,7 +321,7 @@ class ProductService {
       if (uploadedImages.length > 0) {
         await Promise.all(
           uploadedImages.map((pubId) =>
-            cloudinary.uploader.destroy(pubId).catch(() => { }),
+            cloudinary.uploader.destroy(pubId).catch(() => {}),
           ),
         );
       }
@@ -284,7 +329,7 @@ class ProductService {
     } finally {
       if (files?.length > 0) {
         await Promise.all(
-          files.map((file) => fs.unlink(file.path).catch(() => { })),
+          files.map((file) => fs.unlink(file.path).catch(() => {})),
         );
       }
     }

@@ -44,7 +44,9 @@ class BrandService {
       return newBrand;
     } catch (error) {
       if (uploadImage?.public_id) {
-        await cloudinary.uploader.destroy(uploadImage.public_id).catch(() => {});
+        await cloudinary.uploader
+          .destroy(uploadImage.public_id)
+          .catch(() => {});
       }
       throw error;
     } finally {
@@ -54,7 +56,14 @@ class BrandService {
     }
   }
 
-  async updateBrand({ id, file, nameBrand, slugBrand, description, outStanding }) {
+  async updateBrand({
+    id,
+    file,
+    nameBrand,
+    slugBrand,
+    description,
+    outStanding,
+  }) {
     let uploadedImage = null;
     try {
       const brand = await brandModel.findById(id);
@@ -73,10 +82,12 @@ class BrandService {
 
       if (file) {
         const oldLogoBrand = brand.logoBrand;
+
         uploadedImage = await cloudinary.uploader.upload(file.path, {
           folder: "brand",
-          public_id: `brand/${slugBrand || brand.slugBrand}-${Date.now()}`,
+          public_id: `${slugBrand || brand.slugBrand}-${Date.now()}`,
         });
+
         logoBrand = uploadedImage.secure_url;
 
         if (oldLogoBrand) {
@@ -101,7 +112,9 @@ class BrandService {
       return updated;
     } catch (error) {
       if (uploadedImage?.public_id) {
-        await cloudinary.uploader.destroy(uploadedImage.public_id).catch(() => {});
+        await cloudinary.uploader
+          .destroy(uploadedImage.public_id)
+          .catch(() => {});
       }
       throw error;
     } finally {

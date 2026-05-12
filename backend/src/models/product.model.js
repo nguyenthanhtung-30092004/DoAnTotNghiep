@@ -21,6 +21,10 @@ const sizeSchema = new Schema(
     },
     sku: {
       type: String,
+      required: true,
+      unique: true,
+      sparse: true,
+      trim: true,
     },
     price: {
       type: Number,
@@ -109,21 +113,6 @@ productSchema.pre("save", function () {
       "-" +
       nanoid(6);
   }
-});
-
-productSchema.pre("save", function () {
-  this.variants.forEach((variant) => {
-    variant.sizes.forEach((sizeItem) => {
-      if (!sizeItem.sku) {
-        const colorSlug = slugify(variant.color, {
-          lower: true,
-          strict: true,
-          replacement: "",
-        });
-        sizeItem.sku = `SKU-${colorSlug.toUpperCase()}-${sizeItem.size}-${nanoid(5)}`;
-      }
-    });
-  });
 });
 
 productSchema.index({ name: "text" });

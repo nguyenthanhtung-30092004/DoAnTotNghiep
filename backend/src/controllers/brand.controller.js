@@ -51,7 +51,7 @@ class BrandController {
       throw new BadRequestError("Thiếu thông tin thương hiệu");
     }
     const brand = await brandService.deleteBrand(id);
-    
+
     return new OK({
       message: "Xóa thương hiệu thành công",
       metadata: brand,

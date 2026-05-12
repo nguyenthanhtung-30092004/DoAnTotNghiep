@@ -9,7 +9,7 @@ const port = 3000;
 // Connect DB
 const connectDB = require("./configs/connectDB");
 
-// Middleware (⚠️ CORS phải đặt trên cùng)
+// Middleware
 app.use(
   cors({
     origin: "http://localhost:5173",
