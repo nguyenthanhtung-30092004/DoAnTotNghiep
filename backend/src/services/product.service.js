@@ -3,30 +3,40 @@ const {
   NotFoundError,
   ConflictRequestError,
 } = require("../core/error.response");
+
 const brandModel = require("../models/brand.model");
 const categoryModel = require("../models/category.model");
 const productModel = require("../models/product.model");
+
 const cloudinary = require("../configs/cloudDinary");
+
 const fs = require("fs/promises");
+
 const { validateVariants } = require("../helpers/product.helper");
 
 class ProductService {
   async createProduct({ body, files }) {
     const uploadedImages = [];
+
     try {
-      const { name, description, category, brand } = body;
-      let { variants } = body;
+      let { name, description, category, brand, variants = [] } = body;
 
       if (!name || !category || !brand) {
-        throw new BadRequestError("Vui lòng điền đầy đủ thông tin bắt buộc");
+        throw new BadRequestError("Thiếu thông tin bắt buộc");
       }
+
+      name = name.trim();
 
       if (typeof variants === "string") {
         try {
           variants = JSON.parse(variants);
         } catch (error) {
-          throw new BadRequestError("Dữ liệu variants không hợp lệ");
+          throw new BadRequestError("Variants không hợp lệ");
         }
+      }
+
+      if (!Array.isArray(variants)) {
+        throw new BadRequestError("Variants phải là array");
       }
 
       await validateVariants(variants);
@@ -34,16 +44,28 @@ class ProductService {
       const [foundCategory, foundBrand, existingProduct] = await Promise.all([
         categoryModel.findById(category).lean(),
         brandModel.findById(brand).lean(),
-        productModel.findOne({ name: name.trim(), isDeleted: false }).lean(),
+
+        productModel.findOne({
+          name,
+          isDeleted: false,
+        }),
       ]);
 
-      if (!foundCategory) throw new NotFoundError("Danh mục không tồn tại");
-      if (!foundBrand) throw new NotFoundError("Thương hiệu không tồn tại");
-      if (existingProduct)
+      if (!foundCategory) {
+        throw new NotFoundError("Danh mục không tồn tại");
+      }
+
+      if (!foundBrand) {
+        throw new NotFoundError("Thương hiệu không tồn tại");
+      }
+
+      if (existingProduct) {
         throw new ConflictRequestError("Tên sản phẩm đã tồn tại");
+      }
 
       for (const file of files || []) {
         const isThumbnail = file.fieldname === "thumbnail";
+
         const isVariantImage = /^variantImages-\d+$/.test(file.fieldname);
 
         if (!isThumbnail && !isVariantImage) {
@@ -54,54 +76,54 @@ class ProductService {
       }
 
       let thumbnail = null;
-      const uploadPromises = [];
 
       const thumbnailFile = files?.find(
         (file) => file.fieldname === "thumbnail",
       );
+
       if (thumbnailFile) {
-        const thumbnailTask = cloudinary.uploader
-          .upload(thumbnailFile.path, {
+        const uploadThumbnail = await cloudinary.uploader.upload(
+          thumbnailFile.path,
+          {
             folder: "products/thumbnail",
-            public_id: `thumbnail-${Date.now()}`,
-          })
-          .then((res) => {
-            uploadedImages.push(res.public_id);
-            thumbnail = { url: res.secure_url, publicId: res.public_id };
-          });
-        uploadPromises.push(thumbnailTask);
+          },
+        );
+
+        uploadedImages.push(uploadThumbnail.public_id);
+
+        thumbnail = {
+          url: uploadThumbnail.secure_url,
+          publicId: uploadThumbnail.public_id,
+        };
       }
 
-      if (files?.length > 0) {
-        for (const file of files) {
-          const match = file.fieldname.match(/variantImages-(\d+)/);
-          if (!match) continue;
+      for (const file of files || []) {
+        const match = file.fieldname.match(/variantImages-(\d+)/);
 
-          const variantIndex = Number(match[1]);
-          if (!variants[variantIndex]) continue;
+        if (!match) continue;
 
-          const variantImgTask = cloudinary.uploader
-            .upload(file.path, {
-              folder: "products/variants",
-              public_id: `variant-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-            })
-            .then((res) => {
-              uploadedImages.push(res.public_id);
-              if (!variants[variantIndex].images)
-                variants[variantIndex].images = [];
-              variants[variantIndex].images.push({
-                url: res.secure_url,
-                publicId: res.public_id,
-              });
-            });
-          uploadPromises.push(variantImgTask);
+        const variantIndex = Number(match[1]);
+
+        if (!variants[variantIndex]) continue;
+
+        const uploadImage = await cloudinary.uploader.upload(file.path, {
+          folder: "products/variants",
+        });
+
+        uploadedImages.push(uploadImage.public_id);
+
+        if (!variants[variantIndex].images) {
+          variants[variantIndex].images = [];
         }
+
+        variants[variantIndex].images.push({
+          url: uploadImage.secure_url,
+          publicId: uploadImage.public_id,
+        });
       }
 
-      await Promise.all(uploadPromises);
-
-      const newProduct = await productModel.create({
-        name: name.trim(),
+      const product = await productModel.create({
+        name,
         description,
         category,
         brand,
@@ -109,7 +131,7 @@ class ProductService {
         variants,
       });
 
-      return newProduct;
+      return product;
     } catch (error) {
       if (uploadedImages.length > 0) {
         await Promise.all(
@@ -118,6 +140,7 @@ class ProductService {
           ),
         );
       }
+
       throw error;
     } finally {
       if (files?.length > 0) {
@@ -148,43 +171,92 @@ class ProductService {
 
     const skip = (page - 1) * limit;
 
-    const filter = { isDeleted: false };
-    if (search) {
-      filter.$text = { $search: search };
-    }
-    if (category) filter.category = category;
-    if (brand) filter.brand = brand;
-    if (isPublished !== undefined) filter.isPublished = isPublished === "true";
+    const filter = {
+      isDeleted: false,
+    };
 
-    let sortOption = { createdAt: -1 };
+    if (search) {
+      filter.$text = {
+        $search: search,
+      };
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (brand) {
+      filter.brand = brand;
+    }
+
+    if (isPublished !== undefined) {
+      filter.isPublished = isPublished === "true";
+    }
+
+    let sortOption = {
+      createdAt: -1,
+    };
+
     switch (sort) {
       case "oldest":
-        sortOption = { createdAt: 1 };
+        sortOption = {
+          createdAt: 1,
+        };
         break;
+
       case "name_asc":
-        sortOption = { name: 1 };
+        sortOption = {
+          name: 1,
+        };
         break;
+
       case "name_desc":
-        sortOption = { name: -1 };
+        sortOption = {
+          name: -1,
+        };
         break;
+
+      case "best_selling":
+        sortOption = {
+          totalSold: -1,
+        };
+        break;
+
+      case "price_asc":
+        sortOption = {
+          minPrice: 1,
+        };
+        break;
+
+      case "price_desc":
+        sortOption = {
+          minPrice: -1,
+        };
+        break;
+
       default:
-        sortOption = { createdAt: -1 };
+        sortOption = {
+          createdAt: -1,
+        };
     }
 
     const [products, total] = await Promise.all([
       productModel
         .find(filter)
-        .populate("category", "nameCategory")
+        .populate("category", "name")
         .populate("brand", "nameBrand")
         .sort(sortOption)
         .skip(skip)
         .limit(limit)
+        .select("-variants.sizes.sold")
         .lean(),
+
       productModel.countDocuments(filter),
     ]);
 
     return {
       products,
+
       pagination: {
         currentPage: page,
         totalPage: Math.ceil(total / limit),
@@ -195,27 +267,30 @@ class ProductService {
   }
 
   async getDetailProduct(id) {
-    if (!id) throw new BadRequestError("Thiếu id sản phẩm");
-
     const product = await productModel
-      .findOne({ _id: id, isDeleted: false })
-      .populate("category", "nameCategory")
+      .findOne({
+        _id: id,
+        isDeleted: false,
+      })
+      .populate("category", "name")
       .populate("brand", "nameBrand");
 
-    if (!product)
-      throw new NotFoundError("Sản phẩm không tồn tại hoặc đã bị xóa");
+    if (!product) {
+      throw new NotFoundError("Sản phẩm không tồn tại");
+    }
 
     return product;
   }
 
   async updateProduct({ id, body, files }) {
     const uploadedImages = [];
-    try {
-      const { name, description, category, brand, isPublished } = body;
-      let { variants } = body;
 
-      const currentProduct = await productModel.findById(id);
-      if (!currentProduct || currentProduct.isDeleted) {
+    try {
+      let { name, description, category, brand, variants, isPublished } = body;
+
+      const product = await productModel.findById(id);
+
+      if (!product || product.isDeleted) {
         throw new NotFoundError("Sản phẩm không tồn tại");
       }
 
@@ -223,108 +298,121 @@ class ProductService {
         if (typeof variants === "string") {
           try {
             variants = JSON.parse(variants);
-          } catch (e) {
-            throw new BadRequestError("Dữ liệu variants không hợp lệ");
+          } catch (error) {
+            throw new BadRequestError("Variants không hợp lệ");
           }
         }
-        await validateVariants(variants, id);
+
+        await validateVariants(variants);
       }
 
-      let updateData = {
-        name: name?.trim(),
-        description,
-        category,
-        brand,
-        isPublished,
-      };
+      const [foundCategory, foundBrand] = await Promise.all([
+        category ? categoryModel.findById(category) : true,
 
-      if (variants) {
-        updateData.variants = variants;
+        brand ? brandModel.findById(brand) : true,
+      ]);
+
+      if (!foundCategory) {
+        throw new NotFoundError("Danh mục không tồn tại");
+      }
+
+      if (!foundBrand) {
+        throw new NotFoundError("Thương hiệu không tồn tại");
+      }
+
+      if (name && name.trim() !== product.name) {
+        const existing = await productModel.findOne({
+          name: name.trim(),
+          _id: { $ne: id },
+          isDeleted: false,
+        });
+
+        if (existing) {
+          throw new ConflictRequestError("Tên sản phẩm đã tồn tại");
+        }
+
+        product.name = name.trim();
+      }
+
+      if (description !== undefined) {
+        product.description = description;
+      }
+
+      if (category) {
+        product.category = category;
+      }
+
+      if (brand) {
+        product.brand = brand;
+      }
+
+      if (isPublished !== undefined) {
+        product.isPublished = isPublished;
       }
 
       const thumbnailFile = files?.find((f) => f.fieldname === "thumbnail");
+
       if (thumbnailFile) {
-        if (currentProduct.thumbnail?.publicId) {
+        const uploadedThumbnail = await cloudinary.uploader.upload(
+          thumbnailFile.path,
+          {
+            folder: "products/thumbnail",
+          },
+        );
+
+        uploadedImages.push(uploadedThumbnail.public_id);
+
+        if (product.thumbnail?.publicId) {
           await cloudinary.uploader
-            .destroy(currentProduct.thumbnail.publicId)
+            .destroy(product.thumbnail.publicId)
             .catch(() => {});
         }
 
-        const upThum = await cloudinary.uploader.upload(thumbnailFile.path, {
-          folder: "products/thumbnail",
-        });
-        uploadedImages.push(upThum.public_id);
-        updateData.thumbnail = {
-          url: upThum.secure_url,
-          publicId: upThum.public_id,
+        product.thumbnail = {
+          url: uploadedThumbnail.secure_url,
+          publicId: uploadedThumbnail.public_id,
         };
       }
 
-      if (files?.length > 0 && updateData.variants) {
-        const groupedFiles = {};
-
-        for (const file of files) {
-          const match = file.fieldname.match(/variantImages-(\d+)/);
-
-          if (!match) continue;
-
-          const idx = Number(match[1]);
-
-          if (!groupedFiles[idx]) {
-            groupedFiles[idx] = [];
-          }
-
-          groupedFiles[idx].push(file);
-        }
-
-        for (const idx in groupedFiles) {
-          const variantIndex = Number(idx);
-
-          // xóa ảnh cũ
-          const oldVariant = currentProduct.variants[variantIndex];
-
-          if (oldVariant?.images?.length > 0) {
-            await Promise.all(
-              oldVariant.images.map((img) =>
-                cloudinary.uploader.destroy(img.publicId).catch(() => {}),
-              ),
-            );
-          }
-
-          // reset images
-          updateData.variants[variantIndex].images = [];
-
-          // upload ảnh mới
-          for (const file of groupedFiles[idx]) {
-            const upImg = await cloudinary.uploader.upload(file.path, {
-              folder: "products/variants",
-            });
-
-            uploadedImages.push(upImg.public_id);
-
-            updateData.variants[variantIndex].images.push({
-              url: upImg.secure_url,
-              publicId: upImg.public_id,
-            });
-          }
-        }
+      if (variants) {
+        product.variants = variants;
       }
 
-      const updatedProduct = await productModel.findByIdAndUpdate(
-        id,
-        { $set: updateData },
-        { new: true, runValidators: true },
-      );
+      for (const file of files || []) {
+        const match = file.fieldname.match(/variantImages-(\d+)/);
 
-      return updatedProduct;
+        if (!match) continue;
+
+        const variantIndex = Number(match[1]);
+
+        if (!product.variants[variantIndex]) {
+          continue;
+        }
+
+        const uploadedImage = await cloudinary.uploader.upload(file.path, {
+          folder: "products/variants",
+        });
+
+        uploadedImages.push(uploadedImage.public_id);
+
+        product.variants[variantIndex].images.push({
+          url: uploadedImage.secure_url,
+          publicId: uploadedImage.public_id,
+        });
+      }
+
+      await product.save();
+
+      return product;
     } catch (error) {
       if (uploadedImages.length > 0) {
         await Promise.all(
-          uploadedImages.map((pubId) =>
-            cloudinary.uploader.destroy(pubId).catch(() => {}),
+          uploadedImages.map((id) =>
+            cloudinary.uploader.destroy(id).catch(() => {}),
           ),
         );
       }
+
       throw error;
     } finally {
       if (files?.length > 0) {
@@ -336,15 +424,20 @@ class ProductService {
   }
 
   async deleteProduct(id) {
-    const deletedProduct = await productModel.findByIdAndUpdate(
+    const product = await productModel.findById(id);
+
+    if (!product) {
+      throw new NotFoundError("Sản phẩm không tồn tại");
+    }
+
+    product.isDeleted = true;
+    product.isPublished = false;
+
+    await product.save();
+
+    return {
       id,
-      { isDeleted: true, isPublished: false },
-      { new: true },
-    );
-
-    if (!deletedProduct) throw new NotFoundError("Sản phẩm không tồn tại");
-
-    return { id };
+    };
   }
 }
 

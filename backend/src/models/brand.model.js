@@ -6,10 +6,14 @@ const brandSchema = new Schema(
     nameBrand: {
       type: String,
       require: true,
+      trim: true,
     },
     slugBrand: {
       type: String,
-      require: true,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
     description: {
       type: String,
@@ -28,4 +32,14 @@ const brandSchema = new Schema(
     timestamps: true,
   },
 );
+
+brandSchema.pre("validate", function (next) {
+  if (this.isModified("nameBrand")) {
+    this.slugBrand = slugify(this.nameBrand, {
+      lower: true,
+      strict: true,
+      locale: "vi",
+    });
+  }
+});
 module.exports = mongoose.model("Brand", brandSchema);
