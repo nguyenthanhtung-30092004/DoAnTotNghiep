@@ -33,7 +33,6 @@ router.put(
 router.delete(
   "/delete/:id",
   authAdmin,
-  upload.single("thumbnail"),
   asyncHandler(categoryController.deleteCategory),
 );
 
