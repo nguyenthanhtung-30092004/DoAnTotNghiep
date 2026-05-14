@@ -22,7 +22,7 @@ const authUser = async (req, res, next) => {
     }
 
     req.user = user;
-    req.user.userId = user._id; // Provide userId for controllers
+    req.user.userId = user._id;
     return next();
   } catch (error) {
     next(error);

@@ -204,7 +204,7 @@ const productSchema = new Schema(
   },
 );
 
-productSchema.pre("validate", function (next) {
+productSchema.pre("validate", function () {
   if (!this.slug) {
     this.slug =
       slugify(this.name, {
@@ -215,11 +215,9 @@ productSchema.pre("validate", function (next) {
       "-" +
       nanoid(6);
   }
-
-  next();
 });
 
-productSchema.pre("save", function (next) {
+productSchema.pre("save", function () {
   let totalStock = 0;
   let totalSold = 0;
 
@@ -241,8 +239,6 @@ productSchema.pre("save", function (next) {
 
   this.minPrice = prices.length ? Math.min(...prices) : 0;
   this.maxPrice = prices.length ? Math.max(...prices) : 0;
-
-  next();
 });
 
 productSchema.index({
