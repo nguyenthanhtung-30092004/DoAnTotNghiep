@@ -1,9 +1,11 @@
 const { BadRequestError, NotFoundError } = require("../core/error.response");
 const cartModel = require("../models/cart.model");
+const productModel = require("../models/product.model");
 
 class CartService {
   // Add to cart
-  async addToCard(userId, productId, variantId, sizeId, quantity) {
+  async addToCard({ userId, productId, variantId, sizeId, quantity }) {
+    console.log(userId);
     // Validate
     if (!productId || !variantId || !sizeId || !quantity) {
       throw new BadRequestError("Thiếu thông tin");
@@ -72,7 +74,7 @@ class CartService {
     }
     // create new item
     else {
-      cart.item.push({
+      cart.items.push({
         product: product._id,
         variantId: variant._id,
         sizeId: size._id,
@@ -102,7 +104,7 @@ class CartService {
       .findOne({
         user: userId,
       })
-      .populate("product", "name slug thumbnail isPublished isDeleted")
+      .populate("items.product", "name slug thumbnail isPublished isDeleted")
       .lean();
 
     if (!cart) {
@@ -119,7 +121,7 @@ class CartService {
   }
 
   // Remove from cart
-  async removeFromCart(userId, itemId) {
+  async removeFromCart({ userId, itemId }) {
     const cart = await cartModel.findOne({
       user: userId,
     });
@@ -136,7 +138,7 @@ class CartService {
   }
 
   // Update item quantity
-  async updateItemQuantity(userId, itemId, quantity) {
+  async updateItemQuantity({ userId, itemId, quantity }) {
     if (quantity < 1) {
       throw new BadRequestError("Số lượng không hợp lệ");
     }

@@ -2,6 +2,33 @@ const { AuthFailureError } = require("../core/error.response");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
 
+const authUser = async (req, res, next) => {
+  try {
+    const accessToken = req.cookies.accessToken;
+    if (!accessToken) {
+      throw new AuthFailureError("Vui lòng đăng nhập lại");
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+    } catch (error) {
+      throw new AuthFailureError("Phiên đăng nhập hết hạn");
+    }
+
+    const user = await userModel.findById(decoded.id);
+    if (!user) {
+      throw new AuthFailureError("Người dùng không tồn tại");
+    }
+
+    req.user = user;
+    req.user.userId = user._id; // Provide userId for controllers
+    return next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 const authAdmin = async (req, res, next) => {
   try {
     // 1. Lấy Token từ cookie
@@ -29,9 +56,11 @@ const authAdmin = async (req, res, next) => {
     }
 
     req.user = user;
+    req.user.userId = user._id;
     return next();
   } catch (error) {
     next(error);
   }
 };
-module.exports = { authAdmin };
+
+module.exports = { authAdmin, authUser };

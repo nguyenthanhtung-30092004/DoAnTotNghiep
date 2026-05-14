@@ -144,8 +144,6 @@ cartSchema.pre("save", function (next) {
   this.totalPrice = totalPrice;
   this.totalDiscount = totalDiscount;
   this.finalPrice = totalPrice - totalDiscount;
-
-  next();
 });
 
 module.exports = mongoose.model("Cart", cartSchema);
