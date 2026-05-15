@@ -13,3 +13,10 @@ export const API_CATEGORY_LIST = `${API_CATEGORY}/list`;
 export const API_CATEGORY_CREATE = `${API_CATEGORY}/create`;
 export const API_CATEGORY_UPDATE = `${API_CATEGORY}/update`;
 export const API_CATEGORY_DELETE = `${API_CATEGORY}/delete`;
+
+// Brand
+export const API_BRAND = `${API_BASE}/brand`;
+export const API_BRAND_LIST = `${API_BRAND}/listbrand`;
+export const API_BRAND_CREATE = `${API_BRAND}/create`;
+export const API_BRAND_UPDATE = `${API_BRAND}/update`;
+export const API_BRAND_DELETE = `${API_BRAND}/delete`;

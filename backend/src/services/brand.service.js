@@ -13,8 +13,9 @@ class BrandService {
     return await brandModel.find();
   }
 
-  async createBrand({ file, nameBrand, slugBrand, description }) {
+  async createBrand({ file, nameBrand, slugBrand, description, outStanding }) {
     let uploadImage = null;
+
     try {
       if (!file) {
         throw new BadRequestError("Vui lòng upload ảnh");
@@ -38,6 +39,7 @@ class BrandService {
         nameBrand,
         slugBrand,
         description,
+        outStanding: outStanding === "true" || outStanding === true,
         logoBrand: uploadImage.secure_url,
       });
 
@@ -48,6 +50,7 @@ class BrandService {
           .destroy(uploadImage.public_id)
           .catch(() => {});
       }
+
       throw error;
     } finally {
       if (file?.path) {

@@ -12,12 +12,13 @@ class BrandController {
   }
 
   async createBrand(req, res) {
-    const { nameBrand, slugBrand, description } = req.body;
+    const { nameBrand, slugBrand, description, outStanding } = req.body;
     const newBrand = await brandService.createBrand({
       file: req.file,
       nameBrand,
       slugBrand,
       description,
+      outStanding,
     });
 
     return new Created({
