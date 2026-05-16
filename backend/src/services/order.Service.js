@@ -5,6 +5,7 @@ const { BadRequestError, NotFoundError } = require("../core/error.response");
 const cartModel = require("../models/cart.model");
 const productModel = require("../models/product.model");
 const orderModel = require("../models/order.model");
+const couponService = require("./coupon.service");
 
 class OrderService {
   async createOrderFromCart({
@@ -12,6 +13,7 @@ class OrderService {
     shippingAddress,
     paymentMethod = "COD",
     note = "",
+    couponCode = "",
   }) {
     if (
       !shippingAddress ||
@@ -60,7 +62,7 @@ class OrderService {
 
       const size = variant.sizes.id(cartItem.sizeId);
 
-      if (!size) {
+      if (!size || !size.isActive) {
         throw new BadRequestError(
           `Size của ${cartItem.productName} không còn tồn tại`,
         );
@@ -112,20 +114,57 @@ class OrderService {
 
         itemTotal,
       });
+    }
 
-      size.stock -= cartItem.quantity;
+    const subtotalAfterProductDiscount = totalPrice - totalDiscount;
 
-      size.sold = (size.sold || 0) + cartItem.quantity;
+    let couponDiscount = 0;
+
+    let couponData = {
+      code: "",
+      couponId: null,
+      discountType: "",
+      discountValue: 0,
+    };
+
+    if (couponCode) {
+      const couponResult = await couponService.validateCouponForItems({
+        userId,
+        code: couponCode,
+        items: orderItems,
+        subtotal: subtotalAfterProductDiscount,
+      });
+
+      couponDiscount = couponResult.couponDiscount;
+
+      couponData = {
+        code: couponResult.coupon.code,
+        couponId: couponResult.coupon._id,
+        discountType: couponResult.coupon.discountType,
+        discountValue: couponResult.coupon.discountValue,
+      };
+    }
+
+    const shippingFee = subtotalAfterProductDiscount >= 1000000 ? 0 : 30000;
+
+    const finalPrice = Math.max(
+      subtotalAfterProductDiscount + shippingFee - couponDiscount,
+      0,
+    );
+
+    for (const orderItem of orderItems) {
+      const product = await productModel.findById(orderItem.product);
+
+      const variant = product.variants.id(orderItem.variantId);
+
+      const size = variant.sizes.id(orderItem.sizeId);
+
+      size.stock -= orderItem.quantity;
+
+      size.sold = (size.sold || 0) + orderItem.quantity;
 
       await product.save();
     }
-
-    const shippingFee = totalPrice >= 1000000 ? 0 : 30000;
-
-    const couponDiscount = 0;
-
-    const finalPrice =
-      totalPrice - totalDiscount + shippingFee - couponDiscount;
 
     const order = await orderModel.create({
       user: userId,
@@ -148,12 +187,21 @@ class OrderService {
 
       shippingFee,
 
+      coupon: couponData,
+
       couponDiscount,
 
       finalPrice,
 
       note,
     });
+
+    if (couponData.couponId) {
+      await couponService.increaseUsage({
+        couponId: couponData.couponId,
+        userId,
+      });
+    }
 
     cart.items = [];
 
@@ -270,6 +318,13 @@ class OrderService {
     order.cancelledBy = "USER";
 
     order.cancelledAt = new Date();
+
+    if (order.coupon?.couponId) {
+      await couponService.decreaseUsage({
+        couponId: order.coupon.couponId,
+        userId: order.user,
+      });
+    }
 
     await order.save();
 
@@ -450,6 +505,13 @@ class OrderService {
     order.cancelledBy = "ADMIN";
 
     order.cancelledAt = new Date();
+
+    if (order.coupon?.couponId) {
+      await couponService.decreaseUsage({
+        couponId: order.coupon.couponId,
+        userId: order.user,
+      });
+    }
 
     await order.save();
 

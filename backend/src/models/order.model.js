@@ -217,6 +217,30 @@ const orderSchema = new Schema(
       min: 0,
     },
 
+    coupon: {
+      code: {
+        type: String,
+        default: "",
+      },
+
+      couponId: {
+        type: Schema.Types.ObjectId,
+        ref: "Coupon",
+        default: null,
+      },
+
+      discountType: {
+        type: String,
+        enum: ["PERCENT", "FIXED", ""],
+        default: "",
+      },
+
+      discountValue: {
+        type: Number,
+        default: 0,
+      },
+    },
+
     finalPrice: {
       type: Number,
       default: 0,

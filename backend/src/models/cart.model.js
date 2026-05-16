@@ -124,7 +124,7 @@ const cartSchema = new Schema(
   },
 );
 
-cartSchema.pre("save", function (next) {
+cartSchema.pre("save", function () {
   let totalQuantity = 0;
   let totalPrice = 0;
   let totalDiscount = 0;

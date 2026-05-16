@@ -3,13 +3,14 @@ const express = require("express");
 const { asyncHandler } = require("../auth/checkAuth");
 const { authAdmin, authUser } = require("../middlewares/authUser");
 const orderController = require("../controllers/order.controller");
+const couponService = require("../services/coupon.service");
 
 const router = express.Router();
 router.use(authUser);
 
 // create order
 
-router.post("/checkout", asyncHandler(orderController.createOrder));
+router.post("/checkout", asyncHandler(orderController.createOrderFromCart));
 
 router.get("/my-orders", asyncHandler(orderController.getMyOrders));
 

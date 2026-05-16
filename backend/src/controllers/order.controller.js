@@ -3,14 +3,15 @@ const orderService = require("../services/order.Service");
 
 class OrderController {
   // user create order
-  createOrder = async (req, res) => {
-    new Created({
-      message: "Đặt hàng thành công",
+  createOrderFromCart = async (req, res) => {
+    new OK({
+      message: "Tạo đơn hàng thành công",
       metadata: await orderService.createOrderFromCart({
-        userId: req.user.userId,
+        userId: req.user._id,
         shippingAddress: req.body.shippingAddress,
         paymentMethod: req.body.paymentMethod,
         note: req.body.note,
+        couponCode: req.body.couponCode,
       }),
     }).send(res);
   };

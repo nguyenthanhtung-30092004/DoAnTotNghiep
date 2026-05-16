@@ -16,7 +16,7 @@ class CartService {
     }
 
     // find product
-    const product = await productModel.findById({
+    const product = await productModel.findOne({
       _id: productId,
       isDeleted: false,
       isPublished: true,
