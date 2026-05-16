@@ -1,25 +1,6 @@
-import { Image, UploadCloud, X } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
+import { UploadCloud, X } from "lucide-react";
 import { toast } from "react-toastify";
-
-const convertToSlug = (text) => {
-  return text
-    .toLowerCase()
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "d")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-};
-
-const getParentId = (category) => {
-  if (!category?.parentId) return "";
-  if (typeof category.parentId === "object") return category.parentId._id || "";
-  return category.parentId;
-};
 
 const AddForm = ({
   onClose,
@@ -27,71 +8,52 @@ const AddForm = ({
   categories = [],
   editingCategory = null,
 }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    parentId: "",
-    description: "",
-  });
+  const isEdit = Boolean(editingCategory);
+
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [parentId, setParentId] = useState("");
+  const [description, setDescription] = useState("");
 
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState("");
+
   const [loading, setLoading] = useState(false);
 
-  const isEdit = Boolean(editingCategory);
-
   useEffect(() => {
-    if (editingCategory) {
-      setFormData({
-        name: editingCategory.name || "",
-        slug: editingCategory.slug || "",
-        parentId:
-          editingCategory.parentId?._id || editingCategory.parentId || "",
-        description: editingCategory.description || "",
-      });
+    if (!editingCategory) return;
 
-      setPreview(editingCategory.thumbnail || "");
-      setThumbnail(null);
+    setName(editingCategory.name || "");
+    setSlug(editingCategory.slug || "");
+    setDescription(editingCategory.description || "");
+    setPreview(editingCategory.thumbnail || "");
+    setThumbnail(null);
+
+    if (editingCategory.parentId) {
+      setParentId(editingCategory.parentId._id || editingCategory.parentId);
+    } else {
+      setParentId("");
     }
   }, [editingCategory]);
 
   const parentCategories = useMemo(() => {
-    if (!Array.isArray(categories)) return [];
-
     return categories.filter((category) => {
-      const isRoot = !getParentId(category);
+      const isRootCategory = !category.parentId;
+      const isCurrentCategory = category._id === editingCategory?._id;
 
-      if (!isRoot) return false;
-      if (editingCategory && category._id === editingCategory._id) return false;
-
-      return true;
+      return isRootCategory && !isCurrentCategory;
     });
   }, [categories, editingCategory]);
 
   const handleChangeName = (e) => {
     const value = e.target.value;
 
-    setFormData((prev) => ({
-      ...prev,
-      name: value,
-      slug: convertToSlug(value),
-    }));
+    setName(value);
+    setSlug(createSlug(value));
   };
 
   const handleChangeSlug = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      slug: convertToSlug(e.target.value),
-    }));
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setSlug(createSlug(e.target.value));
   };
 
   const handleChangeFile = (e) => {
@@ -111,12 +73,12 @@ const AddForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim()) {
+    if (!name.trim()) {
       toast.warning("Vui lòng nhập tên danh mục");
       return;
     }
 
-    if (!formData.slug.trim()) {
+    if (!slug.trim()) {
       toast.warning("Vui lòng nhập slug");
       return;
     }
@@ -126,29 +88,20 @@ const AddForm = ({
       return;
     }
 
-    const data = new FormData();
+    const formData = new FormData();
 
-    data.append("name", formData.name.trim());
-    data.append("slug", formData.slug.trim());
-    data.append("parentId", formData.parentId || "");
-    data.append("description", formData.description || "");
+    formData.append("name", name.trim());
+    formData.append("slug", slug.trim());
+    formData.append("parentId", parentId || "");
+    formData.append("description", description.trim());
 
     if (thumbnail) {
-      data.append("thumbnail", thumbnail);
+      formData.append("thumbnail", thumbnail);
     }
 
     try {
       setLoading(true);
-      await onSubmit(data);
-
-      toast.success(
-        isEdit ? "Cập nhật danh mục thành công" : "Thêm danh mục thành công",
-      );
-
-      onClose();
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || "Có lỗi xảy ra");
+      await onSubmit(formData);
     } finally {
       setLoading(false);
     }
@@ -165,6 +118,7 @@ const AddForm = ({
             <h2 className="text-xl font-bold text-slate-900">
               {isEdit ? "Cập nhật danh mục" : "Thêm danh mục mới"}
             </h2>
+
             <p className="mt-1 text-sm text-slate-500">
               {isEdit
                 ? "Chỉnh sửa thông tin danh mục hiện tại"
@@ -188,13 +142,13 @@ const AddForm = ({
               <label className="text-sm font-semibold text-slate-700">
                 Tên danh mục <span className="text-red-500">*</span>
               </label>
+
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                value={name}
                 onChange={handleChangeName}
-                className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
                 placeholder="VD: Giày chạy bộ"
+                className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
               />
             </div>
 
@@ -202,16 +156,17 @@ const AddForm = ({
               <label className="text-sm font-semibold text-slate-700">
                 Slug <span className="text-red-500">*</span>
               </label>
+
               <input
                 type="text"
-                name="slug"
-                value={formData.slug}
+                value={slug}
                 onChange={handleChangeSlug}
-                className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-4 font-mono text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
                 placeholder="giay-chay-bo"
+                className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-4 font-mono text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
               />
+
               <p className="mt-1 text-xs text-slate-500">
-                Tự động tạo từ tên, không dấu và khoảng trắng thành dấu -
+                Slug tự động tạo từ tên danh mục.
               </p>
             </div>
 
@@ -219,13 +174,13 @@ const AddForm = ({
               <label className="text-sm font-semibold text-slate-700">
                 Danh mục cha
               </label>
+
               <select
-                name="parentId"
-                value={formData.parentId}
-                onChange={handleChange}
-                className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                value={parentId}
+                onChange={(e) => setParentId(e.target.value)}
+                className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
               >
-                <option value="">— Không có, danh mục gốc —</option>
+                <option value="">— Không có, là danh mục gốc —</option>
 
                 {parentCategories.map((category) => (
                   <option key={category._id} value={category._id}>
@@ -233,6 +188,7 @@ const AddForm = ({
                   </option>
                 ))}
               </select>
+
               <p className="mt-1 text-xs text-slate-500">
                 Chỉ danh mục gốc được chọn làm danh mục cha.
               </p>
@@ -242,12 +198,12 @@ const AddForm = ({
               <label className="text-sm font-semibold text-slate-700">
                 Mô tả
               </label>
+
               <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="mt-2 min-h-[115px] w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Nhập mô tả ngắn cho danh mục..."
+                className="mt-2 min-h-[115px] w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
               />
             </div>
           </div>
@@ -257,7 +213,7 @@ const AddForm = ({
               Ảnh đại diện
             </label>
 
-            <label className="mt-2 flex h-[300px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-4 text-center transition hover:border-indigo-300 hover:bg-indigo-50/50">
+            <label className="mt-2 flex h-[300px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-4 text-center hover:border-indigo-300 hover:bg-indigo-50/50">
               {preview ? (
                 <div className="w-full">
                   <img
@@ -265,6 +221,7 @@ const AddForm = ({
                     alt="Preview"
                     className="mx-auto h-52 w-full rounded-xl object-cover shadow-sm"
                   />
+
                   <p className="mt-3 text-sm font-semibold text-indigo-600">
                     Click để đổi ảnh
                   </p>
@@ -274,9 +231,11 @@ const AddForm = ({
                   <div className="flex size-14 items-center justify-center rounded-full bg-white shadow-sm">
                     <UploadCloud className="size-7 text-slate-400" />
                   </div>
+
                   <p className="mt-4 text-sm font-semibold text-slate-700">
                     Click để chọn ảnh
                   </p>
+
                   <p className="mt-1 text-xs text-slate-500">
                     PNG, JPG tối đa 2MB
                   </p>
@@ -318,6 +277,19 @@ const AddForm = ({
       </form>
     </div>
   );
+};
+
+const createSlug = (text) => {
+  return text
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "d")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 };
 
 export default AddForm;

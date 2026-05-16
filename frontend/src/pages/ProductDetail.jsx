@@ -9,7 +9,7 @@ import ProductDescription from "../components/Product/ProductDescription";
 import ProductReviews from "../components/Product/ProductReviews";
 import RelatedProducts from "../components/Product/RelatedProducts";
 import StickyAddToCart from "../components/Product/StickyAddToCart";
-import shoe1 from "../assets/shoe1.png"
+import shoe1 from "../assets/shoe1.png";
 
 // Mock Data
 const productData = {
@@ -20,10 +20,10 @@ const productData = {
   originalPrice: 219,
   rating: 4.9,
   reviewCount: 512,
-  images: [
-    shoe1,
+  images: [shoe1],
+  sizes: [
+    5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5,
   ],
-  sizes: [5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5],
   description:
     "The VelocityMax 3 is engineered for runners who demand peak performance...",
   features: [
@@ -67,7 +67,7 @@ const productData = {
       name: "Orange",
       value: "#F97316",
     },
-  ]
+  ],
 };
 
 const ProductDetail = () => {
@@ -76,7 +76,6 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 mx-[120px]">
         <div className="container py-4">
           <nav className="flex items-center gap-1 text-sm text-gray-500">

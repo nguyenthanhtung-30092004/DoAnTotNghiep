@@ -7,7 +7,6 @@ import { Input } from "../components/ui/Input";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { resetPassword, verifyOtp } from "../redux/feature/authSlice";
-// Import các action từ authSlice của bạn
 
 const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);

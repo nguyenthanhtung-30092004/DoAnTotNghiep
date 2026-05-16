@@ -1,50 +1,57 @@
-import { FolderTree, ImageOff, Pencil, Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
 
-import AddForm from "../components/CategoryForm/AddForm";
-import DeleteForm from "../components/CategoryForm/DeleteForm";
+import AddForm from "../components/Category/CategoryForm/AddForm";
+import DeleteForm from "../components/Category/CategoryForm/DeleteForm";
+
+import CategoryStats from "../components/Category/CategoryTable/CategoryStats";
+import CategoryFilters from "../components/Category/CategoryTable/CategoryFilters";
+import CategoryTable from "../components/Category/CategoryTable/CategoryTable";
+
 import categoryService from "../../services/category.service";
 
+const DEFAULT_PAGINATION = {
+  total: 0,
+  page: 1,
+  limit: 10,
+  totalPages: 1,
+};
+
 const AdminCategories = () => {
+  const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+
+  const [pagination, setPagination] = useState(DEFAULT_PAGINATION);
+
+  const [filters, setFilters] = useState({
+    keyword: "",
+    type: "",
+  });
+
   const [openForm, setOpenForm] = useState(false);
   const [openDeleteForm, setOpenDeleteForm] = useState(false);
 
-  const [categories, setCategories] = useState([]);
   const [editingCategory, setEditingCategory] = useState(null);
   const [deletingCategory, setDeletingCategory] = useState(null);
 
   const [loading, setLoading] = useState(false);
 
-  const normalizeCategories = (resData) => {
-    const metadata = resData?.metadata;
-
-    if (Array.isArray(metadata)) return metadata;
-    if (Array.isArray(metadata?.categories)) return metadata.categories;
-    if (Array.isArray(metadata?.data)) return metadata.data;
-    if (Array.isArray(resData?.data)) return resData.data;
-
-    return [];
-  };
-
-  const getParentId = (category) => {
-    if (!category?.parentId) return null;
-
-    if (typeof category.parentId === "object") {
-      return category.parentId._id;
-    }
-
-    return category.parentId;
-  };
-
   const fetchCategories = async () => {
     try {
       setLoading(true);
 
-      const res = await categoryService.getAllCategories();
-      const data = normalizeCategories(res.data);
+      const params = {
+        keyword: filters.keyword.trim(),
+        type: filters.type,
+        page: pagination.page,
+        limit: pagination.limit,
+      };
 
-      setCategories(data);
+      const res = await categoryService.getAllCategories(params);
+
+      setCategories(getCategoryList(res.data));
+      setPagination(getPagination(res.data));
     } catch (error) {
       console.log(error);
       toast.error(
@@ -55,61 +62,78 @@ const AdminCategories = () => {
     }
   };
 
+  const fetchAllCategories = async () => {
+    try {
+      const res = await categoryService.getAllCategories({
+        page: 1,
+        limit: 1000,
+      });
+
+      setAllCategories(getCategoryList(res.data));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+  }, [filters, pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    fetchAllCategories();
   }, []);
 
-  const displayCategories = useMemo(() => {
-    if (!Array.isArray(categories)) return [];
+  const stats = useMemo(() => {
+    const rootCount = allCategories.filter((item) => item.level === 0).length;
+    const childCount = allCategories.filter((item) => item.level === 1).length;
 
-    const parents = categories.filter((item) => !getParentId(item));
-    const children = categories.filter((item) => getParentId(item));
+    return {
+      total: pagination.total,
+      root: rootCount,
+      child: childCount,
+    };
+  }, [allCategories, pagination.total]);
 
-    const result = [];
+  const handleChangeFilter = (name, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-    parents.forEach((parent) => {
-      result.push({
-        ...parent,
-        level: 0,
-        parentName: "Danh mục gốc",
-      });
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+    }));
+  };
 
-      const childList = children.filter(
-        (child) => getParentId(child) === parent._id,
-      );
+  const handleChangeLimit = (limit) => {
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+      limit,
+    }));
+  };
 
-      childList.forEach((child) => {
-        result.push({
-          ...child,
-          level: 1,
-          parentName: parent.name,
-        });
-      });
+  const handleChangePage = (page) => {
+    if (page < 1 || page > pagination.totalPages) return;
+
+    setPagination((prev) => ({
+      ...prev,
+      page,
+    }));
+  };
+
+  const handleResetFilter = () => {
+    setFilters({
+      keyword: "",
+      type: "",
     });
 
-    const orphanChildren = children.filter((child) => {
-      const parentId = getParentId(child);
-      return !parents.some((parent) => parent._id === parentId);
-    });
-
-    orphanChildren.forEach((child) => {
-      result.push({
-        ...child,
-        level: 1,
-        parentName: "Không tìm thấy danh mục cha",
-      });
-    });
-
-    return result;
-  }, [categories]);
-
-  const rootCount = useMemo(() => {
-    return categories.filter((item) => !getParentId(item)).length;
-  }, [categories]);
-
-  const childCount = useMemo(() => {
-    return categories.filter((item) => getParentId(item)).length;
-  }, [categories]);
+    setPagination((prev) => ({
+      ...prev,
+      page: 1,
+    }));
+  };
 
   const handleOpenAdd = () => {
     setEditingCategory(null);
@@ -127,14 +151,23 @@ const AdminCategories = () => {
   };
 
   const handleSubmitForm = async (formData) => {
-    if (editingCategory) {
-      await categoryService.updateCategory(editingCategory._id, formData);
-      await fetchCategories();
-      return;
-    }
+    try {
+      if (editingCategory) {
+        await categoryService.updateCategory(editingCategory._id, formData);
+        toast.success("Cập nhật danh mục thành công");
+      } else {
+        await categoryService.createCategory(formData);
+        toast.success("Thêm danh mục thành công");
+      }
 
-    await categoryService.createCategory(formData);
-    await fetchCategories();
+      handleCloseForm();
+
+      await fetchCategories();
+      await fetchAllCategories();
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Lưu danh mục thất bại");
+    }
   };
 
   const handleOpenDelete = (category) => {
@@ -148,196 +181,70 @@ const AdminCategories = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (!deletingCategory?._id) return;
+    try {
+      if (!deletingCategory?._id) return;
 
-    await categoryService.deleteCategory(deletingCategory._id);
-    await fetchCategories();
+      await categoryService.deleteCategory(deletingCategory._id);
+      toast.success("Xóa danh mục thành công");
+
+      handleCloseDelete();
+
+      await fetchCategories();
+      await fetchAllCategories();
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Xóa danh mục thất bại");
+    }
   };
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Danh mục</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="mt-1 text-sm text-slate-500">
             Quản lý danh mục sản phẩm, danh mục cha và danh mục con
           </p>
         </div>
 
         <button
+          type="button"
           onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 shadow-soft h-10 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
         >
           <Plus className="size-4" />
           Thêm danh mục
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">Tổng danh mục</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">
-            {categories.length}
-          </p>
-        </div>
+      <CategoryStats
+        total={stats.total}
+        root={stats.root}
+        child={stats.child}
+      />
 
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">Danh mục gốc</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{rootCount}</p>
-        </div>
+      <CategoryFilters
+        filters={filters}
+        limit={pagination.limit}
+        onChangeFilter={handleChangeFilter}
+        onChangeLimit={handleChangeLimit}
+        onReset={handleResetFilter}
+      />
 
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">Danh mục con</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{childCount}</p>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-5">
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center gap-2">
-          <FolderTree className="size-5 text-indigo-600" />
-          <div>
-            <h2 className="font-semibold text-slate-900">Danh sách danh mục</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Danh mục con được hiển thị thụt vào bên dưới danh mục cha
-            </p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr className="text-left">
-                <th className="px-5 py-3 font-semibold text-slate-700">
-                  Danh mục
-                </th>
-                <th className="px-5 py-3 font-semibold text-slate-700">Slug</th>
-                <th className="px-5 py-3 font-semibold text-slate-700">
-                  Cấp danh mục
-                </th>
-                <th className="px-5 py-3 font-semibold text-slate-700">
-                  Mô tả
-                </th>
-                <th className="px-5 py-3 font-semibold text-slate-700 text-center">
-                  Sản phẩm
-                </th>
-                <th className="px-5 py-3 font-semibold text-slate-700 text-right">
-                  Thao tác
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan="6"
-                    className="px-5 py-10 text-center text-slate-500"
-                  >
-                    Đang tải danh mục...
-                  </td>
-                </tr>
-              ) : displayCategories.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="6"
-                    className="px-5 py-10 text-center text-slate-500"
-                  >
-                    Chưa có danh mục nào
-                  </td>
-                </tr>
-              ) : (
-                displayCategories.map((category) => (
-                  <tr
-                    key={category._id}
-                    className="border-b border-slate-100 hover:bg-slate-50"
-                  >
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        {category.level === 1 && (
-                          <span className="text-slate-400 ml-4">└</span>
-                        )}
-
-                        {category.thumbnail ? (
-                          <img
-                            src={category.thumbnail}
-                            alt={category.name}
-                            className="w-10 h-10 rounded-lg object-cover border border-slate-200"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
-                            <ImageOff className="size-4 text-slate-400" />
-                          </div>
-                        )}
-
-                        <div>
-                          <p className="font-medium text-slate-900">
-                            {category.name}
-                          </p>
-                          {category.level === 1 && (
-                            <p className="text-xs text-slate-500">
-                              Thuộc: {category.parentName}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-5 py-3 text-slate-600 font-mono text-xs">
-                      {category.slug}
-                    </td>
-
-                    <td className="px-5 py-3">
-                      {category.level === 0 ? (
-                        <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                          Danh mục gốc
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                          Danh mục con
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="px-5 py-3 text-slate-600 max-w-xs truncate">
-                      {category.description || "Không có mô tả"}
-                    </td>
-
-                    <td className="px-5 py-3 text-center text-slate-700">
-                      {category.productCount || category.products?.length || 0}
-                    </td>
-
-                    <td className="px-5 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleOpenEdit(category)}
-                          className="h-8 w-8 rounded-md hover:bg-slate-200 flex items-center justify-center text-slate-600"
-                          title="Sửa danh mục"
-                        >
-                          <Pencil className="size-4" />
-                        </button>
-
-                        <button
-                          onClick={() => handleOpenDelete(category)}
-                          className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600"
-                          title="Xóa danh mục"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <CategoryTable
+        categories={categories}
+        loading={loading}
+        pagination={pagination}
+        onPageChange={handleChangePage}
+        onEdit={handleOpenEdit}
+        onDelete={handleOpenDelete}
+      />
 
       {openForm && (
         <AddForm
           onClose={handleCloseForm}
           onSubmit={handleSubmitForm}
-          categories={categories}
+          categories={allCategories}
           editingCategory={editingCategory}
         />
       )}
@@ -350,6 +257,30 @@ const AdminCategories = () => {
         />
       )}
     </div>
+  );
+};
+
+const getCategoryList = (resData) => {
+  const metadata = resData?.metadata;
+
+  if (Array.isArray(metadata?.data)) return metadata.data;
+  if (Array.isArray(metadata?.data?.data)) return metadata.data.data;
+  if (Array.isArray(metadata)) return metadata;
+
+  return [];
+};
+
+const getPagination = (resData) => {
+  const metadata = resData?.metadata;
+
+  return (
+    metadata?.pagination ||
+    metadata?.data?.pagination || {
+      total: 0,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    }
   );
 };
 

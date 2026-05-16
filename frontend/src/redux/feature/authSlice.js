@@ -56,7 +56,7 @@ export const forgotPassword = createAsyncThunk(
       return res.data.message || "Đã gửi email";
     } catch (error) {
       return rejectWithValue(
-        err.response?.data?.message || "Gửi email thất bại",
+        error.response?.data?.message || "Gửi email thất bại",
       );
     }
   },

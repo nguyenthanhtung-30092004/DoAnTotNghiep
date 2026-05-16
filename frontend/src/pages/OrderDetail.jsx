@@ -13,7 +13,6 @@ import {
 const OrderDetail = () => {
   return (
     <div>
-      <Header />
       <main className="flex-1">
         <div className="container py-8 md:py-12 max-w-4xl">
           <a

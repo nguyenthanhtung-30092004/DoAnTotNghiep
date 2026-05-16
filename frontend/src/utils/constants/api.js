@@ -7,12 +7,12 @@ export const API_FORGOT_PASSWORD = `${API_AUTH}/forgot-password`;
 export const API_VERIFY_OTP = `${API_AUTH}/verify-otp`;
 export const API_RESET_PASSWORD = `${API_AUTH}/reset-password`;
 
-// Category
-export const API_CATEGORY = `${API_BASE}/category`;
-export const API_CATEGORY_LIST = `${API_CATEGORY}/list`;
-export const API_CATEGORY_CREATE = `${API_CATEGORY}/create`;
-export const API_CATEGORY_UPDATE = `${API_CATEGORY}/update`;
-export const API_CATEGORY_DELETE = `${API_CATEGORY}/delete`;
+// Categories
+export const API_CATEGORY = `${API_BASE}/categories`;
+export const API_CATEGORY_LIST = `${API_CATEGORY}/`;
+export const API_CATEGORY_CREATE = `${API_CATEGORY}/`;
+export const API_CATEGORY_UPDATE = `${API_CATEGORY}/`;
+export const API_CATEGORY_DELETE = `${API_CATEGORY}/`;
 
 // Brand
 export const API_BRAND = `${API_BASE}/brand`;

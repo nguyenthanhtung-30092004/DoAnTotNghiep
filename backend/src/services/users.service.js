@@ -16,8 +16,7 @@ class UsersService {
     if (!fullName || !email || !password) {
       throw new ConflictRequestError("Thiếu thông tin đăng ký");
     }
-
-    if (!/^\\S+@\\S+\\.\\S+$/.test(email)) {
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
       throw new ConflictRequestError("Email không hợp lệ");
     }
 

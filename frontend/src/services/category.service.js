@@ -1,44 +1,41 @@
 import axios from "axios";
-import {
-  API_CATEGORY_CREATE,
-  API_CATEGORY_DELETE,
-  API_CATEGORY_LIST,
-  API_CATEGORY_UPDATE,
-} from "../utils/constants/api";
+import { API_CATEGORY } from "../utils/constants/api";
 
-const getAllCategories = () => {
-  return axios.get(API_CATEGORY_LIST, {
-    withCredentials: true,
+const axiosConfig = {
+  withCredentials: true,
+};
+
+const formDataConfig = {
+  withCredentials: true,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+};
+
+const getAllCategories = (params = {}) => {
+  return axios.get(API_CATEGORY, {
+    ...axiosConfig,
+    params,
   });
 };
 
 const createCategory = (formData) => {
-  return axios.post(API_CATEGORY_CREATE, formData, {
-    withCredentials: true,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  return axios.post(API_CATEGORY, formData, formDataConfig);
 };
 
 const updateCategory = (id, formData) => {
-  return axios.put(`${API_CATEGORY_UPDATE}/${id}`, formData, {
-    withCredentials: true,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  return axios.put(`${API_CATEGORY}/${id}`, formData, formDataConfig);
 };
 
 const deleteCategory = (id) => {
-  return axios.delete(`${API_CATEGORY_DELETE}/${id}`, {
-    withCredentials: true,
-  });
+  return axios.delete(`${API_CATEGORY}/${id}`, axiosConfig);
 };
 
-export default {
+const categoryService = {
   getAllCategories,
   createCategory,
   updateCategory,
   deleteCategory,
 };
+
+export default categoryService;

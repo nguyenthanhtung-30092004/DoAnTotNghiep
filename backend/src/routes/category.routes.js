@@ -1,41 +1,37 @@
 const express = require("express");
-const { asyncHandler } = require("../auth/checkAuth");
-const { authAdmin } = require("../middlewares/authUser");
-const categoryController = require("../controllers/category.controller");
+
 const router = express.Router();
 
-const multer = require("multer");
-const path = require("path");
+const categoryController = require("../controllers/category.controller");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "src/uploads/categories");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
+const { createUploader } = require("../configs/multer");
+const { authAdmin } = require("../middlewares/authUser");
+const { asyncHandler } = require("../auth/checkAuth");
 
-const upload = multer({ storage: storage });
+const upload = createUploader("uploads/categories");
+
+// Public routes
+router.get("/", asyncHandler(categoryController.getAllCategory));
+
+// Admin routes
 router.post(
-  "/create",
+  "/",
   authAdmin,
   upload.single("thumbnail"),
   asyncHandler(categoryController.createCategory),
 );
 
 router.put(
-  "/update/:id",
+  "/:id",
   authAdmin,
   upload.single("thumbnail"),
   asyncHandler(categoryController.updateCategory),
 );
+
 router.delete(
-  "/delete/:id",
+  "/:id",
   authAdmin,
   asyncHandler(categoryController.deleteCategory),
 );
-
-router.get("/list", asyncHandler(categoryController.getAllCategory));
 
 module.exports = router;

@@ -8,7 +8,7 @@ const reviewRoutes = require("./review.routes");
 const couponRoutes = require("./coupon.routes");
 function routes(app) {
   app.use("/v1/api/user", usersRoutes);
-  app.use("/v1/api/category", categoriesRoutes);
+  app.use("/v1/api/categories", categoriesRoutes);
   app.use("/v1/api/brand", brandRoutes);
   app.use("/v1/api/product", productRoutes);
   app.use("/v1/api/cart", cartRoutes);

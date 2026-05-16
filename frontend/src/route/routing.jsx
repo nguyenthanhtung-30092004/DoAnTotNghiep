@@ -6,7 +6,6 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import ResetPassword from "../pages/ResetPassword";
-import Products from "../pages/Shop";
 import Shop from "../pages/Shop";
 import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
@@ -22,17 +21,64 @@ import AdminOrders from "../admin/pages/AdminOrders";
 import AdminUsers from "../admin/pages/AdminUsers";
 import AdminCoupons from "../admin/pages/AdminCoupons";
 import AdminReviews from "../admin/pages/AdminReviews";
+import AdminRoute from "./AdminRoute";
+import PrivateRoute from "./PrivateRoute";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
       {
-        path: "",
+        index: true,
         element: <Home />,
+      },
+      {
+        path: "shop",
+        element: <Shop />,
+      },
+      {
+        path: "shop/:categorySlug",
+        element: <Shop />,
+      },
+      {
+        path: "product/:productId",
+        element: <ProductDetail />,
+      },
+      {
+        path: "cart",
+        element: (
+          <PrivateRoute>
+            <Cart />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "checkout",
+        element: (
+          <PrivateRoute>
+            <Checkout />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "account",
+        element: (
+          <PrivateRoute>
+            <Account />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "order/:orderId",
+        element: (
+          <PrivateRoute>
+            <OrderDetail />
+          </PrivateRoute>
+        ),
       },
     ],
   },
+
   {
     path: "/login",
     element: <Login />,
@@ -49,37 +95,14 @@ const router = createBrowserRouter([
     path: "/reset-password",
     element: <ResetPassword />,
   },
-  {
-    path: "/account",
-    element: <Account />,
-  },
-  {
-    path: "/order/:orderId", // Link động: Bắt mọi sản phẩm
-    element: <OrderDetail />,
-  },
-  {
-    path: "/shop",
-    element: <Shop />,
-  },
-  {
-    path: "/shop/:categorySlug", // Link động: Bắt mọi danh mục con
-    element: <Shop />,
-  },
-  {
-    path: "/product/:productId", // Link động: Bắt mọi sản phẩm
-    element: <ProductDetail />,
-  },
-  {
-    path: "/cart",
-    element: <Cart />,
-  },
-  {
-    path: "/checkout",
-    element: <Checkout />,
-  },
+
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <PrivateRoute>
+        <AdminLayout />
+      </PrivateRoute>
+    ),
     children: [
       {
         index: true,

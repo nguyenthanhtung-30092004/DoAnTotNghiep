@@ -42,7 +42,6 @@ const Account = () => {
   };
   return (
     <div>
-      <Header />
       <div className="container py-8 md:py-12">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
           Tài khoản của tôi

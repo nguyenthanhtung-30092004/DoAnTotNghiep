@@ -9,8 +9,6 @@ const DeleteForm = ({ onClose, onConfirm, category }) => {
     try {
       setLoading(true);
       await onConfirm();
-
-      toast.success("Xóa danh mục thành công");
       onClose();
     } catch (error) {
       console.log(error);

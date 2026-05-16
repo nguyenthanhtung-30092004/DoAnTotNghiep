@@ -4,12 +4,10 @@ const categoryService = require("../services/category.service");
 
 class CategoryController {
   async getAllCategory(req, res) {
-    const categories = await categoryService.getAllCategories();
+    const categories = await categoryService.getAllCategories(req.query);
     return new OK({
       message: "Lấy danh sách danh mục thành công",
-      metadata: {
-        data: categories,
-      },
+      metadata: categories,
     }).send(res);
   }
 
@@ -54,7 +52,7 @@ class CategoryController {
       throw new BadRequestError("Thiếu thông tin danh mục");
     }
     const category = await categoryService.deleteCategory(id);
-    
+
     return new OK({
       message: "Xóa danh mục thành công",
       metadata: category,

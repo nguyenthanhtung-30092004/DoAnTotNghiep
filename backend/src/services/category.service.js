@@ -10,8 +10,93 @@ const {
 } = require("../core/error.response");
 
 class CategoryService {
-  async getAllCategories() {
-    return await categoryModel.find();
+  async getAllCategories(query = {}) {
+    const { keyword = "", type = "", page = 1, limit = 10 } = query;
+
+    const filter = {};
+
+    if (keyword) {
+      filter.$or = [
+        { name: { $regex: keyword, $options: "i" } },
+        { slug: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ];
+    }
+
+    if (type === "root") {
+      filter.parentId = null;
+    }
+
+    if (type === "child") {
+      filter.parentId = { $ne: null };
+    }
+
+    const pageNumber = Math.max(Number(page) || 1, 1);
+    const limitNumber = Math.max(Number(limit) || 10, 1);
+
+    const categories = await categoryModel
+      .find(filter)
+      .populate("parentId", "name slug")
+      .sort({ createdAt: 1 });
+
+    const orderedCategories = buildCategoryTree(categories);
+
+    const total = orderedCategories.length;
+    const start = (pageNumber - 1) * limitNumber;
+    const end = start + limitNumber;
+
+    const paginatedCategories = orderedCategories.slice(start, end);
+
+    return {
+      data: paginatedCategories,
+      pagination: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
+    };
+
+    function getParentId(category) {
+      if (!category.parentId) return null;
+
+      if (typeof category.parentId === "object") {
+        return category.parentId._id.toString();
+      }
+
+      return category.parentId.toString();
+    }
+
+    function buildCategoryTree(categories) {
+      const plainCategories = categories.map((item) => item.toObject());
+
+      const parents = plainCategories.filter((item) => !getParentId(item));
+      const children = plainCategories.filter((item) => getParentId(item));
+
+      const result = [];
+
+      parents.forEach((parent) => {
+        result.push({
+          ...parent,
+          level: 0,
+          parentName: "Danh mục gốc",
+        });
+
+        const childList = children.filter(
+          (child) => getParentId(child) === parent._id.toString(),
+        );
+
+        childList.forEach((child) => {
+          result.push({
+            ...child,
+            level: 1,
+            parentName: parent.name,
+          });
+        });
+      });
+
+      return result;
+    }
   }
 
   async createCategory({ file, name, slug, parentId, description }) {
@@ -51,7 +136,9 @@ class CategoryService {
       return newCategory;
     } catch (error) {
       if (uploadedImage?.public_id) {
-        await cloudinary.uploader.destroy(uploadedImage.public_id).catch(() => {});
+        await cloudinary.uploader
+          .destroy(uploadedImage.public_id)
+          .catch(() => {});
       }
       throw error;
     } finally {
@@ -115,7 +202,9 @@ class CategoryService {
       return updated;
     } catch (error) {
       if (uploadedImage?.public_id) {
-        await cloudinary.uploader.destroy(uploadedImage.public_id).catch(() => {});
+        await cloudinary.uploader
+          .destroy(uploadedImage.public_id)
+          .catch(() => {});
       }
       throw error;
     } finally {

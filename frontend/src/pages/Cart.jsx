@@ -12,8 +12,6 @@ import {
 const Cart = () => {
   return (
     <div>
-      <Header />
-
       {/* Header */}
       <div className="px-8 py-10 bg-accent">
         <div className="container">
