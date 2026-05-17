@@ -159,6 +159,12 @@ class ProductService {
       category,
       brand,
       isPublished,
+
+      // lọc theo giá
+      minPrice,
+      maxPrice,
+
+      // sắp xếp
       sort = "newest",
     } = query;
 
@@ -171,58 +177,54 @@ class ProductService {
 
     const skip = (page - 1) * limit;
 
+    // filter cơ bản
     const filter = {
       isDeleted: false,
     };
 
+    // tìm kiếm theo tên / mô tả đã tạo text index
     if (search) {
       filter.$text = {
         $search: search,
       };
     }
 
+    // lọc theo danh mục
     if (category) {
       filter.category = category;
     }
 
+    // lọc theo thương hiệu
     if (brand) {
       filter.brand = brand;
     }
 
+    // lọc theo trạng thái hiển thị
     if (isPublished !== undefined) {
       filter.isPublished = isPublished === "true";
     }
 
+    // lọc theo khoảng giá
+    if (minPrice || maxPrice) {
+      filter.minPrice = {};
+
+      if (minPrice) {
+        filter.minPrice.$gte = Number(minPrice);
+      }
+
+      if (maxPrice) {
+        filter.maxPrice.$gte = Number(maxPrice);
+      }
+    }
+
+    // Mặc định: mới nhất
     let sortOption = {
       createdAt: -1,
     };
 
     switch (sort) {
-      case "oldest":
-        sortOption = {
-          createdAt: 1,
-        };
-        break;
-
-      case "name_asc":
-        sortOption = {
-          name: 1,
-        };
-        break;
-
-      case "name_desc":
-        sortOption = {
-          name: -1,
-        };
-        break;
-
-      case "best_selling":
-        sortOption = {
-          totalSold: -1,
-        };
-        break;
-
       case "price_asc":
+        // giá tăng dần
         sortOption = {
           minPrice: 1,
         };
@@ -231,6 +233,41 @@ class ProductService {
       case "price_desc":
         sortOption = {
           minPrice: -1,
+        };
+        break;
+
+      case "name_asc":
+        // Tên A - Z
+        sortOption = {
+          name: 1,
+        };
+        break;
+
+      case "name_desc":
+        // Tên Z - A
+        sortOption = {
+          name: -1,
+        };
+        break;
+
+      case "oldest":
+        // Cũ nhất
+        sortOption = {
+          createdAt: 1,
+        };
+        break;
+
+      case "best_selling":
+        // Bán chạy nhất
+        sortOption = {
+          createdAt: -1,
+        };
+        break;
+
+      case "stock_desc":
+        // Tồn khi giảm dần
+        sortOption = {
+          totalStock: -1,
         };
         break;
 

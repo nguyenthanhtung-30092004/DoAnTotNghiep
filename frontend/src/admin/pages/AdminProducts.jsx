@@ -1,350 +1,277 @@
-import { ChevronDown, Pen, Plus, Search, Trash, Trash2, X } from "lucide-react";
-import React, { useState } from "react";
-import AddForm from "../components/ProductForm/AddForm";
-import UpdateForm from "../components/ProductForm/UpdateForm";
-import DeleteForm from "../components/ProductForm/DeleteForm";
+import { Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
+import AddForm from "../components/Product/ProductForm/AddForm";
+import DeleteForm from "../components/Product/ProductForm/DeleteForm";
+
+import ProductStats from "../components/Product/ProductTable/ProductStats";
+import ProductFilters from "../components/Product/ProductTable/ProductFilters";
+import ProductPagination from "../components/Product/ProductTable/ProductPagination";
+
+import ProductService from "../../services/product.service";
+import brandService from "../../services/brand.service";
+import categoryService from "../../services/category.service";
+import ProductTable from "../components/Product/ProductTable/ProductTable";
 
 const AdminProducts = () => {
-  const [openForm, setOpenForm] = useState(false);
-  const [openFormUpdate, setOpenFormUpdate] = useState(false);
-  const [openFormDelete, setOpenFormDelete] = useState(false);
-  console.log("openform", openForm);
-  console.log("openFormUpdate", openFormUpdate);
-  console.log("openFormDelete", openFormDelete);
+  const [products, setProducts] = useState([]);
+
+  const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [openProductForm, setOpenProductForm] = useState(false);
+  const [openDeleteForm, setOpenDeleteForm] = useState(false);
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPage: 1,
+    totalProduct: 0,
+    limit: 8,
+  });
+
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "",
+    brand: "",
+    minPrice: "",
+    maxPrice: "",
+    sort: "newest",
+    page: 1,
+    limit: 8,
+  });
+
+  const getResponseData = (res) => {
+    return res.data?.metadata || res.data?.data || res.data;
+  };
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+
+      const params = {
+        page: filters.page,
+        limit: filters.limit,
+        sort: filters.sort,
+      };
+
+      if (filters.search.trim()) params.search = filters.search.trim();
+      if (filters.category) params.category = filters.category;
+      if (filters.brand) params.brand = filters.brand;
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+
+      const res = await ProductService.getAllProducts(params);
+      const data = getResponseData(res);
+      console.log(data);
+
+      setProducts(data.products || []);
+
+      setPagination(
+        data.pagination || {
+          currentPage: 1,
+          totalPage: 1,
+          totalProduct: 0,
+          limit: filters.limit,
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Lấy sản phẩm thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const res = await brandService.getAllBrands();
+
+      const brands = res.data.metadata || [];
+
+      setBrands(Array.isArray(brands) ? brands : []);
+    } catch (error) {
+      console.log(error);
+      setBrands([]);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await categoryService.getAllCategories({
+        page: 1,
+        limit: 100,
+      });
+
+      const data = getResponseData(res);
+
+      const categoryList =
+        data?.categories || data?.category || data?.data || [];
+
+      setCategories(Array.isArray(categoryList) ? categoryList : []);
+    } catch (error) {
+      console.log(error);
+      setCategories([]);
+    }
+  };
+
+  const handleChangeLimit = (limit) => {
+    setFilters((prev) => ({
+      ...prev,
+      limit,
+      page: 1,
+    }));
+  };
+
+  const handleChangeFilter = (name, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+      page: 1,
+    }));
+  };
+
+  const handleResetFilter = () => {
+    setFilters({
+      search: "",
+      category: "",
+      brand: "",
+      minPrice: "",
+      maxPrice: "",
+      sort: "newest",
+      page: 1,
+      limit: 8,
+    });
+  };
+
+  const handleOpenAdd = () => {
+    setSelectedProduct(null);
+    setOpenProductForm(true);
+  };
+
+  const handleOpenUpdate = (product) => {
+    setSelectedProduct(product);
+    setOpenProductForm(true);
+  };
+
+  const handleOpenDelete = (product) => {
+    setSelectedProduct(product);
+    setOpenDeleteForm(true);
+  };
+
+  const handleCloseProductForm = () => {
+    setSelectedProduct(null);
+    setOpenProductForm(false);
+  };
+
+  const handleCloseDeleteForm = () => {
+    setSelectedProduct(null);
+    setOpenDeleteForm(false);
+  };
+
+  const handleDeleteProduct = async () => {
+    await ProductService.deleteProduct(selectedProduct._id);
+    await fetchProducts();
+  };
+
+  const handlePrevPage = () => {
+    if (pagination.currentPage <= 1) return;
+
+    setFilters((prev) => ({
+      ...prev,
+      page: prev.page - 1,
+    }));
+  };
+
+  const handleNextPage = () => {
+    if (pagination.currentPage >= pagination.totalPage) return;
+
+    setFilters((prev) => ({
+      ...prev,
+      page: prev.page + 1,
+    }));
+  };
+
+  useEffect(() => {
+    fetchBrands();
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [filters]);
+
   return (
-    <div>
-      <div className="w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Quản lý sản phẩm
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">6 sản phẩm</p>
-          </div>
-
-          <button
-            onClick={() => setOpenForm(true)}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 text-primary-foreground shadow-soft hover:shadow-card-hover h-10 px-5 py-2 bg-indigo-600 hover:bg-indigo-700"
-          >
-            <Plus className="size-4" />
-            Thêm sản phẩm
-          </button>
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Quản lý sản phẩm
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Quản lý sản phẩm, giá bán, tồn kho và trạng thái hiển thị
+          </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200">
-          <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-9"
-                placeholder="Tìm theo tên hoặc slug..."
-              />
-            </div>
-            <div className="w-full sm:w-64">
-              <button className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1">
-                <span className="pointer-events-none">Tất cả thương hiệu</span>
-                <ChevronDown className="size-4 opacity-50" />
-              </button>
-            </div>
-          </div>
-
-          <div className="overflow-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200 text-left">
-                <tr>
-                  <th className="px-5 py-3 font-semibold text-slate-700">
-                    Sản phẩm
-                  </th>
-                  <th className="px-5 py-3 font-semibold text-slate-700">
-                    Thương hiệu
-                  </th>
-                  <th className="px-5 py-3 font-semibold text-slate-700">
-                    Giá
-                  </th>
-                  <th className="px-5 py-3 font-semibold text-slate-700 text-center">
-                    Biến thể
-                  </th>
-                  <th className="px-5 py-3 font-semibold text-slate-700 text-center">
-                    Tồn kho
-                  </th>
-                  <th className="px-5 py-3 font-semibold text-slate-700">
-                    Trạng thái
-                  </th>
-                  <th className="px-5 py-3 font-semibold text-slate-700 text-right">
-                    Thao tác
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="">
-                <tr className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-xl">
-                        👟
-                      </div>
-                      <div className="">
-                        <p className="font-medium text-slate-900">
-                          RunVault Pulse Pro
-                        </p>
-                        <p className="text-xs text-slate-500">Giày road</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center">
-                      <span className="text-sm text-slate-700">RunVault</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div>
-                      <p className="font-semibold text-indigo-600">
-                        2.690.000 ₫
-                      </p>
-                      <p className="text-xs text-slate-400 line-through">
-                        3.200.000 ₫
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center text-slate-700">4</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="text-slate-700">25</span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                      Đang bán
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="size-8 rounded-md hover:bg-slate-200 flex items-center justify-center text-slate-600">
-                        <Pen
-                          onClick={() => setOpenFormUpdate(true)}
-                          className="size-4"
-                        />
-                      </button>
-                      <button className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600">
-                        <Trash2
-                          onClick={() => setOpenFormDelete(true)}
-                          className="size-4"
-                        />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-xl">
-                        🥾
-                      </div>
-                      <div className="">
-                        <p className="font-medium text-slate-900">
-                          Trail Storm X
-                        </p>
-                        <p className="text-xs text-slate-500">Giày trail</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center">
-                      <span className="text-sm text-slate-700">
-                        TrailMaster
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div>
-                      <p className="font-semibold text-slate-900">
-                        2.800.000 ₫
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center text-slate-700">2</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="text-slate-700">34</span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                      Đang bán
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="size-8 rounded-md hover:bg-slate-200 flex items-center justify-center text-slate-600">
-                        <Pen className="size-4" />
-                      </button>
-                      <button className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600">
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-xl">
-                        👕
-                      </div>
-                      <div className="">
-                        <p className="font-medium text-slate-900">
-                          Featherlight Tee
-                        </p>
-                        <p className="text-xs text-slate-500">Áo runner</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center">
-                      <span className="text-sm text-slate-700">
-                        Featherlight
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div>
-                      <p className="font-semibold text-indigo-600">490.000 ₫</p>
-                      <p className="text-xs text-slate-400 line-through">
-                        590.000 ₫
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center text-slate-700">3</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="text-slate-700">73</span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                      Đang bán
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="size-8 rounded-md hover:bg-slate-200 flex items-center justify-center text-slate-600">
-                        <Pen className="size-4" />
-                      </button>
-                      <button className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600">
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-xl">
-                        🧴
-                      </div>
-                      <div className="">
-                        <p className="font-medium text-slate-900">
-                          HydroFlask 500ml
-                        </p>
-                        <p className="text-xs text-slate-500">Phụ kiện</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center">
-                      <span className="text-sm text-slate-700">HydroPro</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div>
-                      <p className="font-semibold text-slate-900">450.000 ₫</p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center text-slate-700">1</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="text-slate-700">50</span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
-                      Nháp
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="size-8 rounded-md hover:bg-slate-200 flex items-center justify-center text-slate-600">
-                        <Pen className="size-4" />
-                      </button>
-                      <button className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600">
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-xl">
-                        🧦
-                      </div>
-                      <div className="">
-                        <p className="font-medium text-slate-900">
-                          GripSocks Pro
-                        </p>
-                        <p className="text-xs text-slate-500">Phụ kiện</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center">
-                      <span className="text-sm text-slate-700">
-                        Featherlight
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div>
-                      <p className="font-semibold text-indigo-600">149.000 ₫</p>
-                      <p className="text-xs text-slate-400 line-through">
-                        180.000 ₫
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-center text-slate-700">1</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className="text-slate-700">100</span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                      Đang bán
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button className="size-8 rounded-md hover:bg-slate-200 flex items-center justify-center text-slate-600">
-                        <Pen className="size-4" />
-                      </button>
-                      <button className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600">
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="flex items-center justify-between p-4 border-t border-slate-200">
-            <div className="text-sm text-slate-600">Trang 1 / 2</div>
-            <div className="flex gap-1">
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold ring-offset-background transition-all duration-200 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3">
-                Trước
-              </button>
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold ring-offset-background transition-all duration-200 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3">
-                Sau
-              </button>
-            </div>
-          </div>
-        </div>
+        <button
+          onClick={handleOpenAdd}
+          className="h-10 px-5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold flex items-center justify-center gap-2"
+        >
+          <Plus className="size-4" />
+          Thêm sản phẩm
+        </button>
       </div>
 
-      {openForm && <AddForm onClose={() => setOpenForm(false)} />}
-      {openFormUpdate && (
-        <UpdateForm onClose={() => setOpenFormUpdate(false)} />
+      <ProductStats
+        totalProduct={pagination.totalProduct}
+        showingProduct={products.length}
+        totalBrand={brands.length}
+        totalCategory={categories.length}
+      />
+
+      <ProductFilters
+        filters={filters}
+        brands={brands}
+        categories={categories}
+        limit={filters.limit}
+        onChangeFilter={handleChangeFilter}
+        onChangeLimit={handleChangeLimit}
+        onReset={handleResetFilter}
+      />
+
+      <ProductTable
+        products={products}
+        loading={loading}
+        onEdit={handleOpenUpdate}
+        onDelete={handleOpenDelete}
+      />
+
+      <ProductPagination
+        pagination={pagination}
+        onPrev={handlePrevPage}
+        onNext={handleNextPage}
+      />
+
+      {openProductForm && (
+        <AddForm
+          product={selectedProduct}
+          brands={brands}
+          categories={categories}
+          onClose={handleCloseProductForm}
+          onSuccess={fetchProducts}
+        />
       )}
-      {openFormDelete && (
-        <DeleteForm onClose={() => setOpenFormDelete(false)} />
+
+      {openDeleteForm && (
+        <DeleteForm
+          product={selectedProduct}
+          onClose={handleCloseDeleteForm}
+          onConfirm={handleDeleteProduct}
+        />
       )}
     </div>
   );

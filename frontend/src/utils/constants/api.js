@@ -20,3 +20,6 @@ export const API_BRAND_LIST = `${API_BRAND}/listbrand`;
 export const API_BRAND_CREATE = `${API_BRAND}/create`;
 export const API_BRAND_UPDATE = `${API_BRAND}/update`;
 export const API_BRAND_DELETE = `${API_BRAND}/delete`;
+
+// Product
+export const API_PRODUCT = `${API_BASE}/products`;

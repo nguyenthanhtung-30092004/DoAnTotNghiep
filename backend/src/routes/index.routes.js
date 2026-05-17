@@ -10,7 +10,7 @@ function routes(app) {
   app.use("/v1/api/user", usersRoutes);
   app.use("/v1/api/categories", categoriesRoutes);
   app.use("/v1/api/brand", brandRoutes);
-  app.use("/v1/api/product", productRoutes);
+  app.use("/v1/api/products", productRoutes);
   app.use("/v1/api/cart", cartRoutes);
   app.use("/v1/api/order", orderRouters);
   app.use("/v1/api/review", reviewRoutes);
