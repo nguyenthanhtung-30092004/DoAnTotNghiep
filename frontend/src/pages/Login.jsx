@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Footprints, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Label } from "../components/ui/Label";
@@ -9,6 +9,8 @@ import { loginUser } from "../redux/feature/authSlice";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import google_icon from "../assets/icon-google.png";
+import { setCart, clearCartRedux } from "../redux/feature/cartSlice";
+import cartService from "../services/cart.service";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,23 +20,58 @@ const Login = () => {
   const { isLoading, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const redirect = searchParams.get("redirect") || "/";
+
   useEffect(() => {
-    if (user) {
-      navigate(user.role === "admin" ? "/admin" : "/");
-    }
-  }, [user, navigate]);
+    const guestCart = useSelector((state) => state.cart.items);
+    const handleAfterLogin = async () => {
+      if (!user) return;
+
+      if (user.role === "admin") {
+        navigate("/admin", { replace: true });
+        return;
+      }
+
+      try {
+        if (guestCartItems.length > 0) {
+          await CartService.syncCart({
+            items: guestCartItems,
+          });
+        }
+
+        const res = await CartService.getCart();
+        const data = res.data?.metadata || res.data?.data || res.data;
+
+        dispatch(setCart(data));
+        dispatch(clearCartRedux());
+      } catch (error) {
+        console.log(error);
+        toast.warning(
+          "Đăng nhập thành công, nhưng đồng bộ giỏ hàng chưa hoàn tất",
+        );
+      }
+
+      navigate(redirect, { replace: true });
+    };
+
+    handleAfterLogin();
+  }, [user, dispatch, navigate, redirect]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Kiểm tra trống
     if (!email || !password) {
       toast.warning("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
+
     try {
-      await dispatch(loginUser({ email, password }));
-    } catch (error) {}
+      await dispatch(loginUser({ email, password })).unwrap();
+    } catch (error) {
+      toast.error(error || "Đăng nhập thất bại");
+    }
   };
   return (
     <div className="max-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">

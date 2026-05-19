@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ChevronDown,
   ChevronRight,
@@ -12,8 +12,11 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 
-import ProductService from "../services/product.service";
+import CartService from "../services/cart.service";
 
+import ProductService from "../services/product.service";
+import { useDispatch, useSelector } from "react-redux";
+import { addGuestCart, setCart } from "../redux/feature/cartSlice";
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
 };
@@ -90,11 +93,16 @@ const getMinPrice = (product) => {
 };
 
 const ProductDetail = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [addingToCart, setAddingToCart] = useState(false);
   const { productId, id } = useParams();
   const currentId = productId || id;
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const { user } = useSelector((state) => state.auth);
 
   const [selectedImage, setSelectedImage] = useState("");
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
@@ -201,7 +209,7 @@ const ProductDetail = () => {
     setQuantity((prev) => prev + 1);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedVariant) {
       toast.warning("Vui lòng chọn màu sản phẩm");
       return;
@@ -222,9 +230,50 @@ const ProductDetail = () => {
       return;
     }
 
-    toast.success(
-      "Đã chọn sản phẩm, bước thêm giỏ hàng xử lý tiếp ở cart service",
-    );
+    const cartPayload = {
+      productId: product._id,
+      variantId: selectedVariant._id,
+      sizeId: selectedSize._id,
+      quantity,
+    };
+
+    try {
+      setAddingToCart(true);
+
+      if (user) {
+        const res = await CartService.addToCart(cartPayload);
+        const data = getResponseData(res);
+
+        dispatch(setCart(data));
+      } else {
+        dispatch(
+          addGuestCart({
+            localId: `${product._id}-${selectedVariant._id}-${selectedSize._id}`,
+            ...cartPayload,
+            productName: product.name,
+            productSlug: product.slug,
+            thumbnail:
+              selectedVariant.images?.[0]?.url || product.thumbnail?.url || "",
+            color: selectedVariant.color,
+            size: selectedSize.size,
+            sku: selectedSize.sku,
+            price: selectedSize.price,
+            salePrice: selectedSize.salePrice,
+            maxQuantity: selectedStock,
+            isAvailable: selectedStock > 0,
+          }),
+        );
+      }
+
+      toast.success("Đã thêm sản phẩm vào giỏ hàng");
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error.response?.data?.message || "Thêm vào giỏ hàng thất bại",
+      );
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   useEffect(() => {
@@ -489,10 +538,15 @@ const ProductDetail = () => {
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      className="h-11 flex-1 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold flex items-center justify-center gap-2"
+                      disabled={addingToCart}
+                      className="h-11 px-4 rounded-xl bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold flex items-center gap-2"
                     >
-                      <ShoppingCart className="h-4 w-4" />
-                      Thêm vào giỏ hàng
+                      {addingToCart ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ShoppingCart className="h-4 w-4" />
+                      )}
+                      {addingToCart ? "Đang thêm..." : "Thêm vào giỏ hàng"}
                     </button>
 
                     <button

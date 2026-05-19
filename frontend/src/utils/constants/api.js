@@ -23,3 +23,6 @@ export const API_BRAND_DELETE = `${API_BRAND}/delete`;
 
 // Product
 export const API_PRODUCT = `${API_BASE}/products`;
+
+// Cart
+export const API_CART = `${API_BASE}/cart`;

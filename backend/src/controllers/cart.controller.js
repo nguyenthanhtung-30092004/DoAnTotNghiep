@@ -5,7 +5,7 @@ class CartController {
   addToCart = async (req, res) => {
     new OK({
       message: "Thêm vào giỏ hàng thành công",
-      metadata: await cartService.addToCard({
+      metadata: await cartService.addToCart({
         userId: req.user.userId,
         ...req.body,
       }),

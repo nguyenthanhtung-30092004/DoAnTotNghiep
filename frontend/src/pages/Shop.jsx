@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -110,6 +110,7 @@ const priceOptions = [
 ];
 
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
   const image = getProductImage(product);
   const price = getSalePrice(product);
   const originalPrice = getOriginalPrice(product);
@@ -141,10 +142,7 @@ const ProductCard = ({ product }) => {
             type="button"
             size="sm"
             className="shadow-lg text-sm gap-1.5 bg-[#22C55E] hover:bg-[#1da850] text-white"
-            onClick={(e) => {
-              e.preventDefault();
-              toast.info("Chức năng thêm giỏ hàng sẽ xử lý sau");
-            }}
+            onClick={() => navigate("/product/" + product._id)}
           >
             <ShoppingCart className="h-3.5 w-3.5" />
             Thêm vào giỏ

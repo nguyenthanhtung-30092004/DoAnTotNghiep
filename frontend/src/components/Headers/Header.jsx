@@ -1,11 +1,13 @@
 import { Footprints, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/Button";
 import NavItem from "../ui/NavItem";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../redux/feature/authSlice";
 import { Avatar, Dropdown, Space } from "antd";
+import { toast } from "react-toastify";
+
 import {
   DownOutlined,
   UserOutlined,
@@ -98,6 +100,9 @@ const navLinks = [
 ];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const { totalQuantity } = useSelector((state) => state.cart);
+  console.log("Total quantity in cart:", totalQuantity);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const userMenuItems = [
@@ -117,6 +122,15 @@ const Header = () => {
       onClick: () => dispatch(logoutUser()),
     },
   ];
+  const handleGoToCart = () => {
+    if (!user) {
+      toast.info("Vui lòng đăng nhập trước khi xem giỏ hàng");
+      navigate("/login?redirect=/cart");
+      return;
+    }
+
+    navigate("/cart");
+  };
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl relative border-b">
       <div className="container relative h-16 flex items-center justify-between">
@@ -146,11 +160,21 @@ const Header = () => {
           </div>
 
           {/* Cart */}
-          <Link to="/cart">
-            <Button variant="ghost" size="icon">
+          <button
+            type="button"
+            onClick={handleGoToCart}
+            className="relative inline-flex items-center justify-center"
+          >
+            <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
+
+              {totalQuantity > 0 && (
+                <span className="absolute -top-0 -right-0 h-4 min-w-4 rounded-full bg-red-500 px-1 text-[11px] font-bold text-white flex items-center justify-center leading-none">
+                  {totalQuantity > 99 ? "99+" : totalQuantity}
+                </span>
+              )}
             </Button>
-          </Link>
+          </button>
 
           <div className="relative">
             <Link to={`${user ? "/account" : "/login"}`}>

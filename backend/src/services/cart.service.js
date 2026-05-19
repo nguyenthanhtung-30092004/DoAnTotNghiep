@@ -4,7 +4,7 @@ const productModel = require("../models/product.model");
 
 class CartService {
   // Add to cart
-  async addToCard({ userId, productId, variantId, sizeId, quantity }) {
+  async addToCart({ userId, productId, variantId, sizeId, quantity }) {
     console.log(userId);
     // Validate
     if (!productId || !variantId || !sizeId || !quantity) {
@@ -51,7 +51,7 @@ class CartService {
     });
 
     if (!cart) {
-      cart = await cartModel.create({ user: userId, item: [] });
+      cart = await cartModel.create({ user: userId, items: [] });
     }
 
     // check item exist
@@ -80,7 +80,7 @@ class CartService {
         sizeId: size._id,
         productName: product.name,
         productSlug: product.slug,
-        thumbnail: product.thumbnail.url || variant.images[0].url || "",
+        thumbnail: product.thumbnail?.url || variant.images?.[0]?.url || "",
         color: variant.color,
         size: size.size,
         sku: size.sku,
