@@ -1,5 +1,5 @@
 import { ImagePlus, Plus, Trash2, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import ProductService from "../../../../services/product.service";
 
@@ -13,13 +13,59 @@ const emptySize = {
 
 const emptyVariant = {
   color: "Mặc định",
+  colorCode: "#d1d5db",
   images: [],
   sizes: [{ ...emptySize }],
 };
 
-const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
+const getId = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value._id || value.id || "";
+};
+
+const getImageUrl = (image) => {
+  if (!image) return "";
+  if (image instanceof File) return URL.createObjectURL(image);
+  if (typeof image === "string") return image;
+  return image.url || image.secure_url || "";
+};
+
+const normalizeProductVariants = (product) => {
+  if (!Array.isArray(product?.variants) || product.variants.length === 0) {
+    return [{ ...emptyVariant }];
+  }
+
+  return product.variants.map((variant) => ({
+    _id: variant._id,
+    color: variant.color || "Mặc định",
+    colorCode: variant.colorCode || "#d1d5db",
+    images: Array.isArray(variant.images) ? variant.images : [],
+    sizes:
+      Array.isArray(variant.sizes) && variant.sizes.length > 0
+        ? variant.sizes.map((item) => ({
+            _id: item._id,
+            size: item.size || "",
+            sku: item.sku || "",
+            price: item.price ?? "",
+            salePrice: item.salePrice ?? "",
+            stock: item.stock ?? "",
+          }))
+        : [{ ...emptySize }],
+  }));
+};
+
+const AddForm = ({
+  product,
+  brands = [],
+  categories = [],
+  onClose,
+  onSuccess,
+}) => {
   const safeBrands = Array.isArray(brands) ? brands : [];
   const safeCategories = Array.isArray(categories) ? categories : [];
+
+  const isEdit = Boolean(product?._id);
 
   const [loading, setLoading] = useState(false);
   const [hasSize, setHasSize] = useState(true);
@@ -31,14 +77,62 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
     brand: "",
     isPublished: true,
     thumbnail: null,
+    thumbnailPreview: "",
   });
 
   const [variants, setVariants] = useState([{ ...emptyVariant }]);
+
+  useEffect(() => {
+    if (!product) {
+      setForm({
+        name: "",
+        description: "",
+        category: "",
+        brand: "",
+        isPublished: true,
+        thumbnail: null,
+        thumbnailPreview: "",
+      });
+
+      setVariants([{ ...emptyVariant }]);
+      setHasSize(true);
+      return;
+    }
+
+    const productVariants = normalizeProductVariants(product);
+
+    const isNoSize = productVariants.every((variant) =>
+      variant.sizes.every((item) => item.size === "FREESIZE"),
+    );
+
+    setForm({
+      name: product.name || "",
+      description: product.description || "",
+      category: getId(product.category),
+      brand: getId(product.brand),
+      isPublished: product.isPublished ?? true,
+      thumbnail: null,
+      thumbnailPreview: getImageUrl(product.thumbnail),
+    });
+
+    setVariants(productVariants);
+    setHasSize(!isNoSize);
+  }, [product]);
 
   const changeForm = (name, value) => {
     setForm((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const changeThumbnail = (file) => {
+    setForm((prev) => ({
+      ...prev,
+      thumbnail: file || null,
+      thumbnailPreview: file
+        ? URL.createObjectURL(file)
+        : prev.thumbnailPreview,
     }));
   };
 
@@ -78,8 +172,8 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
 
     setVariants(newVariants);
 
-    if (!form.thumbnail) {
-      changeForm("thumbnail", imageList[0]);
+    if (!form.thumbnail && !form.thumbnailPreview) {
+      changeThumbnail(imageList[0]);
     }
   };
 
@@ -99,14 +193,14 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
       return newVariants;
     });
 
-    if (!form.thumbnail) {
-      changeForm("thumbnail", imageList[0]);
+    if (!form.thumbnail && !form.thumbnailPreview) {
+      changeThumbnail(imageList[0]);
     }
 
     toast.success(`Đã thêm ${imageList.length} ảnh`);
   };
 
-  const removeNewImage = (variantIndex, imageIndex) => {
+  const removeImage = (variantIndex, imageIndex) => {
     const newVariants = [...variants];
 
     newVariants[variantIndex].images.splice(imageIndex, 1);
@@ -119,6 +213,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
       ...prev,
       {
         color: "",
+        colorCode: "#d1d5db",
         images: [],
         sizes: [{ ...emptySize }],
       },
@@ -164,6 +259,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
           ...variant,
           sizes: [
             {
+              ...variant.sizes[0],
               size: "FREESIZE",
               sku: variant.sizes[0]?.sku || "",
               price: variant.sizes[0]?.price || "",
@@ -179,6 +275,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
           ...variant,
           sizes: [
             {
+              ...variant.sizes[0],
               size:
                 variant.sizes[0]?.size === "FREESIZE"
                   ? ""
@@ -210,7 +307,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
       return false;
     }
 
-    if (!form.thumbnail) {
+    if (!form.thumbnail && !form.thumbnailPreview) {
       toast.error("Vui lòng chọn ảnh đại diện");
       return false;
     }
@@ -220,7 +317,10 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
         toast.error("Vui lòng nhập màu hoặc tên biến thể");
         return false;
       }
-
+      if (!variant.colorCode || !/^#[0-9A-Fa-f]{6}$/.test(variant.colorCode)) {
+        toast.error("Vui lòng nhập mã màu hợp lệ, ví dụ #000000");
+        return false;
+      }
       for (const item of variant.sizes) {
         if (hasSize && !item.size.trim()) {
           toast.error("Vui lòng nhập size");
@@ -266,8 +366,12 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
     }
 
     const variantsData = variants.map((variant) => ({
+      _id: variant._id,
       color: variant.color || "Mặc định",
+      colorCode: variant.colorCode || "#d1d5db",
+      images: variant.images.filter((image) => !(image instanceof File)),
       sizes: variant.sizes.map((item) => ({
+        _id: item._id,
         size: hasSize ? item.size : "FREESIZE",
         sku: item.sku.trim(),
         price: Number(item.price),
@@ -280,7 +384,9 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
 
     variants.forEach((variant, variantIndex) => {
       variant.images.forEach((image) => {
-        formData.append(`variantImages-${variantIndex}`, image);
+        if (image instanceof File) {
+          formData.append(`variantImages-${variantIndex}`, image);
+        }
       });
     });
 
@@ -295,15 +401,22 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
 
       const formData = buildFormData();
 
-      await ProductService.createProduct(formData);
+      if (isEdit) {
+        await ProductService.updateProduct(product._id, formData);
+        toast.success("Cập nhật sản phẩm thành công");
+      } else {
+        await ProductService.createProduct(formData);
+        toast.success("Thêm sản phẩm thành công");
+      }
 
-      toast.success("Thêm sản phẩm thành công");
-
-      onSuccess();
+      await onSuccess();
       onClose();
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Thêm sản phẩm thất bại");
+      toast.error(
+        error.response?.data?.message ||
+          (isEdit ? "Cập nhật sản phẩm thất bại" : "Thêm sản phẩm thất bại"),
+      );
     } finally {
       setLoading(false);
     }
@@ -315,10 +428,12 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
         <div className="flex items-start justify-between mb-5">
           <div>
             <h2 className="text-xl font-bold text-slate-900">
-              Thêm sản phẩm mới
+              {isEdit ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Thêm sản phẩm có size hoặc không size, upload nhiều ảnh một lần.
+              {isEdit
+                ? "Thông tin cũ sẽ được hiển thị lên form để chỉnh sửa."
+                : "Thêm sản phẩm có size hoặc không size, upload nhiều ảnh một lần."}
             </p>
           </div>
 
@@ -351,10 +466,10 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
               <div>
                 <label className="text-sm font-medium">Ảnh đại diện *</label>
 
-                {form.thumbnail && (
+                {form.thumbnailPreview && (
                   <div className="mt-2 mb-2">
                     <img
-                      src={URL.createObjectURL(form.thumbnail)}
+                      src={form.thumbnailPreview}
                       alt="thumbnail"
                       className="h-16 w-16 rounded-lg object-cover border"
                     />
@@ -364,7 +479,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => changeForm("thumbnail", e.target.files[0])}
+                  onChange={(e) => changeThumbnail(e.target.files[0])}
                   className="mt-1 h-10 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
                 />
               </div>
@@ -430,29 +545,6 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-sm font-medium">
-                  Thêm ảnh sản phẩm nhanh
-                </label>
-
-                <label className="mt-1 flex min-h-[90px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-center hover:bg-slate-100">
-                  <ImagePlus className="size-6 text-slate-500" />
-                  <span className="mt-2 text-sm font-medium text-slate-700">
-                    Chọn nhiều ảnh một lần
-                  </span>
-                  <span className="text-xs text-slate-500">
-                    Ảnh đầu tiên sẽ tự làm ảnh đại diện nếu chưa chọn
-                  </span>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) => handleQuickImages(e.target.files)}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
-              <div className="md:col-span-2">
                 <label className="text-sm font-medium">Mô tả</label>
                 <textarea
                   value={form.description}
@@ -483,7 +575,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
             <div className="space-y-4">
               {variants.map((variant, variantIndex) => (
                 <div
-                  key={variantIndex}
+                  key={variant._id || variantIndex}
                   className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
                 >
                   <div className="flex justify-between mb-3">
@@ -500,7 +592,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                     <div>
                       <label className="text-sm font-medium">
                         Màu / phiên bản *
@@ -511,8 +603,40 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
                           changeVariant(variantIndex, "color", e.target.value)
                         }
                         className="mt-1 h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-indigo-500"
-                        placeholder="Đen, trắng, xanh hoặc mặc định"
+                        placeholder="Đen, trắng, xanh..."
                       />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium">Mã màu *</label>
+
+                      <div className="mt-1 flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={variant.colorCode || "#d1d5db"}
+                          onChange={(e) =>
+                            changeVariant(
+                              variantIndex,
+                              "colorCode",
+                              e.target.value,
+                            )
+                          }
+                          className="h-10 w-12 cursor-pointer rounded-lg border border-slate-300 bg-white p-1"
+                        />
+
+                        <input
+                          value={variant.colorCode || ""}
+                          onChange={(e) =>
+                            changeVariant(
+                              variantIndex,
+                              "colorCode",
+                              e.target.value,
+                            )
+                          }
+                          className="h-10 flex-1 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-indigo-500"
+                          placeholder="#000000"
+                        />
+                      </div>
                     </div>
 
                     <div>
@@ -536,13 +660,13 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
                       {variant.images.map((image, index) => (
                         <div key={index} className="relative">
                           <img
-                            src={URL.createObjectURL(image)}
+                            src={getImageUrl(image)}
                             alt="product"
                             className="h-16 w-16 rounded-lg object-cover border"
                           />
                           <button
                             type="button"
-                            onClick={() => removeNewImage(variantIndex, index)}
+                            onClick={() => removeImage(variantIndex, index)}
                             className="absolute -right-2 -top-2 flex size-5 items-center justify-center rounded-full bg-red-500 text-white"
                           >
                             <X className="size-3" />
@@ -555,15 +679,11 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
                   <div className="space-y-2">
                     <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-slate-500 px-1">
                       {hasSize && <div className="col-span-2">Size</div>}
-                      <div className={hasSize ? "col-span-3" : "col-span-3"}>
-                        SKU
-                      </div>
+                      <div className="col-span-3">SKU</div>
                       <div className={hasSize ? "col-span-2" : "col-span-3"}>
                         Giá
                       </div>
-                      <div className={hasSize ? "col-span-2" : "col-span-2"}>
-                        Giá KM
-                      </div>
+                      <div className="col-span-2">Giá KM</div>
                       <div className={hasSize ? "col-span-2" : "col-span-3"}>
                         Tồn kho
                       </div>
@@ -572,7 +692,7 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
 
                     {variant.sizes.map((item, sizeIndex) => (
                       <div
-                        key={sizeIndex}
+                        key={item._id || sizeIndex}
                         className="grid grid-cols-12 gap-2 items-center"
                       >
                         {hasSize && (
@@ -699,7 +819,13 @@ const AddForm = ({ brands = [], categories = [], onClose, onSuccess }) => {
             disabled={loading}
             className="h-10 px-5 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-60"
           >
-            {loading ? "Đang thêm..." : "Thêm sản phẩm"}
+            {loading
+              ? isEdit
+                ? "Đang cập nhật..."
+                : "Đang thêm..."
+              : isEdit
+                ? "Cập nhật sản phẩm"
+                : "Thêm sản phẩm"}
           </button>
         </div>
       </div>

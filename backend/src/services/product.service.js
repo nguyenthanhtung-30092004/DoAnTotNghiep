@@ -340,7 +340,7 @@ class ProductService {
           }
         }
 
-        await validateVariants(variants);
+        await validateVariants(variants, id);
       }
 
       const [foundCategory, foundBrand] = await Promise.all([

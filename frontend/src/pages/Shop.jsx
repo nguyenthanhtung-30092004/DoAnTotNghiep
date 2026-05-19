@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom"; // Nhớ import useParams
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,9 +8,10 @@ import {
   Star,
   X,
   Check,
+  Loader2,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
-// Tuỳ chỉnh lại đường dẫn import cho đúng dự án của bạn
 import { Button } from "../components/ui/Button";
 import {
   Select,
@@ -19,305 +20,297 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/Select";
-import Header from "../components/Headers/Header";
 
-// ==========================================
-// 1. TỪ ĐIỂN DỊCH URL SANG TÊN DANH MỤC
-// ==========================================
-const formatCategoryTitle = (slug) => {
-  if (!slug) return "Tất cả sản phẩm";
+import ProductService from "../services/product.service";
+import brandService from "../services/brand.service";
+import categoryService from "../services/category.service";
 
-  const titles = {
-    // Giày
-    "giay-trail": "Giày Trail",
-    "giay-trail-nam": "Giày Trail Nam",
-    "giay-trail-nu": "Giày Trail Nữ",
-    "giay-road": "Giày Road",
-    "giay-road-nam": "Giày Road Nam",
-    "giay-road-nu": "Giày Road Nữ",
-    // Áo, Quần
-    ao: "Áo Thể Thao",
-    "ao-nam": "Áo Nam",
-    "ao-nu": "Áo Nữ",
-    quan: "Quần Thể Thao",
-    "quan-nam": "Quần Nam",
-    "quan-nu": "Quần Nữ",
-    // Phụ kiện
-    "phu-kien": "Phụ Kiện",
-    mu: "Mũ",
-    "bang-do": "Băng Đô",
-    kinh: "Kính",
-    "den-trail": "Đèn Trail",
-    "khan-ong": "Khăn Ống",
-    "calf-tay": "Calf Tay",
-    "calg-chan": "Calf Chân",
-    "gay-trail": "Gậy Trail",
-    "vest-trail": "Vest Trail",
-    tat: "Tất",
-    "binh-mem": "Bình Mềm",
-    starbalm: "Starbalm",
-    // Thiết bị
-    "thiet-bi": "Thiết Bị",
-    dongho: "Đồng Hồ",
-    "phu-kien-dong-ho": "Phụ Kiện Đồng Hồ",
-    "tai-nghe": "Tai Nghe",
-    "may-massage": "Máy Massage",
-    // Dinh dưỡng
-    "dinh-duong": "Dinh Dưỡng",
-    gel: "Gel",
-    "nang-luong-phuc-hoi": "Năng Lượng Phục Hồi",
-    "muoi-sui-dien-giai": "Muối - Sủi Điện Giải",
-    "thanh-bar-banh-nang-luong": "Thanh Bar - Bánh Năng Lượng",
-  };
+const formatPrice = (price) => {
+  if (price === undefined || price === null) return "Liên hệ";
 
-  return titles[slug] || "Danh Mục Sản Phẩm";
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(price);
 };
 
-// ==========================================
-// 2. DỮ LIỆU TĨNH SẢN PHẨM & BỘ LỌC
-// ==========================================
-const allProducts = [
+const getResponseData = (res) => {
+  return res.data?.metadata || res.data?.data || res.data;
+};
+
+const getBrandName = (brand) => {
+  if (!brand) return "Không có thương hiệu";
+  if (typeof brand === "string") return brand;
+  return brand.nameBrand || brand.name || "Không có thương hiệu";
+};
+
+const getProductImage = (product) => {
+  return (
+    product?.thumbnail?.url ||
+    product?.variants?.[0]?.images?.[0]?.url ||
+    "/placeholder-product.png"
+  );
+};
+
+const getProductPrice = (product) => {
+  return product?.minPrice ?? product?.variants?.[0]?.sizes?.[0]?.price ?? 0;
+};
+
+const getOriginalPrice = (product) => {
+  const firstSize = product?.variants?.[0]?.sizes?.[0];
+
+  if (!firstSize) return null;
+
+  const price = Number(firstSize.price || 0);
+  const salePrice = Number(firstSize.salePrice || 0);
+
+  if (salePrice > 0 && salePrice < price) {
+    return price;
+  }
+
+  return null;
+};
+
+const getSalePrice = (product) => {
+  const firstSize = product?.variants?.[0]?.sizes?.[0];
+
+  if (!firstSize) return getProductPrice(product);
+
+  const price = Number(firstSize.price || 0);
+  const salePrice = Number(firstSize.salePrice || 0);
+
+  if (salePrice > 0 && salePrice < price) {
+    return salePrice;
+  }
+
+  return product?.minPrice ?? price;
+};
+
+const priceOptions = [
   {
-    id: 1,
-    name: "AeroStride Pro",
-    brand: "RunVault",
-    price: 159,
-    rating: 4.8,
-    reviews: 342,
-    image: "🏃",
-    tag: "Mới",
+    label: "Dưới 500.000đ",
+    minPrice: "",
+    maxPrice: 500000,
   },
   {
-    id: 2,
-    name: "TrailBlazer X",
-    brand: "TrailCo",
-    price: 189,
-    originalPrice: 229,
-    rating: 4.9,
-    reviews: 278,
-    image: "🥾",
+    label: "500.000đ - 1.000.000đ",
+    minPrice: 500000,
+    maxPrice: 1000000,
   },
   {
-    id: 3,
-    name: "CloudRunner Elite",
-    brand: "RunVault",
-    price: 199,
-    rating: 4.7,
-    reviews: 156,
-    image: "👟",
-    tag: "Hot",
+    label: "1.000.000đ - 2.000.000đ",
+    minPrice: 1000000,
+    maxPrice: 2000000,
   },
   {
-    id: 4,
-    name: "SpeedForce Ultra",
-    brand: "VeloMax",
-    price: 175,
-    rating: 4.6,
-    reviews: 421,
-    image: "⚡",
-  },
-  {
-    id: 5,
-    name: "VelocityMax 3",
-    brand: "VeloMax",
-    price: 185,
-    rating: 4.9,
-    reviews: 512,
-    image: "🔥",
-  },
-  {
-    id: 6,
-    name: "EnduraPro Racer",
-    brand: "EnduraFit",
-    price: 165,
-    rating: 4.8,
-    reviews: 278,
-    image: "🏆",
-  },
-  {
-    id: 7,
-    name: "NightTrail GTX",
-    brand: "TrailCo",
-    price: 210,
-    rating: 4.9,
-    reviews: 156,
-    image: "🌙",
-  },
-  {
-    id: 8,
-    name: "TempoFly Knit",
-    brand: "RunVault",
-    price: 145,
-    rating: 4.7,
-    reviews: 389,
-    image: "💨",
+    label: "Trên 2.000.000đ",
+    minPrice: 2000000,
+    maxPrice: "",
   },
 ];
 
-const FILTER_DATA = {
-  brands: ["RunVault", "TrailCo", "VeloMax", "EnduraFit", "Nike", "Adidas"],
-  sizes: [38, 39, 40, 41, 42, 43, 44, 45],
-  prices: ["Dưới $100", "$100 - $150", "$150 - $200", "Trên $200"],
-};
+const ProductCard = ({ product }) => {
+  const image = getProductImage(product);
+  const price = getSalePrice(product);
+  const originalPrice = getOriginalPrice(product);
 
-// ==========================================
-// 3. CÁC COMPONENT GIAO DIỆN NHỎ
-// ==========================================
+  const variants = Array.isArray(product.variants) ? product.variants : [];
 
-// --- Card Sản Phẩm ---
-const ProductCard = ({ product }) => (
-  <Link
-    to={`/product/${product.id}`}
-    className="group relative bg-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col border"
-  >
-    {product.tag && (
-      <span className="absolute top-3 left-3 z-10 bg-red-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
-        {product.tag}
-      </span>
-    )}
-    <div className="aspect-square bg-[#F8F9FA] flex items-center justify-center text-5xl sm:text-6xl group-hover:scale-105 transition-transform duration-500 relative">
-      {product.image}
-      <div className="absolute inset-0 bg-black/5 transition-colors duration-300 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
-        <Button
-          size="sm"
-          className="shadow-lg text-sm gap-1.5 bg-[#22C55E] hover:bg-[#1da850] text-white"
-        >
-          <ShoppingCart className="h-3.5 w-3.5" />
-          Thêm vào giỏ
-        </Button>
-      </div>
-    </div>
-    <div className="p-4 flex flex-col gap-1.5 flex-1 bg-white">
-      <p className="text-[14px] font-medium uppercase tracking-wider text-muted-foreground">
-        {product.brand}
-      </p>
-      <h3 className="font-semibold text-[15px] leading-snug text-gray-900">
-        {product.name}
-      </h3>
-      <div className="flex items-center gap-1 mt-auto pt-1">
-        <Star className="h-3.5 w-3.5 fill-[#EAB308] text-[#EAB308]" />
-        <span className="text-sm font-medium text-gray-700">
-          {product.rating}
-        </span>
-        <span className="text-sm text-muted-foreground">
-          ({product.reviews})
-        </span>
-      </div>
-      <div className="flex items-center gap-2 mt-1">
-        <span className="font-bold text-red-500">${product.price}</span>
-        {product.originalPrice && (
-          <span className="text-sm text-muted-foreground line-through">
-            ${product.originalPrice}
-          </span>
-        )}
-      </div>
-    </div>
-  </Link>
-);
-
-// --- BỘ LỌC CÁC THUỘC TÍNH (ShopFilterSidebar) ---
-const ShopFilterSidebar = () => {
-  const [activeBrands, setActiveBrands] = useState([]);
-  const [activeSizes, setActiveSizes] = useState([]);
-  const [activePrice, setActivePrice] = useState("");
-
-  const toggleBrand = (brand) => {
-    setActiveBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand],
-    );
-  };
-
-  const toggleSize = (size) => {
-    setActiveSizes((prev) =>
-      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size],
-    );
-  };
+  console.log(variants);
 
   return (
+    <Link
+      to={`/product/${product._id}`}
+      className="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col border border-gray-100"
+    >
+      {product.isPublished === false && (
+        <span className="absolute top-3 left-3 z-10 bg-gray-700 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+          Nháp
+        </span>
+      )}
+
+      <div className="aspect-square bg-[#F8F9FA] overflow-hidden relative">
+        <img
+          src={image}
+          alt={product.name}
+          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+
+        <div className="absolute inset-0 bg-black/10 transition-colors duration-300 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
+          <Button
+            type="button"
+            size="sm"
+            className="shadow-lg text-sm gap-1.5 bg-[#22C55E] hover:bg-[#1da850] text-white"
+            onClick={(e) => {
+              e.preventDefault();
+              toast.info("Chức năng thêm giỏ hàng sẽ xử lý sau");
+            }}
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            Thêm vào giỏ
+          </Button>
+        </div>
+      </div>
+
+      <div className="p-4 flex flex-col gap-2 flex-1 bg-white">
+        <p className="text-[12px] font-semibold uppercase tracking-wider text-gray-500">
+          {getBrandName(product.brand)}
+        </p>
+
+        <h3 className="font-semibold text-[15px] leading-snug text-gray-900 line-clamp-2 min-h-[40px]">
+          {product.name}
+        </h3>
+
+        {variants.length > 0 && (
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-1.5">
+              {variants.slice(0, 5).map((variant, index) => (
+                <span
+                  key={variant._id || index}
+                  title={variant.color}
+                  className="h-4 w-4 rounded-full border border-gray-300 shadow-sm"
+                  style={{
+                    backgroundColor: variant.colorCode || "#d1d5db",
+                  }}
+                />
+              ))}
+
+              {variants.length > 5 && (
+                <span className="text-xs font-medium text-gray-500">
+                  +{variants.length - 5}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-1 mt-auto pt-1">
+          <Star className="h-3.5 w-3.5 fill-[#EAB308] text-[#EAB308]" />
+          <span className="text-sm font-medium text-gray-700">
+            {product.rating || 5}
+          </span>
+          <span className="text-sm text-gray-400">
+            ({product.reviewCount || 0})
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 mt-1">
+          <span className="font-bold text-red-500">{formatPrice(price)}</span>
+
+          {originalPrice && (
+            <span className="text-sm text-gray-400 line-through">
+              {formatPrice(originalPrice)}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+const ShopFilterSidebar = ({
+  brands,
+  activeBrand,
+  activePrice,
+  onChangeBrand,
+  onChangePrice,
+  onReset,
+}) => {
+  return (
     <div className="space-y-8 pr-4">
-      {/* Bộ lọc Giá */}
       <div>
         <h3 className="text-gray-900 font-bold text-sm uppercase tracking-wider mb-4">
           Mức Giá
         </h3>
+
         <div className="space-y-3">
-          {FILTER_DATA.prices.map((price, idx) => (
+          {priceOptions.map((price) => (
             <label
-              key={idx}
+              key={price.label}
               className="flex items-center gap-3 cursor-pointer group"
             >
               <div
-                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${activePrice === price ? "border-[#22C55E] bg-[#22C55E]" : "border-gray-300 group-hover:border-[#22C55E]"}`}
+                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                  activePrice === price.label
+                    ? "border-[#22C55E] bg-[#22C55E]"
+                    : "border-gray-300 group-hover:border-[#22C55E]"
+                }`}
               >
-                {activePrice === price && (
+                {activePrice === price.label && (
                   <div className="w-2 h-2 bg-white rounded-full" />
                 )}
               </div>
+
               <input
                 type="radio"
                 name="price"
+                checked={activePrice === price.label}
                 className="hidden"
-                onChange={() => setActivePrice(price)}
+                onChange={() => onChangePrice(price)}
               />
+
               <span
-                className={`text-[14px] ${activePrice === price ? "text-gray-900 font-medium" : "text-gray-600"}`}
+                className={`text-[14px] ${
+                  activePrice === price.label
+                    ? "text-gray-900 font-medium"
+                    : "text-gray-600"
+                }`}
               >
-                {price}
+                {price.label}
               </span>
             </label>
           ))}
         </div>
       </div>
+
       <div className="h-[1px] w-full bg-gray-100" />
 
-      {/* Bộ lọc Thương hiệu */}
       <div>
         <h3 className="text-gray-900 font-bold text-sm uppercase tracking-wider mb-4">
           Thương Hiệu
         </h3>
+
         <div className="space-y-3">
-          {FILTER_DATA.brands.map((brand, idx) => (
+          {brands.length === 0 && (
+            <p className="text-sm text-gray-500">Chưa có thương hiệu</p>
+          )}
+
+          {brands.map((brand) => (
             <label
-              key={idx}
+              key={brand._id}
               className="flex items-center gap-3 cursor-pointer group"
             >
               <div
-                className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${activeBrands.includes(brand) ? "border-[#22C55E] bg-[#22C55E]" : "border-gray-300 group-hover:border-[#22C55E]"}`}
+                className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                  activeBrand === brand._id
+                    ? "border-[#22C55E] bg-[#22C55E]"
+                    : "border-gray-300 group-hover:border-[#22C55E]"
+                }`}
               >
-                {activeBrands.includes(brand) && (
+                {activeBrand === brand._id && (
                   <Check className="w-3 h-3 text-white" strokeWidth={3} />
                 )}
               </div>
+
               <input
                 type="checkbox"
+                checked={activeBrand === brand._id}
                 className="hidden"
-                onChange={() => toggleBrand(brand)}
+                onChange={() =>
+                  onChangeBrand(activeBrand === brand._id ? "" : brand._id)
+                }
               />
+
               <span
-                className={`text-[14px] ${activeBrands.includes(brand) ? "text-gray-900 font-medium" : "text-gray-600"}`}
+                className={`text-[14px] ${
+                  activeBrand === brand._id
+                    ? "text-gray-900 font-medium"
+                    : "text-gray-600"
+                }`}
               >
-                {brand}
+                {brand.nameBrand || brand.name}
               </span>
             </label>
-          ))}
-        </div>
-      </div>
-      <div className="h-[1px] w-full bg-gray-100" />
-
-      {/* Bộ lọc Size */}
-      <div>
-        <h3 className="text-gray-900 font-bold text-sm uppercase tracking-wider mb-4">
-          Kích Cỡ (Size)
-        </h3>
-        <div className="grid grid-cols-4 gap-2">
-          {FILTER_DATA.sizes.map((size, idx) => (
-            <button
-              key={idx}
-              onClick={() => toggleSize(size)}
-              className={`h-10 rounded-md border text-sm font-medium transition-all ${activeSizes.includes(size) ? "border-[#22C55E] bg-[#22C55E] text-white" : "border-gray-200 bg-white text-gray-700 hover:border-[#22C55E] hover:text-[#22C55E]"}`}
-            >
-              {size}
-            </button>
           ))}
         </div>
       </div>
@@ -325,11 +318,7 @@ const ShopFilterSidebar = () => {
       <Button
         variant="outline"
         className="w-full mt-4 text-[#22C55E] border-[#22C55E] hover:bg-[#22C55E] hover:text-white transition-colors"
-        onClick={() => {
-          setActiveBrands([]);
-          setActiveSizes([]);
-          setActivePrice("");
-        }}
+        onClick={onReset}
       >
         Xóa bộ lọc
       </Button>
@@ -337,37 +326,54 @@ const ShopFilterSidebar = () => {
   );
 };
 
-// --- Thanh Công Cụ (Toolbar) ---
-const ShopToolbar = ({ sort, onSortChange, onOpenMobileMenu }) => (
-  <div className="flex items-center justify-between gap-4 mb-6">
-    <Button
-      variant="outline"
-      className="lg:hidden gap-2"
-      onClick={onOpenMobileMenu}
-    >
-      <SlidersHorizontal className="h-4 w-4" />
-      Bộ lọc
-    </Button>
-    <p className="hidden lg:block text-sm text-muted-foreground">
-      Hiển thị <span className="font-medium text-gray-900">8</span> sản phẩm
-    </p>
-    <Select value={sort} onValueChange={onSortChange}>
-      <SelectTrigger className="w-48 bg-white border">
-        <SelectValue placeholder="Sắp xếp theo" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="popular">Phổ biến nhất</SelectItem>
-        <SelectItem value="newest">Mới nhất</SelectItem>
-        <SelectItem value="price-asc">Giá: Thấp → Cao</SelectItem>
-        <SelectItem value="price-desc">Giá: Cao → Thấp</SelectItem>
-      </SelectContent>
-    </Select>
-  </div>
-);
+const ShopToolbar = ({
+  sort,
+  onSortChange,
+  onOpenMobileMenu,
+  showingProduct,
+  totalProduct,
+}) => {
+  return (
+    <div className="flex items-center justify-between gap-4 mb-6">
+      <Button
+        variant="outline"
+        className="lg:hidden gap-2"
+        onClick={onOpenMobileMenu}
+      >
+        <SlidersHorizontal className="h-4 w-4" />
+        Bộ lọc
+      </Button>
 
-// --- Phân Trang ---
+      <p className="hidden lg:block text-sm text-gray-500">
+        Hiển thị{" "}
+        <span className="font-medium text-gray-900">{showingProduct}</span> /{" "}
+        <span className="font-medium text-gray-900">{totalProduct}</span> sản
+        phẩm
+      </p>
+
+      <Select value={sort} onValueChange={onSortChange}>
+        <SelectTrigger className="w-48 bg-white border">
+          <SelectValue placeholder="Sắp xếp theo" />
+        </SelectTrigger>
+
+        <SelectContent>
+          <SelectItem value="newest">Mới nhất</SelectItem>
+          <SelectItem value="oldest">Cũ nhất</SelectItem>
+          <SelectItem value="price_asc">Giá: Thấp → Cao</SelectItem>
+          <SelectItem value="price_desc">Giá: Cao → Thấp</SelectItem>
+          <SelectItem value="name_asc">Tên: A → Z</SelectItem>
+          <SelectItem value="name_desc">Tên: Z → A</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+};
+
 const ShopPagination = ({ page, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
   return (
     <div className="flex items-center justify-center gap-1.5 mt-10">
       <Button
@@ -378,17 +384,21 @@ const ShopPagination = ({ page, totalPages, onPageChange }) => {
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
+
       {pages.map((p) => (
         <Button
           key={p}
           variant={p === page ? "default" : "outline"}
           size="icon"
           onClick={() => onPageChange(p)}
-          className={`w-9 h-9 ${p === page ? "bg-[#22C55E] hover:bg-[#1da850] text-white" : ""}`}
+          className={`w-9 h-9 ${
+            p === page ? "bg-[#22C55E] hover:bg-[#1da850] text-white" : ""
+          }`}
         >
           {p}
         </Button>
       ))}
+
       <Button
         variant="outline"
         size="icon"
@@ -401,33 +411,188 @@ const ShopPagination = ({ page, totalPages, onPageChange }) => {
   );
 };
 
-// ==========================================
-// 4. COMPONENT CHÍNH (TRANG SHOP)
-// ==========================================
 const Shop = () => {
-  // Bắt cái URL hiện tại (Ví dụ: "ao-nam")
   const { categorySlug } = useParams();
 
-  // Đổi nó thành Tiếng Việt ("Áo Nam")
-  const currentCategory = formatCategoryTitle(categorySlug);
+  const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  const [sort, setSort] = useState("popular");
-  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPage: 1,
+    totalProduct: 0,
+    limit: 8,
+  });
+
+  const [filters, setFilters] = useState({
+    brand: "",
+    minPrice: "",
+    maxPrice: "",
+    activePrice: "",
+    sort: "newest",
+    page: 1,
+    limit: 8,
+  });
+
+  const currentCategory = useMemo(() => {
+    if (!categorySlug) return null;
+
+    return categories.find(
+      (category) =>
+        category.slug === categorySlug ||
+        category.nameSlug === categorySlug ||
+        category._id === categorySlug,
+    );
+  }, [categories, categorySlug]);
+
+  const currentCategoryTitle =
+    currentCategory?.name ||
+    (categorySlug ? "Danh mục sản phẩm" : "Tất cả sản phẩm");
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+
+      const params = {
+        page: filters.page,
+        limit: filters.limit,
+        sort: filters.sort,
+        isPublished: true,
+      };
+
+      if (filters.brand) params.brand = filters.brand;
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (currentCategory?._id) params.category = currentCategory._id;
+
+      const res = await ProductService.getAllProducts(params);
+      const data = getResponseData(res);
+
+      setProducts(data.products || []);
+
+      setPagination(
+        data.pagination || {
+          currentPage: filters.page,
+          totalPage: 1,
+          totalProduct: 0,
+          limit: filters.limit,
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Lấy sản phẩm thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const res = await brandService.getAllBrands();
+      const data = getResponseData(res);
+
+      setBrands(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.log(error);
+      setBrands([]);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await categoryService.getAllCategories({
+        page: 1,
+        limit: 100,
+      });
+
+      const data = getResponseData(res);
+      const categoryList =
+        data?.categories || data?.category || data?.data || data || [];
+
+      setCategories(Array.isArray(categoryList) ? categoryList : []);
+    } catch (error) {
+      console.log(error);
+      setCategories([]);
+    }
+  };
+
+  const handleChangeBrand = (brandId) => {
+    setFilters((prev) => ({
+      ...prev,
+      brand: brandId,
+      page: 1,
+    }));
+  };
+
+  const handleChangePrice = (price) => {
+    setFilters((prev) => ({
+      ...prev,
+      minPrice: price.minPrice,
+      maxPrice: price.maxPrice,
+      activePrice: price.label,
+      page: 1,
+    }));
+  };
+
+  const handleResetFilter = () => {
+    setFilters((prev) => ({
+      ...prev,
+      brand: "",
+      minPrice: "",
+      maxPrice: "",
+      activePrice: "",
+      page: 1,
+    }));
+  };
+
+  const handleSortChange = (sort) => {
+    setFilters((prev) => ({
+      ...prev,
+      sort,
+      page: 1,
+    }));
+  };
+
+  const handlePageChange = (page) => {
+    setFilters((prev) => ({
+      ...prev,
+      page,
+    }));
+  };
+
+  useEffect(() => {
+    fetchBrands();
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [
+    filters.brand,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.sort,
+    filters.page,
+    currentCategory?._id,
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <main className="flex-1">
-        {/* Banner tiêu đề */}
         <div className="bg-[#F8F9FA] border-b">
           <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold text-gray-900 uppercase">
-              {currentCategory}
+              {currentCategoryTitle}
             </h1>
-            <p className="text-sm text-muted-foreground mt-2">
+
+            <p className="text-sm text-gray-500 mt-2">
               Trang chủ / Cửa hàng /{" "}
               <span className="text-[#22C55E] font-medium">
-                {currentCategory}
+                {currentCategoryTitle}
               </span>
             </p>
           </div>
@@ -435,25 +600,32 @@ const Shop = () => {
 
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-col lg:flex-row gap-10">
-            {/* Sidebar Bộ Lọc (Desktop) */}
             <aside className="hidden lg:block w-64 shrink-0">
               <div className="sticky top-24">
-                <ShopFilterSidebar />
+                <ShopFilterSidebar
+                  brands={brands}
+                  activeBrand={filters.brand}
+                  activePrice={filters.activePrice}
+                  onChangeBrand={handleChangeBrand}
+                  onChangePrice={handleChangePrice}
+                  onReset={handleResetFilter}
+                />
               </div>
             </aside>
 
-            {/* Sidebar Bộ Lọc (Mobile Overlay) */}
             {mobileMenuOpen && (
               <div className="fixed inset-0 z-50 lg:hidden">
                 <div
                   className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                   onClick={() => setMobileMenuOpen(false)}
                 />
+
                 <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white p-6 overflow-y-auto animate-in slide-in-from-left shadow-xl">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="font-bold text-lg text-gray-900">
                       Bộ Lọc Sản Phẩm
                     </h2>
+
                     <Button
                       variant="ghost"
                       size="icon"
@@ -462,29 +634,54 @@ const Shop = () => {
                       <X className="h-5 w-5" />
                     </Button>
                   </div>
-                  <ShopFilterSidebar />
+
+                  <ShopFilterSidebar
+                    brands={brands}
+                    activeBrand={filters.brand}
+                    activePrice={filters.activePrice}
+                    onChangeBrand={handleChangeBrand}
+                    onChangePrice={handleChangePrice}
+                    onReset={handleResetFilter}
+                  />
                 </div>
               </div>
             )}
 
-            {/* Khu vực Lưới Sản phẩm */}
             <div className="flex-1 min-w-0">
               <ShopToolbar
-                sort={sort}
-                onSortChange={setSort}
+                sort={filters.sort}
+                onSortChange={handleSortChange}
                 onOpenMobileMenu={() => setMobileMenuOpen(true)}
+                showingProduct={products.length}
+                totalProduct={pagination.totalProduct}
               />
 
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-2">
-                {allProducts.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
+              {loading ? (
+                <div className="min-h-[360px] flex flex-col items-center justify-center text-gray-500">
+                  <Loader2 className="h-8 w-8 animate-spin mb-3" />
+                  <p>Đang tải sản phẩm...</p>
+                </div>
+              ) : products.length === 0 ? (
+                <div className="min-h-[360px] flex flex-col items-center justify-center text-center border rounded-2xl bg-gray-50">
+                  <p className="text-lg font-semibold text-gray-900">
+                    Không có sản phẩm
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Thử đổi bộ lọc hoặc chọn danh mục khác.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-2">
+                  {products.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
+                </div>
+              )}
 
               <ShopPagination
-                page={page}
-                totalPages={3}
-                onPageChange={setPage}
+                page={pagination.currentPage}
+                totalPages={pagination.totalPage}
+                onPageChange={handlePageChange}
               />
             </div>
           </div>

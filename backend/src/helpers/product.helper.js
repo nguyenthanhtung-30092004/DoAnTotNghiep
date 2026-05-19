@@ -4,73 +4,72 @@ const {
 } = require("../core/error.response");
 const productModel = require("../models/product.model");
 
-/**
- * Validate variants array for Product (both Create and Update)
- * @param {Array} variants - Array of variant objects
- * @param {String} excludeProductId - Product ID to exclude when checking for SKU uniqueness (used in Update)
- */
-async function validateVariants(variants, excludeProductId = null) {
+const validateVariants = async (variants, productId = null) => {
   if (!Array.isArray(variants) || variants.length === 0) {
-    throw new BadRequestError("Sản phẩm phải có ít nhất 1 màu sắc (variant)");
+    throw new BadRequestError("Sản phẩm phải có ít nhất 1 biến thể");
   }
 
-  const variantKeys = new Set();
+  const skuList = [];
 
   for (const variant of variants) {
-    if (!variant.color) {
-      throw new BadRequestError("Biến thể phải có màu sắc");
+    if (!variant.color || !variant.color.trim()) {
+      throw new BadRequestError("Vui lòng nhập màu hoặc tên biến thể");
     }
 
     if (!Array.isArray(variant.sizes) || variant.sizes.length === 0) {
-      throw new BadRequestError(`Màu ${variant.color} phải có ít nhất 1 kích cỡ`);
+      throw new BadRequestError("Mỗi biến thể phải có ít nhất 1 size");
     }
 
-    if (!variant.images) {
-      variant.images = [];
-    }
-
-    for (const sizeItem of variant.sizes) {
-      if (
-        sizeItem.price === undefined ||
-        sizeItem.price === null ||
-        sizeItem.price < 0
-      ) {
-        throw new BadRequestError(
-          `Giá của size ${sizeItem.size} màu ${variant.color} không hợp lệ`
-        );
+    for (const item of variant.sizes) {
+      if (!item.size || !item.size.trim()) {
+        throw new BadRequestError("Vui lòng nhập size");
       }
 
-      if (
-        sizeItem.salePrice !== undefined &&
-        sizeItem.salePrice > sizeItem.price
-      ) {
-        throw new BadRequestError("Giá khuyến mãi phải nhỏ hơn giá gốc");
+      if (!item.sku || !item.sku.trim()) {
+        throw new BadRequestError("Vui lòng nhập SKU");
       }
 
-      if (sizeItem.stock !== undefined && sizeItem.stock < 0) {
-        throw new BadRequestError("Số lượng tồn kho không hợp lệ");
+      if (item.price === undefined || item.stock === undefined) {
+        throw new BadRequestError("Vui lòng nhập giá và tồn kho");
       }
 
-      const variantKey = `${variant.color}-${sizeItem.size}`;
-      if (variantKeys.has(variantKey)) {
-        throw new ConflictRequestError(`Phân loại bị trùng lặp: ${variantKey}`);
+      if (Number(item.price) < 0 || Number(item.stock) < 0) {
+        throw new BadRequestError("Giá và tồn kho không được âm");
       }
-      variantKeys.add(variantKey);
 
-      if (sizeItem.sku) {
-        const query = { "variants.sizes.sku": sizeItem.sku };
-        if (excludeProductId) {
-          query._id = { $ne: excludeProductId };
-        }
-        
-        const existingSku = await productModel.findOne(query);
-        if (existingSku) {
-          throw new ConflictRequestError(`SKU ${sizeItem.sku} đã tồn tại`);
-        }
+      if (Number(item.salePrice || 0) > Number(item.price)) {
+        throw new BadRequestError("Giá khuyến mãi không được lớn hơn giá gốc");
       }
+
+      skuList.push(item.sku.trim());
     }
   }
-}
+
+  const duplicateSkuInRequest = skuList.find(
+    (sku, index) => skuList.indexOf(sku) !== index,
+  );
+
+  if (duplicateSkuInRequest) {
+    throw new ConflictRequestError(
+      `SKU ${duplicateSkuInRequest} bị trùng trong form`,
+    );
+  }
+
+  const filter = {
+    "variants.sizes.sku": { $in: skuList },
+    isDeleted: false,
+  };
+
+  if (productId) {
+    filter._id = { $ne: productId };
+  }
+
+  const existedProduct = await productModel.findOne(filter).lean();
+
+  if (existedProduct) {
+    throw new ConflictRequestError("SKU đã tồn tại");
+  }
+};
 
 module.exports = {
   validateVariants,

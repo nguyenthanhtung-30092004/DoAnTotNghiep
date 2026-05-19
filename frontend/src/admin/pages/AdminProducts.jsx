@@ -67,7 +67,6 @@ const AdminProducts = () => {
 
       const res = await ProductService.getAllProducts(params);
       const data = getResponseData(res);
-      console.log(data);
 
       setProducts(data.products || []);
 
@@ -90,7 +89,6 @@ const AdminProducts = () => {
   const fetchBrands = async () => {
     try {
       const res = await brandService.getAllBrands();
-
       const brands = res.data.metadata || [];
 
       setBrands(Array.isArray(brands) ? brands : []);
@@ -108,7 +106,6 @@ const AdminProducts = () => {
       });
 
       const data = getResponseData(res);
-
       const categoryList =
         data?.categories || data?.category || data?.data || [];
 
