@@ -21,23 +21,28 @@ import {
 import Profile from "../components/Account/Profile";
 import Orders from "../components/Account/Orders";
 import Address from "../components/Account/Address";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { logoutUser } from "../redux/feature/authSlice";
+import { clearUser, setAuthLoading } from "../redux/feature/authSlice";
 import { toast } from "react-toastify";
+import authService from "../services/auth.service";
 
 const Account = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const { isLoading, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      const res = await dispatch(logoutUser()).unwrap();
-      console.log("Logout success:", res);
-      navigate("/");
+      dispatch(setAuthLoading(true));
+      await authService.logout();
+      dispatch(clearUser());
+      toast.info("Đã đăng xuất");
+      navigate("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      const message = error.response?.data?.message;
+      toast.error(message || "Đăng xuất thất bại");
+    } finally {
+      dispatch(setAuthLoading(false));
     }
   };
   return (

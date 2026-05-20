@@ -12,6 +12,7 @@ router.post(
   "/coupons/validate",
   asyncHandler(couponController.validateCouponForCart),
 );
+
 router.use(authAdmin);
 
 router.post("/admin/coupons", asyncHandler(couponController.createCoupon));

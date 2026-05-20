@@ -5,8 +5,9 @@ import { Label } from "../components/ui/Label";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { forgotPassword } from "../redux/feature/authSlice";
+import { setAuthLoading } from "../redux/feature/authSlice";
 import { toast } from "react-toastify";
+import authService from "../services/auth.service";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -32,11 +33,17 @@ const ForgotPassword = () => {
     }
 
     try {
-      await dispatch(forgotPassword(email)).unwrap();
+      dispatch(setAuthLoading(true));
+
+      const res = await authService.forgotPassword({ email });
+      toast.success(res.data?.message || "Đã gửi email");
 
       navigate(`/reset-password?email=${encodeURIComponent(email)}`);
     } catch (error) {
-      toast.error(error);
+      const message = error.response?.data?.message;
+      toast.error(message || "Gửi email thất bại");
+    } finally {
+      dispatch(setAuthLoading(false));
     }
   };
 

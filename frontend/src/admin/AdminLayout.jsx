@@ -17,18 +17,25 @@ import {
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Outlet, useNavigate } from "react-router";
-import { logoutUser } from "../redux/feature/authSlice";
+import { clearUser, setAuthLoading } from "../redux/feature/authSlice";
 import { toast } from "react-toastify";
+import authService from "../services/auth.service";
 
 const AdminLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      const res = await dispatch(logoutUser()).unwrap();
+      dispatch(setAuthLoading(true));
+      await authService.logout();
+      dispatch(clearUser());
+      toast.info("Đã đăng xuất");
       navigate("/login");
     } catch (error) {
-      console.log("Logout error:", error);
+      const message = error.response?.data?.message;
+      toast.error(message || "Đăng xuất thất bại");
+    } finally {
+      dispatch(setAuthLoading(false));
     }
   };
   return (

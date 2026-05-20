@@ -4,16 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/Button";
 import NavItem from "../ui/NavItem";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../redux/feature/authSlice";
-import { Avatar, Dropdown, Space } from "antd";
+import { clearUser, setAuthLoading } from "../../redux/feature/authSlice";
+import { Dropdown } from "antd";
 import { toast } from "react-toastify";
+import authService from "../../services/auth.service";
 
-import {
-  DownOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+import { LogoutOutlined, SettingOutlined } from "@ant-design/icons";
 const navLinks = [
   { label: "Home", to: "/" },
   {
@@ -105,6 +101,20 @@ const Header = () => {
   console.log("Total quantity in cart:", totalQuantity);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const handleLogout = async () => {
+    try {
+      dispatch(setAuthLoading(true));
+      await authService.logout();
+      dispatch(clearUser());
+      toast.info("Đã đăng xuất");
+      navigate("/login");
+    } catch (error) {
+      const message = error.response?.data?.message;
+      toast.error(message || "Đăng xuất thất bại");
+    } finally {
+      dispatch(setAuthLoading(false));
+    }
+  };
   const userMenuItems = [
     {
       key: "1",
@@ -119,7 +129,7 @@ const Header = () => {
       label: "Đăng xuất",
       icon: <LogoutOutlined />,
       danger: true,
-      onClick: () => dispatch(logoutUser()),
+      onClick: handleLogout,
     },
   ];
   const handleGoToCart = () => {
@@ -177,11 +187,19 @@ const Header = () => {
           </button>
 
           <div className="relative">
-            <Link to={`${user ? "/account" : "/login"}`}>
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
+            {user ? (
+              <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Dropdown>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile toggle */}

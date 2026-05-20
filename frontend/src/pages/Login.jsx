@@ -5,59 +5,43 @@ import { Button } from "../components/ui/Button";
 import { Label } from "../components/ui/Label";
 import { Input } from "../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../redux/feature/authSlice";
-import { useEffect } from "react";
+import { setAuthLoading, setUser } from "../redux/feature/authSlice";
 import { toast } from "react-toastify";
 import google_icon from "../assets/icon-google.png";
-import { setCart, clearCartRedux } from "../redux/feature/cartSlice";
+import { setCart } from "../redux/feature/cartSlice";
 import cartService from "../services/cart.service";
+import authService from "../services/auth.service";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { isLoading, user } = useSelector((state) => state.auth);
+  const { isLoading } = useSelector((state) => state.auth);
+  const guestCartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const redirect = searchParams.get("redirect") || "/";
 
-  useEffect(() => {
-    const guestCart = useSelector((state) => state.cart.items);
-    const handleAfterLogin = async () => {
-      if (!user) return;
-
-      if (user.role === "admin") {
-        navigate("/admin", { replace: true });
-        return;
+  const syncCartAfterLogin = async () => {
+    try {
+      if (guestCartItems.length > 0) {
+        await cartService.syncCart({
+          items: guestCartItems,
+        });
       }
 
-      try {
-        if (guestCartItems.length > 0) {
-          await CartService.syncCart({
-            items: guestCartItems,
-          });
-        }
+      const res = await cartService.getCart();
+      const data = res.data?.metadata || res.data?.data || res.data;
 
-        const res = await CartService.getCart();
-        const data = res.data?.metadata || res.data?.data || res.data;
-
-        dispatch(setCart(data));
-        dispatch(clearCartRedux());
-      } catch (error) {
-        console.log(error);
-        toast.warning(
-          "Đăng nhập thành công, nhưng đồng bộ giỏ hàng chưa hoàn tất",
-        );
-      }
-
-      navigate(redirect, { replace: true });
-    };
-
-    handleAfterLogin();
-  }, [user, dispatch, navigate, redirect]);
+      dispatch(setCart(data));
+    } catch (error) {
+      console.log(error);
+      toast.warning("Đăng nhập thành công, nhưng đồng bộ giỏ hàng chưa hoàn tất");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,21 +52,37 @@ const Login = () => {
     }
 
     try {
-      await dispatch(loginUser({ email, password })).unwrap();
+      dispatch(setAuthLoading(true));
+
+      const res = await authService.login({ email, password });
+      const userData = res.data?.metadata || res.data?.data || res.data;
+
+      dispatch(setUser(userData));
+      toast.success("Đăng nhập thành công");
+
+      if (userData?.role === "admin") {
+        navigate("/admin", { replace: true });
+        return;
+      }
+
+      await syncCartAfterLogin();
+      navigate(redirect, { replace: true });
     } catch (error) {
-      toast.error(error || "Đăng nhập thất bại");
+      const message = error.response?.data?.message;
+      toast.error(message || "Đăng nhập thất bại");
+    } finally {
+      dispatch(setAuthLoading(false));
     }
   };
+
   return (
     <div className="max-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
-      {/* Background blur */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[450px] h-[450px] rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-[450px] h-[450px] rounded-full bg-primary/10 blur-3xl" />
       </div>
 
       <div className="w-full max-w-xl relative z-10">
-        {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-10">
           <Footprints className="h-9 w-9 text-primary" />
           <span className="text-3xl font-semibold tracking-tight">
@@ -90,9 +90,7 @@ const Login = () => {
           </span>
         </Link>
 
-        {/* Card */}
         <div className="rounded-3xl border bg-card p-10 shadow-xl">
-          {/* Title */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-semibold">Chào mừng trở lại</h1>
             <p className="text-sm text-muted-foreground mt-2">
@@ -100,7 +98,6 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Social */}
           <div className="flex items-center justify-center gap-4 mb-6">
             <Button
               variant="outline"
@@ -117,7 +114,6 @@ const Login = () => {
             </Button>
           </div>
 
-          {/* Divider */}
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t" />
@@ -129,9 +125,7 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
             <div className="space-y-2">
               <Label>Email</Label>
               <div className="relative">
@@ -146,7 +140,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Mật khẩu</Label>
@@ -181,7 +174,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               disabled={isLoading}
@@ -193,7 +185,6 @@ const Login = () => {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="text-center text-sm text-muted-foreground mt-6">
           Bạn chưa có tài khoản?{" "}
           <Link

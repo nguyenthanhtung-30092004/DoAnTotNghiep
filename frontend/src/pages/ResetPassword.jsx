@@ -4,18 +4,18 @@ import { Footprints, Lock, Eye, EyeOff, Hash, ArrowLeft } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Label } from "../components/ui/Label";
 import { Input } from "../components/ui/Input";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { resetPassword, verifyOtp } from "../redux/feature/authSlice";
+import { setAuthLoading } from "../redux/feature/authSlice";
+import authService from "../services/auth.service";
 
 const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // THIẾU DÒNG NÀY dẫn đến hàm handleSubmit bị lỗi
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { isLoading } = useSelector((state) => state.auth);
 
-  // Lấy email trực tiếp từ URL param
   const emailFromUrl = searchParams.get("email") || "";
 
   const [email, setEmail] = useState(emailFromUrl);
@@ -23,7 +23,6 @@ const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Cập nhật email nếu URL thay đổi hoặc lúc component mount
   useEffect(() => {
     if (emailFromUrl) {
       setEmail(emailFromUrl);
@@ -33,7 +32,6 @@ const ResetPassword = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
-    // Validate căn bản
     if (!email) {
       toast.error("Không tìm thấy thông tin email xác thực!");
       return;
@@ -50,20 +48,24 @@ const ResetPassword = () => {
     }
 
     try {
-      // 1. Verify OTP - Phải unwrap để bắt lỗi vào block catch
-      await dispatch(verifyOtp({ email, otp })).unwrap();
+      dispatch(setAuthLoading(true));
 
-      // 2. Reset password
-      await dispatch(resetPassword({ newPassword: password })).unwrap();
+      await authService.verifyOtp({ email, otp });
 
-      toast.success("Cập nhật mật khẩu thành công! Đang chuyển hướng...");
+      const res = await authService.resetPassword({ newPassword: password });
+
+      toast.success(
+        res.data?.message || "Cập nhật mật khẩu thành công! Đang chuyển hướng...",
+      );
 
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (error) {
-      // Error ở đây thường là message từ rejectWithValue trong Slice
-      toast.error(error || "Có lỗi xảy ra, vui lòng thử lại");
+      const message = error.response?.data?.message;
+      toast.error(message || "Có lỗi xảy ra, vui lòng thử lại");
+    } finally {
+      dispatch(setAuthLoading(false));
     }
   };
 

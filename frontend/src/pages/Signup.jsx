@@ -16,7 +16,8 @@ import { Button } from "../components/ui/Button";
 import { Label } from "../components/ui/Label";
 import { Input } from "../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
-import { register } from "../redux/feature/authSlice";
+import { setAuthLoading, setUser } from "../redux/feature/authSlice";
+import authService from "../services/auth.service";
 
 const passwordRules = [
   { label: "At least 8 characters", test: (p) => p.length >= 6 },
@@ -35,6 +36,7 @@ const Signup = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { isLoading } = useSelector((state) => state.auth);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -44,13 +46,19 @@ const Signup = () => {
       return;
     }
     try {
-      const res = await dispatch(
-        register({ fullName, email, password }),
-      ).unwrap();
-      console.log(res);
-      navigate("/");
+      dispatch(setAuthLoading(true));
+
+      const res = await authService.register({ fullName, email, password });
+      const userData = res.data?.metadata || res.data?.data || res.data;
+
+      dispatch(setUser(userData));
+      toast.success("Đăng ký thành công");
+      navigate(userData?.role === "admin" ? "/admin" : "/");
     } catch (error) {
-      console.log(error);
+      const message = error.response?.data?.message;
+      toast.error(message || "Đăng ký thất bại");
+    } finally {
+      dispatch(setAuthLoading(false));
     }
   };
 
@@ -248,10 +256,11 @@ const Signup = () => {
 
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full rounded-xl h-11 text-sm font-semibold gap-2 mt-2"
             >
-              Create Account
-              <ArrowRight className="h-4 w-4" />
+              {isLoading ? "Đang đăng ký..." : "Create Account"}
+              {!isLoading && <ArrowRight className="h-4 w-4" />}
             </Button>
           </form>
         </div>

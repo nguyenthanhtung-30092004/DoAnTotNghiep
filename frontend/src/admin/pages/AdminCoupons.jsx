@@ -1,180 +1,259 @@
-import { Copy, Plus, Trash2 } from "lucide-react";
-import React from "react";
+import { Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
+import couponService from "../../services/coupon.service";
+
+import CouponStats from "../components/Coupon/CouponTable/CouponStats.jsx";
+import CouponFilters from "../components/Coupon/CouponTable/CouponFilters";
+import CouponTable from "../components/Coupon/CouponTable/CouponTable";
+import CouponPagination from "../components/Coupon/CouponTable/CouponPagination";
+import AddForm from "../components/Coupon/CouponForm/AddCoupon.jsx";
+import DeleteForm from "../components/Coupon/CouponForm/DeleteCoupon.jsx";
 
 const AdminCoupons = () => {
+  const [coupons, setCoupons] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [openCouponForm, setOpenCouponForm] = useState(false);
+  const [openDeleteForm, setOpenDeleteForm] = useState(false);
+
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
+
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPage: 1,
+    totalCoupon: 0,
+    limit: 8,
+  });
+
+  const [filters, setFilters] = useState({
+    search: "",
+    isActive: "",
+    applyTo: "",
+    discountType: "",
+    page: 1,
+    limit: 8,
+  });
+
+  const getResponseData = (res) => {
+    return res.data?.metadata || res.data?.data || res.data;
+  };
+
+  const fetchCoupons = async () => {
+    try {
+      setLoading(true);
+
+      const params = {
+        page: filters.page,
+        limit: filters.limit,
+      };
+
+      if (filters.search.trim()) params.search = filters.search.trim();
+      if (filters.isActive !== "") params.isActive = filters.isActive;
+      if (filters.applyTo) params.applyTo = filters.applyTo;
+      if (filters.discountType) params.discountType = filters.discountType;
+
+      const res = await couponService.getCoupons(params);
+      const data = getResponseData(res);
+
+      setCoupons(data.coupons || []);
+
+      setPagination(
+        data.pagination || {
+          currentPage: 1,
+          totalPage: 1,
+          totalCoupon: 0,
+          limit: filters.limit,
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error.response?.data?.message || "Lấy danh sách mã giảm giá thất bại",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangeLimit = (limit) => {
+    setFilters((prev) => ({
+      ...prev,
+      limit,
+      page: 1,
+    }));
+  };
+
+  const handleChangeFilter = (name, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+      page: 1,
+    }));
+  };
+
+  const handleResetFilter = () => {
+    setFilters({
+      search: "",
+      isActive: "",
+      applyTo: "",
+      discountType: "",
+      page: 1,
+      limit: 8,
+    });
+  };
+
+  const handleOpenAdd = () => {
+    setSelectedCoupon(null);
+    setOpenCouponForm(true);
+  };
+
+  const handleOpenUpdate = (coupon) => {
+    setSelectedCoupon(coupon);
+    setOpenCouponForm(true);
+  };
+
+  const handleOpenDelete = (coupon) => {
+    setSelectedCoupon(coupon);
+    setOpenDeleteForm(true);
+  };
+
+  const handleCloseCouponForm = () => {
+    setSelectedCoupon(null);
+    setOpenCouponForm(false);
+  };
+
+  const handleCloseDeleteForm = () => {
+    setSelectedCoupon(null);
+    setOpenDeleteForm(false);
+  };
+
+  const handleDeleteCoupon = async () => {
+    await couponService.deleteCoupon(selectedCoupon._id);
+    toast.success("Xóa mã giảm giá thành công");
+    await fetchCoupons();
+  };
+
+  const handleToggleActive = async (coupon) => {
+    try {
+      await couponService.updateCoupon(coupon._id, {
+        isActive: !coupon.isActive,
+      });
+
+      toast.success("Cập nhật trạng thái thành công");
+      fetchCoupons();
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error.response?.data?.message || "Cập nhật trạng thái thất bại",
+      );
+    }
+  };
+
+  const handleCopyCode = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast.success("Đã copy mã giảm giá");
+    } catch (error) {
+      console.log(error);
+      toast.error("Copy mã thất bại");
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (pagination.currentPage <= 1) return;
+
+    setFilters((prev) => ({
+      ...prev,
+      page: prev.page - 1,
+    }));
+  };
+
+  const handleNextPage = () => {
+    if (pagination.currentPage >= pagination.totalPage) return;
+
+    setFilters((prev) => ({
+      ...prev,
+      page: prev.page + 1,
+    }));
+  };
+
+  useEffect(() => {
+    fetchCoupons();
+  }, [filters]);
+
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Mã giảm giá</h1>
-          <p className="text-sm text-slate-500 mt-1">4 mã</p>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Quản lý mã giảm giá
+          </h1>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Quản lý mã giảm giá, thời gian áp dụng, lượt dùng và trạng thái
+          </p>
         </div>
 
-        <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 text-primary-foreground shadow-soft hover:shadow-card-hover h-10 px-5 py-2 bg-indigo-600 hover:bg-indigo-700">
-          <Plus /> Tạo mã mới
+        <button
+          onClick={handleOpenAdd}
+          className="flex h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 text-sm font-semibold text-white hover:bg-indigo-700"
+        >
+          <Plus className="size-4" />
+          Thêm mã giảm giá
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <code className="text-lg font-bold font-mono text-indigo-600">
-                  SUMMER25
-                </code>
+      <CouponStats
+        totalCoupon={pagination.totalCoupon}
+        showingCoupon={coupons.length}
+        activeCoupon={coupons.filter((coupon) => coupon.isActive).length}
+        expiredCoupon={
+          coupons.filter(
+            (coupon) => coupon.endAt && new Date(coupon.endAt) < new Date(),
+          ).length
+        }
+      />
 
-                <p className="text-slate-400 hover:text-indigo-600">
-                  <Copy className="size-3.5" />
-                </p>
-              </div>
+      <CouponFilters
+        filters={filters}
+        limit={filters.limit}
+        onChangeFilter={handleChangeFilter}
+        onChangeLimit={handleChangeLimit}
+        onReset={handleResetFilter}
+      />
 
-              <p className="text-2xl font-bold text-slate-900 mt-2">25%</p>
-            </div>
+      <CouponTable
+        coupons={coupons}
+        loading={loading}
+        onEdit={handleOpenUpdate}
+        onDelete={handleOpenDelete}
+        onToggleActive={handleToggleActive}
+        onCopy={handleCopyCode}
+      />
 
-            <button className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors">
-              <span className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform"></span>
-            </button>
-          </div>
+      <CouponPagination
+        pagination={pagination}
+        onPrev={handlePrevPage}
+        onNext={handleNextPage}
+      />
 
-          <div className="space-y-1.5 text-xs text-slate-600 mb-4">
-            <div className="flex justify-between">
-              <span className="">Đơn tối thiểu:</span>
-              <span className="font-medium text-slate-900">1.000.000 ₫</span>
-            </div>
+      {openCouponForm && (
+        <AddForm
+          coupon={selectedCoupon}
+          onClose={handleCloseCouponForm}
+          onSuccess={fetchCoupons}
+        />
+      )}
 
-            <div className="flex justify-between">
-              <span className="">Hết hạn:</span>
-              <span className="font-medium text-slate-900">2026-08-31</span>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-600"></span>
-              <span className="font-semibold text-slate-900">142/500</span>
-            </div>
-
-            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-indigo-600 rounded-full"
-                style={{ width: "28.4%" }}
-              ></div>
-            </div>
-          </div>
-
-          <button className="w-full text-xs font-medium text-slate-500 hover:text-red-600 flex items-center justify-center gap-1 py-1.5 rounded-md hover:bg-red-50">
-            <Trash2 className="size-3.5" />
-            Xóa mã
-          </button>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <code className="text-lg font-bold font-mono text-indigo-600">
-                  FREESHIP
-                </code>
-
-                <p className="text-slate-400 hover:text-indigo-600">
-                  <Copy className="size-3.5" />
-                </p>
-              </div>
-
-              <p className="text-2xl font-bold text-slate-900 mt-2">50.000 ₫</p>
-            </div>
-
-            <button className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors">
-              <span className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform"></span>
-            </button>
-          </div>
-
-          <div className="space-y-1.5 text-xs text-slate-600 mb-4">
-            <div className="flex justify-between">
-              <span className="">Đơn tối thiểu:</span>
-              <span className="font-medium text-slate-900">500.000 ₫</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="">Hết hạn:</span>
-              <span className="font-medium text-slate-900">2026-12-31</span>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-600"></span>
-              <span className="font-semibold text-slate-900">320/1000</span>
-            </div>
-
-            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-indigo-600 rounded-full"
-                style={{ width: "28.4%" }}
-              ></div>
-            </div>
-          </div>
-
-          <button className="w-full text-xs font-medium text-slate-500 hover:text-red-600 flex items-center justify-center gap-1 py-1.5 rounded-md hover:bg-red-50">
-            <Trash2 className="size-3.5" />
-            Xóa mã
-          </button>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <code className="text-lg font-bold font-mono text-indigo-600">
-                  BLACKFRI
-                </code>
-
-                <p className="text-slate-400 hover:text-indigo-600">
-                  <Copy className="size-3.5" />
-                </p>
-              </div>
-
-              <p className="text-2xl font-bold text-slate-900 mt-2">40%</p>
-            </div>
-
-            <button className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors">
-              <span className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform"></span>
-            </button>
-          </div>
-
-          <div className="space-y-1.5 text-xs text-slate-600 mb-4">
-            <div className="flex justify-between">
-              <span className="">Đơn tối thiểu:</span>
-              <span className="font-medium text-slate-900">2.000.000 ₫</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="">Hết hạn:</span>
-              <span className="font-medium text-red-600">2025-11-30</span>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-600"></span>
-              <span className="font-semibold text-slate-900">500/500</span>
-            </div>
-
-            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-indigo-600 rounded-full"
-                style={{ width: "100%" }}
-              ></div>
-            </div>
-          </div>
-
-          <button className="w-full text-xs font-medium text-slate-500 hover:text-red-600 flex items-center justify-center gap-1 py-1.5 rounded-md hover:bg-red-50">
-            <Trash2 className="size-3.5" />
-            Xóa mã
-          </button>
-        </div>
-      </div>
+      {openDeleteForm && (
+        <DeleteForm
+          coupon={selectedCoupon}
+          onClose={handleCloseDeleteForm}
+          onConfirm={handleDeleteCoupon}
+        />
+      )}
     </div>
   );
 };
