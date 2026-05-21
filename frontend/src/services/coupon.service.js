@@ -1,35 +1,28 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 import { API_ADMIN_COUPON, API_COUPON } from "../utils/constants/api";
 
-const axiosConfig = {
-  withCredentials: true,
-};
-
 const getCoupons = (params = {}) => {
-  return axios.get(API_ADMIN_COUPON, {
-    ...axiosConfig,
-    params,
-  });
+  return axiosClient.get(API_ADMIN_COUPON, { params });
 };
 
 const getCouponDetail = (id) => {
-  return axios.get(`${API_ADMIN_COUPON}/${id}`, axiosConfig);
+  return axiosClient.get(`${API_ADMIN_COUPON}/${id}`);
 };
 
 const createCoupon = (data) => {
-  return axios.post(API_ADMIN_COUPON, data, axiosConfig);
+  return axiosClient.post(API_ADMIN_COUPON, data);
 };
 
 const updateCoupon = (id, data) => {
-  return axios.patch(`${API_ADMIN_COUPON}/${id}`, data, axiosConfig);
+  return axiosClient.patch(`${API_ADMIN_COUPON}/${id}`, data);
 };
 
 const deleteCoupon = (id) => {
-  return axios.delete(`${API_ADMIN_COUPON}/${id}`, axiosConfig);
+  return axiosClient.delete(`${API_ADMIN_COUPON}/${id}`);
 };
 
 const validateCoupon = (code) => {
-  return axios.post(`${API_COUPON}/coupons/validate`, { code }, axiosConfig);
+  return axiosClient.post(`${API_COUPON}/coupons/validate`, { code });
 };
 
 const couponService = {

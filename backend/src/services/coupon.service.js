@@ -31,6 +31,7 @@ class CouponService {
       categories = [],
       brands = [],
       products = [],
+      users = [],
       isActive = true,
     } = body;
 
@@ -48,7 +49,7 @@ class CouponService {
       throw new BadRequestError("Giảm theo phần trăm không được vượt quá 100%");
     }
 
-    if (!["ALL", "CATEGORIES", "BRANDS", "PRODUCTS"].includes(applyTo)) {
+    if (!["ALL", "CATEGORIES", "BRANDS", "PRODUCTS", "USERS"].includes(applyTo)) {
       throw new BadRequestError("Phạm vi áp dụng không hợp lệ");
     }
 
@@ -77,6 +78,7 @@ class CouponService {
       categories,
       brands,
       products,
+      users,
       isActive,
     });
 
@@ -139,6 +141,7 @@ class CouponService {
         .populate("categories", "name")
         .populate("brands", "nameBrand")
         .populate("products", "name slug thumbnail")
+        .populate("users", "fullName email")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -166,7 +169,8 @@ class CouponService {
       })
       .populate("categories", "name")
       .populate("brands", "nameBrand")
-      .populate("products", "name slug thumbnail");
+      .populate("products", "name slug thumbnail")
+      .populate("users", "fullName email");
 
     if (!coupon) {
       throw new NotFoundError("Mã giảm giá không tồn tại");
@@ -218,6 +222,7 @@ class CouponService {
       "categories",
       "brands",
       "products",
+      "users",
       "isActive",
     ];
 
@@ -321,6 +326,10 @@ class CouponService {
       );
     }
 
+    if (coupon.applyTo === "USERS") {
+      return coupon.users.some((id) => id.toString() === item.userId?.toString());
+    }
+
     return false;
   }
 
@@ -342,6 +351,14 @@ class CouponService {
     discount = Math.min(discount, eligibleAmount);
 
     return Math.round(discount);
+  }
+
+  calculateCouponDiscount(coupon, eligibleAmount) {
+    return this.calculateDiscount(coupon, eligibleAmount);
+  }
+
+  async validateCoupon(payload) {
+    return this.validateCouponForItems(payload);
   }
 
   async validateCouponForItems({ userId, code, items, subtotal }) {
@@ -369,7 +386,12 @@ class CouponService {
 
       if (!product) continue;
 
-      const matched = this.isItemMatchCoupon(coupon, item, product);
+      const itemForCoupon = item.toObject ? item.toObject() : item;
+      const matched = this.isItemMatchCoupon(
+        coupon,
+        { ...itemForCoupon, userId },
+        product,
+      );
 
       if (!matched) continue;
 
@@ -457,6 +479,10 @@ class CouponService {
     await coupon.save();
   }
 
+  async increaseCouponUsage(payload) {
+    return this.increaseUsage(payload);
+  }
+
   async decreaseUsage({ couponId, userId }) {
     if (!couponId) return;
 
@@ -477,6 +503,10 @@ class CouponService {
     coupon.usedBy = coupon.usedBy.filter((item) => item.count > 0);
 
     await coupon.save();
+  }
+
+  async rollbackCouponUsage(payload) {
+    return this.decreaseUsage(payload);
   }
 }
 

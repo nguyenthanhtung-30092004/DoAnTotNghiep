@@ -23,6 +23,7 @@ import AdminCoupons from "../admin/pages/AdminCoupons";
 import AdminReviews from "../admin/pages/AdminReviews";
 import AdminRoute from "./AdminRoute";
 import PrivateRoute from "./PrivateRoute";
+import PaymentResult from "../pages/PaymentResult";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "payment-result",
+        element: <PaymentResult />,
+      },
+      {
         path: "account",
         element: (
           <PrivateRoute>
@@ -69,7 +74,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "order/:orderId",
+        path: "orders/:orderId",
         element: (
           <PrivateRoute>
             <OrderDetail />

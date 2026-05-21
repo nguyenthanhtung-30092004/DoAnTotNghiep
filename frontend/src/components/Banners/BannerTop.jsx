@@ -1,54 +1,79 @@
 import React from "react";
-import { Button } from "../ui/Button";
-import banner from "../../assets/banner.png";
+import { Link } from "react-router-dom";
+import { ArrowRight, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
+import banner from "../../assets/banner.png";
+
 const BannerTop = () => {
   return (
-    <motion.section
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative overflow-hidden bg-accent min-h-[600px] flex items-center justify-center"
-      style={{
-        backgroundImage: `url(${banner})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center 30%",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      {/* Lớp phủ (Overlay) giúp text dễ đọc hơn nếu ảnh quá sáng */}
-      <div className="absolute inset-0 bg-white/20" />
+    <section className="relative min-h-[680px] overflow-hidden bg-black">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${banner})`,
+          backgroundPosition: "center 30%",
+        }}
+      />
 
-      <div className="container relative z-10 py-16 md:py-24 lg:py-32 flex flex-col items-center text-center">
-        {/* Text Content */}
-        <div className="space-y-6 animate-fade-up max-w-3xl">
-          <span className="inline-block text-xs text-white font-semibold uppercase tracking-widest text-primary bg-primary rounded-full px-3 py-1">
-            New Arrivals 2026
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+
+      <div className="container relative z-10 flex min-h-[680px] items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="max-w-3xl"
+        >
+          <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.25em] text-white backdrop-blur">
+            RunVault 2026 Collection
           </span>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] text-balance">
-            Run Further.
+          <h1 className="mt-6 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+            Chạy xa hơn.
             <br />
-            Run <span className="text-primary">Faster.</span>
+            Bứt tốc mạnh hơn.
           </h1>
 
-          <p className="text-lg text-white max-w-lg mx-auto leading-relaxed text-pretty">
-            Engineered for performance. Built for comfort. Discover the latest
-            in running technology that moves with you.
+          <p className="mt-6 max-w-xl text-base leading-8 text-white/80 sm:text-lg">
+            Khám phá giày chạy bộ, trang phục và phụ kiện thể thao được chọn lọc
+            cho hiệu suất, độ bền và sự thoải mái mỗi ngày.
           </p>
 
-          <div className="flex justify-center gap-3 pt-2">
-            <Button
-              variant="hero"
-              className="text-black hover:text-white"
-              size="xl"
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link
+              to="/shop"
+              className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-primary px-7 font-bold text-primary-foreground shadow-xl transition hover:bg-secondary"
             >
-              Shop Now
-            </Button>
+              Mua sắm ngay
+              <ArrowRight className="size-4" />
+            </Link>
+
+            <Link
+              to="/shop?sort=newest"
+              className="inline-flex h-14 items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-7 font-bold text-white backdrop-blur transition hover:bg-white hover:text-black"
+            >
+              Hàng mới về
+            </Link>
           </div>
-        </div>
+
+          <div className="mt-10 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
+            <Benefit icon={Truck} title="Giao nhanh" />
+            <Benefit icon={RotateCcw} title="Đổi trả dễ dàng" />
+            <Benefit icon={ShieldCheck} title="Hàng chính hãng" />
+          </div>
+        </motion.div>
       </div>
-    </motion.section>
+    </section>
+  );
+};
+
+const Benefit = ({ icon: Icon, title }) => {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white backdrop-blur">
+      <Icon className="size-5 text-primary" />
+      <span className="text-sm font-semibold">{title}</span>
+    </div>
   );
 };
 

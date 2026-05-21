@@ -159,7 +159,7 @@ const orderSchema = new Schema(
 
     paymentStatus: {
       type: String,
-      enum: ["PENDING", "PAID", "FAILED", "REFUNDED"],
+      enum: ["PENDING", "PAID", "FAILED", "RETURNED"],
       default: "PENDING",
     },
     orderStatus: {
@@ -171,10 +171,16 @@ const orderSchema = new Schema(
         "SHIPPING",
         "DELIVERED",
         "CANCELLED",
-        "RETURNDED",
+        "RETURNED",
       ],
       default: "PENDING",
       index: true,
+    },
+
+    totalQuantity: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
     cancelledBy: {
@@ -191,6 +197,11 @@ const orderSchema = new Schema(
     cancelledAt: {
       type: Date,
       default: null,
+    },
+
+    cancelReason: {
+      type: String,
+      default: "",
     },
 
     totalPrice: {
@@ -245,6 +256,31 @@ const orderSchema = new Schema(
       type: Number,
       default: 0,
       min: 0,
+    },
+
+    paidAt: {
+      type: Date,
+      default: null,
+    },
+
+    transactionId: {
+      type: String,
+      default: "",
+    },
+
+    paymentUrl: {
+      type: String,
+      default: "",
+    },
+
+    stockDeducted: {
+      type: Boolean,
+      default: false,
+    },
+
+    cartCleared: {
+      type: Boolean,
+      default: false,
     },
 
     note: {

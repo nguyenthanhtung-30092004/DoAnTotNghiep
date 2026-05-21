@@ -1,34 +1,26 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 import { API_CATEGORY } from "../utils/constants/api";
 
-const axiosConfig = {
-  withCredentials: true,
-};
-
 const formDataConfig = {
-  withCredentials: true,
   headers: {
     "Content-Type": "multipart/form-data",
   },
 };
 
 const getAllCategories = (params = {}) => {
-  return axios.get(API_CATEGORY, {
-    ...axiosConfig,
-    params,
-  });
+  return axiosClient.get(API_CATEGORY, { params });
 };
 
 const createCategory = (formData) => {
-  return axios.post(API_CATEGORY, formData, formDataConfig);
+  return axiosClient.post(API_CATEGORY, formData, formDataConfig);
 };
 
 const updateCategory = (id, formData) => {
-  return axios.put(`${API_CATEGORY}/${id}`, formData, formDataConfig);
+  return axiosClient.put(`${API_CATEGORY}/${id}`, formData, formDataConfig);
 };
 
 const deleteCategory = (id) => {
-  return axios.delete(`${API_CATEGORY}/${id}`, axiosConfig);
+  return axiosClient.delete(`${API_CATEGORY}/${id}`);
 };
 
 const categoryService = {

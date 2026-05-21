@@ -5,7 +5,6 @@ const productModel = require("../models/product.model");
 class CartService {
   // Add to cart
   async addToCart({ userId, productId, variantId, sizeId, quantity }) {
-    console.log(userId);
     // Validate
     if (!productId || !variantId || !sizeId || !quantity) {
       throw new BadRequestError("Thiếu thông tin");
@@ -120,6 +119,14 @@ class CartService {
     return cart;
   }
 
+  async getCartByUser(userId) {
+    return this.getCart(userId);
+  }
+
+  async getCartDocument({ userId }) {
+    return cartModel.findOne({ user: userId });
+  }
+
   // Remove from cart
   async removeFromCart({ userId, itemId }) {
     const cart = await cartModel.findOne({
@@ -135,6 +142,10 @@ class CartService {
     await cart.save();
 
     return cart;
+  }
+
+  async removeCartItem(payload) {
+    return this.removeFromCart(payload);
   }
 
   // Update item quantity
@@ -182,15 +193,56 @@ class CartService {
     return cart;
   }
 
+  async updateCartItem(payload) {
+    return this.updateItemQuantity(payload);
+  }
+
   // Clear cart
   async clearCart(userId) {
-    const cart = await cartModel.findOne({
-      user: userId,
-    });
+    const cart = await cartModel.findOne({ user: userId });
 
     if (!cart) {
       throw new NotFoundError("Cart không tồn tại");
     }
+
+    cart.items = [];
+
+    await cart.save();
+
+    return {
+      message: "Đã xóa toàn bộ giỏ hàng",
+    };
+  }
+
+  recalculateCart(cart) {
+    let totalQuantity = 0;
+    let totalPrice = 0;
+    let totalDiscount = 0;
+
+    cart.items.forEach((item) => {
+      const originalPrice = item.price * item.quantity;
+      const finalItemPrice =
+        (item.salePrice > 0 && item.salePrice < item.price
+          ? item.salePrice
+          : item.price) * item.quantity;
+
+      totalQuantity += item.quantity;
+      totalPrice += originalPrice;
+      totalDiscount += originalPrice - finalItemPrice;
+    });
+
+    cart.totalQuantity = totalQuantity;
+    cart.totalPrice = totalPrice;
+    cart.totalDiscount = totalDiscount;
+    cart.finalPrice = totalPrice - totalDiscount;
+
+    return cart;
+  }
+
+  async clearCartByUser({ userId }) {
+    const cart = await cartModel.findOne({ user: userId });
+
+    if (!cart) return null;
 
     cart.items = [];
 

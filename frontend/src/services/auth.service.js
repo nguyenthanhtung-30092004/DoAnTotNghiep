@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 import {
   API_FORGOT_PASSWORD,
   API_LOGIN,
@@ -9,37 +9,27 @@ import {
 } from "../utils/constants/api";
 
 const login = (data) => {
-  return axios.post(API_LOGIN, data, { withCredentials: true });
+  return axiosClient.post(API_LOGIN, data);
 };
 
 const logout = () => {
-  return axios.post(API_LOGOUT, null, {
-    withCredentials: true,
-  });
+  return axiosClient.post(API_LOGOUT, null);
 };
 
 const register = (data) => {
-  return axios.post(API_REGISTER, data, {
-    withCredentials: true,
-  });
+  return axiosClient.post(API_REGISTER, data);
 };
 
 const forgotPassword = (data) => {
-  return axios.post(API_FORGOT_PASSWORD, data, {
-    withCredentials: true,
-  });
+  return axiosClient.post(API_FORGOT_PASSWORD, data);
 };
 
 const verifyOtp = (data) => {
-  return axios.post(API_VERIFY_OTP, data, {
-    withCredentials: true,
-  });
+  return axiosClient.post(API_VERIFY_OTP, data);
 };
 
 const resetPassword = (data) => {
-  return axios.post(API_RESET_PASSWORD, data, {
-    withCredentials: true,
-  });
+  return axiosClient.post(API_RESET_PASSWORD, data);
 };
 
 export default {

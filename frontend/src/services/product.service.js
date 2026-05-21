@@ -1,38 +1,30 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 import { API_PRODUCT } from "../utils/constants/api";
 
-const axiosConfig = {
-  withCredentials: true,
-};
-
 const formDataConfig = {
-  withCredentials: true,
   headers: {
     "Content-Type": "multipart/form-data",
   },
 };
 
 const getAllProducts = (params = {}) => {
-  return axios.get(API_PRODUCT, {
-    ...axiosConfig,
-    params,
-  });
+  return axiosClient.get(API_PRODUCT, { params });
 };
 
 const getDetailProduct = (id) => {
-  return axios.get(`${API_PRODUCT}/${id}`, axiosConfig);
+  return axiosClient.get(`${API_PRODUCT}/${id}`);
 };
 
 const createProduct = (formData) => {
-  return axios.post(`${API_PRODUCT}`, formData, formDataConfig);
+  return axiosClient.post(`${API_PRODUCT}`, formData, formDataConfig);
 };
 
 const updateProduct = (id, formData) => {
-  return axios.put(`${API_PRODUCT}/${id}`, formData, formDataConfig);
+  return axiosClient.put(`${API_PRODUCT}/${id}`, formData, formDataConfig);
 };
 
 const deleteProduct = (id) => {
-  return axios.delete(`${API_PRODUCT}/${id}`, axiosConfig);
+  return axiosClient.delete(`${API_PRODUCT}/${id}`);
 };
 
 const productService = {

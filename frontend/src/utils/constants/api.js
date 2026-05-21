@@ -1,4 +1,5 @@
 export const API_BASE = "http://localhost:3000/v1/api";
+
 export const API_AUTH = `${API_BASE}/user`;
 export const API_REGISTER = `${API_AUTH}/register`;
 export const API_LOGIN = `${API_AUTH}/login`;
@@ -31,3 +32,9 @@ export const API_CART = `${API_BASE}/cart`;
 export const API_COUPON = `${API_BASE}/coupon`;
 export const API_COUPON_VALIDATE = `${API_COUPON}/coupons/validate`;
 export const API_ADMIN_COUPON = `${API_COUPON}/admin/coupons`;
+
+// Order
+export const API_ORDER = `${API_BASE}/orders`;
+export const API_ORDER_CHECKOUT = `${API_ORDER}/checkout`;
+export const API_MY_ORDERS = `${API_ORDER}/my-orders`;
+export const API_ADMIN_ORDERS = `${API_ORDER}/admin/orders`;

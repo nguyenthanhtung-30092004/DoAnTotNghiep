@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 import {
   API_BRAND_CREATE,
   API_BRAND_DELETE,
@@ -7,14 +7,11 @@ import {
 } from "../utils/constants/api";
 
 const getAllBrands = () => {
-  return axios.get(API_BRAND_LIST, {
-    withCredentials: true,
-  });
+  return axiosClient.get(API_BRAND_LIST);
 };
 
 const createBrand = (formData) => {
-  return axios.post(API_BRAND_CREATE, formData, {
-    withCredentials: true,
+  return axiosClient.post(API_BRAND_CREATE, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -22,8 +19,7 @@ const createBrand = (formData) => {
 };
 
 const updateBrand = (id, formData) => {
-  return axios.put(`${API_BRAND_UPDATE}/${id}`, formData, {
-    withCredentials: true,
+  return axiosClient.put(`${API_BRAND_UPDATE}/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -31,9 +27,7 @@ const updateBrand = (id, formData) => {
 };
 
 const deleteBrand = (id) => {
-  return axios.delete(`${API_BRAND_DELETE}/${id}`, {
-    withCredentials: true,
-  });
+  return axiosClient.delete(`${API_BRAND_DELETE}/${id}`);
 };
 
 export default {

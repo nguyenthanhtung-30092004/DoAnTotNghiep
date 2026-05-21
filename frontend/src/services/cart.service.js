@@ -1,32 +1,28 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 import { API_CART } from "../utils/constants/api";
 
-const axiosConfig = {
-  withCredentials: true,
-};
-
 const addToCart = (data) => {
-  return axios.post(`${API_CART}/add`, data, axiosConfig);
+  return axiosClient.post(`${API_CART}/add`, data);
 };
 
 const getCart = () => {
-  return axios.get(API_CART, axiosConfig);
+  return axiosClient.get(API_CART);
 };
 
 const updateQuantity = (itemId, quantity) => {
-  return axios.put(`${API_CART}/${itemId}`, { quantity }, axiosConfig);
+  return axiosClient.put(`${API_CART}/${itemId}`, { quantity });
 };
 
 const removeFromCart = (itemId) => {
-  return axios.delete(`${API_CART}/${itemId}`, axiosConfig);
+  return axiosClient.delete(`${API_CART}/${itemId}`);
 };
 
 const clearCart = () => {
-  return axios.delete(API_CART, axiosConfig);
+  return axiosClient.delete(API_CART);
 };
 
 const syncCart = () => {
-  return axios.post(`${API_CART}/sync`, {}, axiosConfig);
+  return axiosClient.post(`${API_CART}/sync`, {});
 };
 
 const cartService = {

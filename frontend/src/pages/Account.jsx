@@ -21,13 +21,14 @@ import {
 import Profile from "../components/Account/Profile";
 import Orders from "../components/Account/Orders";
 import Address from "../components/Account/Address";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { clearUser, setAuthLoading } from "../redux/feature/authSlice";
 import { toast } from "react-toastify";
 import authService from "../services/auth.service";
 
 const Account = () => {
+  const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState("profile");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -62,10 +63,10 @@ const Account = () => {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    John Doe
+                    {user?.fullName || user?.name || "Người dùng"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    john.doe@example.com
+                    {user?.email || "Chưa có email"}
                   </p>
                 </div>
               </div>
@@ -127,11 +128,11 @@ const Account = () => {
 
           <div className="flex-1 min-w-0">
             {activeTab === "profile" ? (
-              <Profile />
+              <Profile user={user} />
             ) : activeTab === "orders" ? (
               <Orders />
             ) : (
-              <Address />
+              <Address user={user} />
             )}
           </div>
         </div>

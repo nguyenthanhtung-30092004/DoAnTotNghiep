@@ -1,0 +1,17 @@
+const PAYMENT_METHODS = {
+  COD: "COD",
+  VNPAY: "VNPAY",
+  MOMO: "MOMO",
+};
+
+const PAYMENT_STATUS = {
+  PENDING: "PENDING",
+  PAID: "PAID",
+  FAILED: "FAILED",
+  RETURNED: "RETURNED",
+};
+
+module.exports = {
+  PAYMENT_METHODS,
+  PAYMENT_STATUS,
+};

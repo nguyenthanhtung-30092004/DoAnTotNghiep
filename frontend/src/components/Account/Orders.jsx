@@ -1,162 +1,231 @@
-import { ChevronRight, CircleCheck, Clock, Package, Truck } from "lucide-react";
-import React from "react";
+import {
+  ChevronRight,
+  CircleCheck,
+  Clock,
+  Package,
+  Truck,
+  XCircle,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import orderService from "../../services/order.service";
+
+const getResponseData = (res) => {
+  return res.data?.metadata || res.data?.data || res.data;
+};
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(Number(price || 0));
+};
+
+const formatDate = (date) => {
+  if (!date) return "";
+  return new Date(date).toLocaleDateString("vi-VN");
+};
+
+const statusMap = {
+  PENDING: {
+    label: "Chờ xác nhận",
+    icon: Clock,
+    className: "bg-amber-50 text-amber-600",
+  },
+  CONFIRMED: {
+    label: "Đã xác nhận",
+    icon: CircleCheck,
+    className: "bg-primary/10 text-primary",
+  },
+  PROCESSING: {
+    label: "Đang xử lý",
+    icon: Clock,
+    className: "bg-amber-50 text-amber-600",
+  },
+  SHIPPING: {
+    label: "Đang giao",
+    icon: Truck,
+    className: "bg-blue-50 text-blue-600",
+  },
+  DELIVERED: {
+    label: "Đã giao",
+    icon: CircleCheck,
+    className: "bg-green-50 text-green-600",
+  },
+  CANCELLED: {
+    label: "Đã hủy",
+    icon: XCircle,
+    className: "bg-red-50 text-red-600",
+  },
+  RETURNED: {
+    label: "Đã trả hàng",
+    icon: XCircle,
+    className: "bg-red-50 text-red-600",
+  },
+};
 
 const Orders = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+
+      const res = await orderService.getMyOrders();
+      const data = getResponseData(res);
+
+      const list = Array.isArray(data)
+        ? data
+        : data?.orders || data?.items || data?.data || [];
+
+      setOrders(list);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        Đang tải đơn hàng...
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-foreground">
+            Lịch sử đơn hàng
+          </h2>
+          <p className="text-sm text-muted-foreground">0 đơn hàng</p>
+        </div>
+
+        <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-accent">
+            <Package className="size-6 text-muted-foreground" />
+          </div>
+
+          <h3 className="text-base font-semibold text-foreground">
+            Bạn chưa có đơn hàng nào
+          </h3>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            Các đơn hàng sau khi mua sẽ hiển thị tại đây.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-foreground">Lịch sử đơn hàng</h2>
-        <p className="text-sm text-muted-foreground">4 đơn hàng</p>
+        <p className="text-sm text-muted-foreground">
+          {orders.length} đơn hàng
+        </p>
       </div>
 
       <div className="space-y-4">
-        {/* Order 1 */}
-        <a
-          href="/order/1"
-          className="block rounded-2xl border border-border bg-card p-5 hover:shadow-md transition-shadow cursor-pointer group"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="size-9 rounded-xl bg-muted flex items-center justify-center">
-                <Package className="size-4 text-muted-foreground" />
+        {orders.map((order) => {
+          const status = statusMap[order.orderStatus] || statusMap.PENDING;
+          const StatusIcon = status.icon;
+
+          const firstItems = Array.isArray(order.items)
+            ? order.items.slice(0, 3)
+            : [];
+
+          return (
+            <Link
+              key={order._id}
+              to={`/orders/${order._id}`}
+              className="block rounded-2xl border border-border bg-card p-5 hover:shadow-md transition-shadow cursor-pointer group"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="size-9 rounded-xl bg-muted flex items-center justify-center">
+                    <Package className="size-4 text-muted-foreground" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {order.orderCode}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(order.createdAt)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`inline-flex items-center font-semibold rounded-full gap-1 text-xs px-2.5 py-1 ${status.className}`}
+                  >
+                    <StatusIcon className="size-3" />
+                    {status.label}
+                  </div>
+
+                  <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </div>
               </div>
 
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  RV-2026-1847
-                </p>
-                <p className="text-xs text-muted-foreground">18 Thg 3, 2026</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-secondary/80 rounded-full gap-1 text-xs px-2.5 py-1 bg-primary/10 text-primary border-0">
-                <CircleCheck className="size-3" />
-                Đã giao
-              </div>
-              <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            </div>
-          </div>
+              <div className="space-y-2">
+                {firstItems.map((item, index) => (
+                  <div
+                    key={`${item.product}-${item.sizeId}-${index}`}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      {item.productThumbnail ? (
+                        <img
+                          src={item.productThumbnail}
+                          alt={item.productName}
+                          className="size-8 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <span className="text-lg">👟</span>
+                      )}
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">👟</span>
-                <span className="text-foreground">UltraBoost Runner Pro</span>
-                <span className="text-muted-foreground">x1</span>
-              </div>
-              <span className="font-medium text-foreground">$159.00</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🧦</span>
-                <span className="text-foreground">Tất thể thao (3 đôi)</span>
-                <span className="text-muted-foreground">x1</span>
-              </div>
-              <span className="font-medium text-foreground">$30.00</span>
-            </div>
-          </div>
+                      <span className="truncate text-foreground">
+                        {item.productName}
+                      </span>
 
-          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tổng tiền</span>
-            <span className="text-base font-bold text-foreground">$189.99</span>
-          </div>
-        </a>
+                      <span className="shrink-0 text-muted-foreground">
+                        x{item.quantity}
+                      </span>
+                    </div>
 
-        {/* Order 2 */}
-        <a
-          href=""
-          className="block rounded-2xl border border-border bg-card p-5 hover:shadow-md transition-shadow cursor-pointer group"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="size-9 rounded-xl bg-muted flex items-center justify-center">
-                <Package className="size-4 text-muted-foreground" />
+                    <span className="shrink-0 font-medium text-foreground">
+                      {formatPrice(item.itemTotal)}
+                    </span>
+                  </div>
+                ))}
+
+                {order.items?.length > 3 && (
+                  <p className="text-xs text-muted-foreground">
+                    +{order.items.length - 3} sản phẩm khác
+                  </p>
+                )}
               </div>
 
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  RV-2026-1720
-                </p>
-                <p className="text-xs text-muted-foreground">10 Thg 3, 2026</p>
+              <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Tổng tiền</span>
+                <span className="text-base font-bold text-foreground">
+                  {formatPrice(order.finalPrice)}
+                </span>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-secondary/80 rounded-full gap-1 text-xs px-2.5 py-1 bg-blue-50 text-blue-600 border-0">
-                <Truck className="size-3" />
-                Đang giao
-              </div>
-              <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">👟</span>
-                <span className="text-foreground">TrailBlazer X1</span>
-                <span className="text-muted-foreground">x1</span>
-              </div>
-              <span className="font-medium text-foreground">$124.99</span>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tổng tiền</span>
-            <span className="text-base font-bold text-foreground">$124.99</span>
-          </div>
-        </a>
-
-        {/* Order 3 */}
-        <a
-          href=""
-          className="block rounded-2xl border border-border bg-card p-5 hover:shadow-md transition-shadow cursor-pointer group"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="size-9 rounded-xl bg-muted flex items-center justify-center">
-                <Package className="size-4 text-muted-foreground" />
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  RV-2026-1603
-                </p>
-                <p className="text-xs text-muted-foreground">28 Thg 2, 2026</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-secondary/80 rounded-full gap-1 text-xs px-2.5 py-1 bg-amber-50 text-amber-600 border-0">
-                <Clock className="size-3" />
-                Đang xử lý
-              </div>
-              <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">👟</span>
-                <span className="text-foreground">CloudStrike Elite</span>
-                <span className="text-muted-foreground">x1</span>
-              </div>
-              <span className="font-medium text-foreground">$199.99</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🩳</span>
-                <span className="text-foreground">Quần chạy bộ</span>
-                <span className="text-muted-foreground">x1</span>
-              </div>
-              <span className="font-medium text-foreground">$49.00</span>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tổng tiền</span>
-            <span className="text-base font-bold text-foreground">$249.98</span>
-          </div>
-        </a>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
