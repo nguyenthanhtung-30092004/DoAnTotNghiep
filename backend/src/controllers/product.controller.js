@@ -24,8 +24,8 @@ class ProductController {
   }
 
   async getDetailProduct(req, res) {
-    const { id } = req.params;
-    const product = await productService.getDetailProduct(id);
+    const idOrSlug = req.params.idOrSlug || req.params.id;
+    const product = await productService.getDetailProduct(idOrSlug);
 
     return new OK({
       message: "Lấy chi tiết sản phẩm thành công",

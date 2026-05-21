@@ -53,6 +53,20 @@ class UsersController {
     return new OK({ message: "Logout thành công" }).send(res);
   }
 
+  async me(req, res) {
+    const user = req.user?.toObject ? req.user.toObject() : req.user;
+
+    if (user) {
+      delete user.password;
+      delete user.refreshToken;
+    }
+
+    return new OK({
+      message: "Lấy thông tin người dùng thành công",
+      metadata: user,
+    }).send(res);
+  }
+
   async forgotPassword(req, res) {
     const { email } = req.body;
     await usersService.forgotPassword(email);

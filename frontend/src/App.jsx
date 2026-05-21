@@ -2,13 +2,57 @@ import "./App.css";
 import { RouterProvider } from "react-router";
 import router from "./route/routing";
 import { Provider } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { store } from "./redux/store";
 import { ToastContainer, Slide } from "react-toastify";
+import authService from "./services/auth.service";
+import { clearUser, setUser } from "./redux/feature/authSlice";
+
+const getResponseData = (res) => {
+  return res.data?.metadata || res.data?.data || res.data;
+};
+
+function AuthBootstrap() {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const syncAuth = async () => {
+      if (!user) return;
+
+      try {
+        const res = await authService.me();
+        const currentUser = getResponseData(res);
+
+        if (currentUser) {
+          dispatch(setUser(currentUser));
+        }
+      } catch {
+        dispatch(clearUser());
+
+        const privatePrefixes = ["/account", "/cart", "/checkout", "/orders", "/admin"];
+        const isPrivatePath = privatePrefixes.some((path) =>
+          window.location.pathname.startsWith(path),
+        );
+
+        if (isPrivatePath && window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    syncAuth();
+  }, []);
+
+  return null;
+}
 
 function App() {
   return (
     <>
       <Provider store={store}>
+        <AuthBootstrap />
         <ToastContainer
           position="top-right"
           autoClose={1500} // GIẢM XUỐNG 1.5 GIÂY (nhanh hơn)

@@ -5,6 +5,7 @@ import { Button } from "../ui/Button";
 import NavItem from "../ui/NavItem";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser, setAuthLoading } from "../../redux/feature/authSlice";
+import { openCartDrawer } from "../../redux/feature/cartSlice";
 import { Dropdown } from "antd";
 import { toast } from "react-toastify";
 import authService from "../../services/auth.service";
@@ -98,7 +99,6 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const { totalQuantity } = useSelector((state) => state.cart);
-  console.log("Total quantity in cart:", totalQuantity);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const handleLogout = async () => {
@@ -133,13 +133,7 @@ const Header = () => {
     },
   ];
   const handleGoToCart = () => {
-    if (!user) {
-      toast.info("Vui lòng đăng nhập trước khi xem giỏ hàng");
-      navigate("/login?redirect=/cart");
-      return;
-    }
-
-    navigate("/cart");
+    dispatch(openCartDrawer());
   };
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl relative border-b">

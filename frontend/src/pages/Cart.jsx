@@ -15,7 +15,6 @@ import { useDispatch } from "react-redux";
 import { setCart as setCartRedux } from "../redux/feature/cartSlice";
 
 import CartService from "../services/cart.service";
-import couponService from "../services/coupon.service";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -47,11 +46,6 @@ const Cart = () => {
 
   const [loading, setLoading] = useState(false);
   const [updatingItemId, setUpdatingItemId] = useState("");
-  const [clearing, setClearing] = useState(false);
-  const [showClearModal, setShowClearModal] = useState(false);
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   const items = Array.isArray(cart?.items) ? cart.items : [];
 
@@ -72,10 +66,8 @@ const Cart = () => {
   }, [items]);
 
   const productDiscount = Math.max(totalOriginalPrice - subtotal, 0);
-  const couponDiscount = Number(appliedCoupon?.couponDiscount || 0);
-
   const shippingFee = subtotal > 0 ? 0 : 0;
-  const finalPrice = Math.max(subtotal - couponDiscount + shippingFee, 0);
+  const finalPrice = Math.max(subtotal + shippingFee, 0);
 
   const fetchCart = async () => {
     try {
@@ -111,8 +103,6 @@ const Cart = () => {
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));
 
-      setAppliedCoupon(null);
-      setCouponCode("");
       localStorage.removeItem("appliedCoupon");
     } catch (error) {
       console.log(error);
@@ -134,8 +124,6 @@ const Cart = () => {
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));
 
-      setAppliedCoupon(null);
-      setCouponCode("");
       localStorage.removeItem("appliedCoupon");
 
       toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
@@ -161,67 +149,9 @@ const Cart = () => {
     }
   };
 
-  const handleApplyCoupon = async () => {
-    const code = couponCode.trim().toUpperCase();
-
-    if (!code) {
-      toast.warning("Vui lòng nhập mã giảm giá");
-      return;
-    }
-
-    if (items.length === 0) {
-      toast.warning("Giỏ hàng đang trống");
-      return;
-    }
-
-    try {
-      setApplyingCoupon(true);
-
-      const res = await couponService.validateCoupon(code);
-      const data = getResponseData(res);
-
-      setAppliedCoupon(data);
-      setCouponCode(data.code || code);
-
-      localStorage.setItem("appliedCoupon", JSON.stringify(data));
-
-      toast.success("Áp mã giảm giá thành công");
-    } catch (error) {
-      console.log(error);
-
-      setAppliedCoupon(null);
-      localStorage.removeItem("appliedCoupon");
-
-      toast.error(error.response?.data?.message || "Mã giảm giá không hợp lệ");
-    } finally {
-      setApplyingCoupon(false);
-    }
-  };
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode("");
-    localStorage.removeItem("appliedCoupon");
-    toast.success("Đã bỏ mã giảm giá");
-  };
-
   useEffect(() => {
     fetchCart();
     handleSyncCart();
-
-    const savedCoupon = localStorage.getItem("appliedCoupon");
-
-    if (savedCoupon) {
-      try {
-        const parsedCoupon = JSON.parse(savedCoupon);
-
-        setAppliedCoupon(parsedCoupon);
-        setCouponCode(parsedCoupon.code || "");
-      } catch (error) {
-        console.log(error);
-        localStorage.removeItem("appliedCoupon");
-      }
-    }
   }, []);
 
   if (loading) {
@@ -436,18 +366,6 @@ const Cart = () => {
                     </div>
                   )}
 
-                  {couponDiscount > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Mã giảm giá{" "}
-                        {appliedCoupon?.code && `(${appliedCoupon.code})`}
-                      </span>
-                      <span className="font-medium text-red-500 tabular-nums">
-                        -{formatPrice(couponDiscount)}
-                      </span>
-                    </div>
-                  )}
-
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">
                       Phí vận chuyển
@@ -469,65 +387,8 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <div className="mt-5">
-                  {appliedCoupon ? (
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-bold text-emerald-700">
-                            Đã áp dụng mã {appliedCoupon.code}
-                          </p>
-
-                          <p className="mt-1 text-xs text-emerald-600">
-                            Giảm {formatPrice(couponDiscount)}
-                          </p>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={handleRemoveCoupon}
-                          className="text-xs font-semibold text-emerald-700 hover:text-red-600"
-                        >
-                          Bỏ mã
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={couponCode}
-                        onChange={(e) =>
-                          setCouponCode(e.target.value.toUpperCase())
-                        }
-                        placeholder="Nhập mã giảm giá"
-                        className="flex-1 h-10 rounded-xl border border-border bg-background px-3 text-sm uppercase outline-none focus:ring-2 focus:ring-primary transition-shadow"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={handleApplyCoupon}
-                        disabled={applyingCoupon}
-                        className="inline-flex items-center justify-center rounded-lg text-sm font-semibold border border-input bg-background hover:bg-accent h-10 px-5 disabled:opacity-60"
-                      >
-                        {applyingCoupon ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                          "Áp dụng"
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
                 <Link
                   to="/checkout"
-                  state={{
-                    appliedCoupon,
-                    couponDiscount,
-                    subtotal,
-                    finalPrice,
-                  }}
                   className="inline-flex items-center justify-center whitespace-nowrap font-semibold text-white bg-primary hover:bg-primary/90 py-2 rounded-lg transition-colors w-full mt-5 px-10 h-14 gap-2"
                 >
                   <LockKeyhole className="size-5" />

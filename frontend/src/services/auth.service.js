@@ -1,6 +1,7 @@
 import axiosClient from "./axiosClient";
 import {
   API_FORGOT_PASSWORD,
+  API_AUTH,
   API_LOGIN,
   API_LOGOUT,
   API_REGISTER,
@@ -14,6 +15,10 @@ const login = (data) => {
 
 const logout = () => {
   return axiosClient.post(API_LOGOUT, null);
+};
+
+const me = () => {
+  return axiosClient.get(`${API_AUTH}/me`);
 };
 
 const register = (data) => {
@@ -35,6 +40,7 @@ const resetPassword = (data) => {
 export default {
   login,
   logout,
+  me,
   register,
   forgotPassword,
   verifyOtp,

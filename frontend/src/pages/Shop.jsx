@@ -121,7 +121,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <Link
-      to={`/product/${product._id}`}
+      to={`/product/${product.slug || product._id}`}
       className="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col border border-gray-100"
     >
       {product.isPublished === false && (
@@ -142,7 +142,7 @@ const ProductCard = ({ product }) => {
             type="button"
             size="sm"
             className="shadow-lg text-sm gap-1.5 bg-[#22C55E] hover:bg-[#1da850] text-white"
-            onClick={() => navigate("/product/" + product._id)}
+            onClick={() => navigate("/product/" + (product.slug || product._id))}
           >
             <ShoppingCart className="h-3.5 w-3.5" />
             Thêm vào giỏ

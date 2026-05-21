@@ -84,19 +84,16 @@ const Brands = () => {
   if (brands.length === 0) return null;
 
   return (
-    <section className="relative overflow-hidden bg-background-soft py-20">
-      <div className="absolute left-0 top-0 size-72 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute bottom-0 right-0 size-72 rounded-full bg-secondary/10 blur-3xl" />
-
+    <section className="relative overflow-hidden bg-background-soft py-12">
       <div className="container relative z-10">
-        <div className="mb-8 flex items-end justify-between gap-4">
+        <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
               <Sparkles className="size-3.5" />
               Thương hiệu nổi bật
             </div>
 
-            <h2 className="text-3xl font-black text-foreground md:text-4xl">
+            <h2 className="text-2xl font-black text-foreground md:text-3xl">
               Đồng hành cùng thương hiệu hàng đầu
             </h2>
           </div>
@@ -125,9 +122,9 @@ const Brands = () => {
               >
                 <a
                   href={`/shop?brand=${brand.slugBrand || brand._id}`}
-                  className="group block overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+                  className="group block overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-card-hover"
                 >
-                  <div className="relative flex aspect-square items-center justify-center rounded-2xl bg-white p-5">
+                  <div className="relative flex aspect-square items-center justify-center rounded-xl bg-white p-3">
                     {brand.outStanding && (
                       <span className="absolute right-3 top-3 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">
                         Hot
@@ -138,7 +135,7 @@ const Brands = () => {
                       <img
                         src={brand.logoBrand}
                         alt={brand.nameBrand}
-                        className="max-h-24 max-w-full object-contain transition duration-300 group-hover:scale-110"
+                        className="max-h-16 max-w-full object-contain transition duration-300 group-hover:scale-110"
                       />
                     ) : (
                       <span className="text-4xl font-black text-primary">
@@ -147,7 +144,7 @@ const Brands = () => {
                     )}
                   </div>
 
-                  <h3 className="mt-4 truncate text-center text-sm font-black text-foreground">
+                  <h3 className="mt-3 truncate text-center text-xs font-black text-foreground">
                     {brand.nameBrand}
                   </h3>
                 </a>
@@ -158,14 +155,14 @@ const Brands = () => {
 
         <button
           onClick={prevSlide}
-          className="absolute left-2 top-[58%] z-10 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition hover:bg-primary hover:text-white"
+          className="absolute left-2 top-[58%] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition hover:bg-primary hover:text-white"
         >
           <ChevronLeft />
         </button>
 
         <button
           onClick={nextSlide}
-          className="absolute right-2 top-[58%] z-10 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition hover:bg-primary hover:text-white"
+          className="absolute right-2 top-[58%] z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition hover:bg-primary hover:text-white"
         >
           <ChevronRight />
         </button>

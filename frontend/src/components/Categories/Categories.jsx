@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Grid3X3, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 import giaytrail from "../../assets/Giaytrail.png";
 import giayroad from "../../assets/Giayroad.png";
@@ -130,12 +130,6 @@ const Categories = () => {
             bạn.
           </p>
 
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-bold text-background shadow-soft">
-            <Grid3X3 className="size-4" />
-            Tổng số:
-            <span className="text-primary">{parentCategories.length}</span>
-            danh mục
-          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
@@ -172,14 +166,6 @@ const Categories = () => {
   );
 };
 
-const getLayoutClass = (index, isLarge) => {
-  if (index === 0) return "md:col-span-2 md:row-span-2";
-  if (index === 1) return "md:col-span-2 md:row-span-2";
-  if (isLarge) return "md:col-span-2 md:row-span-2";
-
-  return "md:col-span-1 md:row-span-1";
-};
-
 const CategoryTile = ({ category, index, className = "", large = false }) => {
   const name = getCategoryName(category);
   const slug = getCategorySlug(category);
@@ -205,10 +191,6 @@ const CategoryTile = ({ category, index, className = "", large = false }) => {
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
       <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
-        <span className="mb-3 text-sm font-black uppercase tracking-[0.25em] text-primary">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-
         <h3
           className={`font-black uppercase leading-none text-white ${
             large ? "text-4xl md:text-5xl" : "text-2xl md:text-3xl"

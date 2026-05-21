@@ -18,6 +18,7 @@ import AdminProducts from "../admin/pages/AdminProducts";
 import AdminCategories from "../admin/pages/AdminCategories";
 import AdminBrands from "../admin/pages/AdminBrands";
 import AdminOrders from "../admin/pages/AdminOrders";
+import AdminOrderDetail from "../admin/pages/AdminOrderDetail";
 import AdminUsers from "../admin/pages/AdminUsers";
 import AdminCoupons from "../admin/pages/AdminCoupons";
 import AdminReviews from "../admin/pages/AdminReviews";
@@ -42,7 +43,7 @@ const router = createBrowserRouter([
         element: <Shop />,
       },
       {
-        path: "product/:productId",
+        path: "product/:productSlug",
         element: <ProductDetail />,
       },
       {
@@ -104,9 +105,9 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <PrivateRoute>
+      <AdminRoute>
         <AdminLayout />
-      </PrivateRoute>
+      </AdminRoute>
     ),
     children: [
       {
@@ -128,6 +129,10 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <AdminOrders />,
+      },
+      {
+        path: "orders/:orderId",
+        element: <AdminOrderDetail />,
       },
       {
         path: "users",

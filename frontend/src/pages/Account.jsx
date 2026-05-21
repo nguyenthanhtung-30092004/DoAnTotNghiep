@@ -54,8 +54,8 @@ const Account = () => {
         </h1>
 
         <div className="flex flex-col md:flex-row gap-8">
-          <aside className="w-full md:w-64 shrink-0">
-            <div className="rounded-2xl border border-border bg-card p-2 md:sticky md:top-24">
+          <aside className="w-full md:sticky md:top-24 md:w-64 shrink-0 self-start">
+            <div className="rounded-2xl border border-border bg-card p-2">
               {/* User */}
               <div className="flex items-center gap-3 p-3 mb-1">
                 <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">

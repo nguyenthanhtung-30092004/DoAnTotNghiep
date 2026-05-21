@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
   ChevronRight,
   Heart,
   Loader2,
@@ -15,8 +17,13 @@ import { toast } from "react-toastify";
 import CartService from "../services/cart.service";
 
 import ProductService from "../services/product.service";
+import SizeChartModal from "../components/Product/SizeChartModal";
 import { useDispatch, useSelector } from "react-redux";
-import { addGuestCart, setCart } from "../redux/feature/cartSlice";
+import {
+  addGuestCart,
+  openCartDrawer,
+  setCart,
+} from "../redux/feature/cartSlice";
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
 };
@@ -94,10 +101,9 @@ const getMinPrice = (product) => {
 
 const ProductDetail = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [addingToCart, setAddingToCart] = useState(false);
-  const { productId, id } = useParams();
-  const currentId = productId || id;
+  const { productSlug, productId, id } = useParams();
+  const currentId = productSlug || productId || id;
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -109,6 +115,7 @@ const ProductDetail = () => {
   const [selectedSizeId, setSelectedSizeId] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [sizeChartOpen, setSizeChartOpen] = useState(false);
 
   const variants = Array.isArray(product?.variants) ? product.variants : [];
   const selectedVariant = variants[selectedVariantIndex];
@@ -196,6 +203,34 @@ const ProductDetail = () => {
     }
   };
 
+  const handlePreviewVariant = (variantIndex) => {
+    const firstVariantImage = getImageUrl(variants[variantIndex]?.images?.[0]);
+
+    if (firstVariantImage) {
+      setSelectedImage(firstVariantImage);
+    }
+  };
+
+  const handleNextImage = () => {
+    if (activeImages.length <= 1) return;
+
+    const currentIndex = activeImages.indexOf(selectedImage);
+    const nextIndex =
+      currentIndex >= 0 ? (currentIndex + 1) % activeImages.length : 0;
+
+    setSelectedImage(activeImages[nextIndex]);
+  };
+
+  const handlePrevImage = () => {
+    if (activeImages.length <= 1) return;
+
+    const currentIndex = activeImages.indexOf(selectedImage);
+    const prevIndex =
+      currentIndex > 0 ? currentIndex - 1 : activeImages.length - 1;
+
+    setSelectedImage(activeImages[prevIndex]);
+  };
+
   const handleDecreaseQuantity = () => {
     setQuantity((prev) => Math.max(1, prev - 1));
   };
@@ -266,6 +301,7 @@ const ProductDetail = () => {
       }
 
       toast.success("Đã thêm sản phẩm vào giỏ hàng");
+      dispatch(openCartDrawer());
     } catch (error) {
       console.log(error);
       toast.error(
@@ -355,7 +391,7 @@ const ProductDetail = () => {
         <section className="max-w-7xl mx-auto px-4 py-1">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             <div className="lg:sticky lg:top-24 self-start">
-              <div className="rounded-3xl border bg-white overflow-hidden">
+              <div className="relative rounded-3xl border bg-white overflow-hidden">
                 <div className="flex items-center justify-center h-[450px]">
                   <img
                     src={selectedImage || "/placeholder-product.png"}
@@ -363,6 +399,28 @@ const ProductDetail = () => {
                     className="size-[80%] object-contain"
                   />
                 </div>
+
+                {activeImages.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handlePrevImage}
+                      className="absolute left-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow hover:bg-green-600 hover:text-white"
+                      aria-label="Ảnh trước"
+                    >
+                      <ChevronLeft className="size-5" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleNextImage}
+                      className="absolute right-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow hover:bg-green-600 hover:text-white"
+                      aria-label="Ảnh tiếp theo"
+                    >
+                      <ChevronRightIcon className="size-5" />
+                    </button>
+                  </>
+                )}
               </div>
 
               {activeImages.length > 1 && (
@@ -445,7 +503,7 @@ const ProductDetail = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-gray-900">Màu sắc</h3>
 
-                    <button type="button">
+                    <button type="button" onClick={() => setSizeChartOpen(true)}>
                       <span className="text-sm underline font-bold text-green-500">
                         Size chart
                       </span>
@@ -457,11 +515,12 @@ const ProductDetail = () => {
                       <button
                         key={variant._id || index}
                         type="button"
+                        onMouseEnter={() => handlePreviewVariant(index)}
                         onClick={() => handleChangeVariant(index)}
                         className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition ${
                           selectedVariantIndex === index
                             ? "border-green-500 bg-green-50 text-green-700"
-                            : "border-gray-200 hover:border-gray-400"
+                            : "border-gray-200 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                         }`}
                       >
                         <span
@@ -696,6 +755,11 @@ const ProductDetail = () => {
           </button>
         </div>
       </div>
+
+      <SizeChartModal
+        open={sizeChartOpen}
+        onClose={() => setSizeChartOpen(false)}
+      />
     </div>
   );
 };

@@ -7,6 +7,7 @@ const {
 const brandModel = require("../models/brand.model");
 const categoryModel = require("../models/category.model");
 const productModel = require("../models/product.model");
+const mongoose = require("mongoose");
 
 const cloudinary = require("../configs/cloudDinary");
 
@@ -303,12 +304,17 @@ class ProductService {
     };
   }
 
-  async getDetailProduct(id) {
+  async getDetailProduct(idOrSlug) {
+    const isObjectId = mongoose.Types.ObjectId.isValid(idOrSlug);
+    const filter = {
+      isDeleted: false,
+      ...(isObjectId
+        ? { $or: [{ _id: idOrSlug }, { slug: idOrSlug }] }
+        : { slug: idOrSlug }),
+    };
+
     const product = await productModel
-      .findOne({
-        _id: id,
-        isDeleted: false,
-      })
+      .findOne(filter)
       .populate("category", "name")
       .populate("brand", "nameBrand");
 

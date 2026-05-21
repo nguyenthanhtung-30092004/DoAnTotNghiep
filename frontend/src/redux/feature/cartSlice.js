@@ -7,6 +7,7 @@ const getCartCount = (items = []) => {
 const initialState = {
   items: [],
   totalQuantity: 0,
+  isDrawerOpen: false,
 };
 
 const cartSlice = createSlice({
@@ -45,6 +46,14 @@ const cartSlice = createSlice({
       state.totalQuantity = 0;
     },
 
+    openCartDrawer: (state) => {
+      state.isDrawerOpen = true;
+    },
+
+    closeCartDrawer: (state) => {
+      state.isDrawerOpen = false;
+    },
+
     increaseQuantity: (state, action) => {
       const item = state.items.find((item) => item.localId === action.payload);
 
@@ -79,6 +88,8 @@ export const {
   setCart,
   addGuestCart,
   clearCartRedux,
+  openCartDrawer,
+  closeCartDrawer,
   increaseQuantity,
   decreaseQuantity,
   removeCartItem,

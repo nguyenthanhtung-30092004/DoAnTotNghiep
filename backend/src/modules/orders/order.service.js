@@ -207,7 +207,17 @@ class OrderService {
     return order;
   }
 
-  async adminGetOrders({ page = 1, limit = 10, status, keyword = "" }) {
+  async adminGetOrders({
+    page = 1,
+    limit = 10,
+    status,
+    orderStatus,
+    paymentStatus,
+    paymentMethod,
+    keyword = "",
+    search = "",
+    q = "",
+  }) {
     page = Number(page);
     limit = Number(limit);
 
@@ -216,13 +226,18 @@ class OrderService {
     }
 
     const filter = {};
-    if (status) filter.orderStatus = status;
+    const selectedOrderStatus = orderStatus || status;
+    const selectedKeyword = keyword || search || q;
 
-    if (keyword) {
+    if (selectedOrderStatus) filter.orderStatus = selectedOrderStatus;
+    if (paymentStatus) filter.paymentStatus = paymentStatus;
+    if (paymentMethod) filter.paymentMethod = paymentMethod;
+
+    if (selectedKeyword) {
       filter.$or = [
-        { orderCode: { $regex: keyword, $options: "i" } },
-        { "shippingAddress.fullName": { $regex: keyword, $options: "i" } },
-        { "shippingAddress.phone": { $regex: keyword, $options: "i" } },
+        { orderCode: { $regex: selectedKeyword, $options: "i" } },
+        { "shippingAddress.fullName": { $regex: selectedKeyword, $options: "i" } },
+        { "shippingAddress.phone": { $regex: selectedKeyword, $options: "i" } },
       ];
     }
 
