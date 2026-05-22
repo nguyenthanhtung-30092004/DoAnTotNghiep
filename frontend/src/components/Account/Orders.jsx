@@ -9,6 +9,9 @@ import {
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import orderService from "../../services/order.service";
+import socket from "../../socket/socket";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -65,6 +68,45 @@ const statusMap = {
 };
 
 const Orders = () => {
+  const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (!user?._id && !user?.id) return;
+
+    const userId = user._id || user.id;
+
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    socket.emit("join-user-room", userId);
+
+    const handleOrderUpdated = (payload) => {
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === payload.orderId
+            ? {
+              ...order,
+              orderStatus: payload.orderStatus,
+              paymentStatus: payload.paymentStatus,
+              deliveredAt: payload.deliveredAt,
+              cancelReason: payload.cancelReason,
+              cancelledBy: payload.cancelledBy,
+              cancelledAt: payload.cancelledAt,
+            }
+            : order,
+        ),
+      );
+
+      toast.info(`Đơn hàng ${payload.orderCode} vừa được cập nhật`);
+    };
+
+    socket.on("order:updated", handleOrderUpdated);
+
+    return () => {
+      socket.off("order:updated", handleOrderUpdated);
+    };
+  }, [user?._id, user?.id]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 

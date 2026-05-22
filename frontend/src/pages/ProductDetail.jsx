@@ -128,6 +128,8 @@ const ProductDetail = () => {
     return getAllImages(product);
   }, [product]);
 
+  const variantThumbnail = getImageUrl(selectedVariant?.images?.[0]);
+
   const activeImages = useMemo(() => {
     const variantImages =
       selectedVariant?.images
@@ -150,8 +152,8 @@ const ProductDetail = () => {
 
   const originalPrice =
     selectedSize &&
-    Number(selectedSize.salePrice || 0) > 0 &&
-    Number(selectedSize.salePrice) < Number(selectedSize.price)
+      Number(selectedSize.salePrice || 0) > 0 &&
+      Number(selectedSize.salePrice) < Number(selectedSize.price)
       ? selectedSize.price
       : null;
 
@@ -276,6 +278,7 @@ const ProductDetail = () => {
       setAddingToCart(true);
 
       if (user) {
+        console.log(cartPayload);
         const res = await CartService.addToCart(cartPayload);
         const data = getResponseData(res);
 
@@ -287,8 +290,7 @@ const ProductDetail = () => {
             ...cartPayload,
             productName: product.name,
             productSlug: product.slug,
-            thumbnail:
-              selectedVariant.images?.[0]?.url || product.thumbnail?.url || "",
+            image: variantThumbnail,
             color: selectedVariant.color,
             size: selectedSize.size,
             sku: selectedSize.sku,
@@ -430,11 +432,10 @@ const ProductDetail = () => {
                       key={`${image}-${index}`}
                       type="button"
                       onClick={() => setSelectedImage(image)}
-                      className={`aspect-square rounded-2xl border overflow-hidden bg-gray-50 transition ${
-                        selectedImage === image
-                          ? "border-green-500 ring-2 ring-green-100"
-                          : "border-gray-200 hover:border-gray-400"
-                      }`}
+                      className={`aspect-square rounded-2xl border overflow-hidden bg-gray-50 transition ${selectedImage === image
+                        ? "border-green-500 ring-2 ring-green-100"
+                        : "border-gray-200 hover:border-gray-400"
+                        }`}
                     >
                       <img
                         src={image}
@@ -503,7 +504,10 @@ const ProductDetail = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-gray-900">Màu sắc</h3>
 
-                    <button type="button" onClick={() => setSizeChartOpen(true)}>
+                    <button
+                      type="button"
+                      onClick={() => setSizeChartOpen(true)}
+                    >
                       <span className="text-sm underline font-bold text-green-500">
                         Size chart
                       </span>
@@ -517,11 +521,10 @@ const ProductDetail = () => {
                         type="button"
                         onMouseEnter={() => handlePreviewVariant(index)}
                         onClick={() => handleChangeVariant(index)}
-                        className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition ${
-                          selectedVariantIndex === index
-                            ? "border-green-500 bg-green-50 text-green-700"
-                            : "border-gray-200 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
-                        }`}
+                        className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition ${selectedVariantIndex === index
+                          ? "border-green-500 bg-green-50 text-green-700"
+                          : "border-gray-200 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                          }`}
                       >
                         <span
                           className="h-5 w-5 rounded-full border border-gray-300"
@@ -551,15 +554,13 @@ const ProductDetail = () => {
                             setSelectedSizeId(item._id);
                             setQuantity(1);
                           }}
-                          className={`h-11 rounded-xl border text-sm font-semibold transition ${
-                            selectedSizeId === item._id
-                              ? "border-green-500 bg-green-500 text-white"
-                              : "border-gray-200 bg-white text-gray-800 hover:border-green-500"
-                          } ${
-                            isOutOfStock
+                          className={`h-11 rounded-xl border text-sm font-semibold transition ${selectedSizeId === item._id
+                            ? "border-green-500 bg-green-500 text-white"
+                            : "border-gray-200 bg-white text-gray-800 hover:border-green-500"
+                            } ${isOutOfStock
                               ? "opacity-40 cursor-not-allowed line-through"
                               : ""
-                          }`}
+                            }`}
                         >
                           {item.size}
                         </button>
@@ -630,9 +631,8 @@ const ProductDetail = () => {
                 </h2>
 
                 <div
-                  className={`relative overflow-hidden rounded-3xl border mt-4 bg-white transition-all duration-300 ${
-                    isDescriptionExpanded ? "max-h-none" : "max-h-[360px]"
-                  }`}
+                  className={`relative overflow-hidden rounded-3xl border mt-4 bg-white transition-all duration-300 ${isDescriptionExpanded ? "max-h-none" : "max-h-[360px]"
+                    }`}
                 >
                   <div
                     className="
@@ -667,9 +667,8 @@ const ProductDetail = () => {
                   >
                     {isDescriptionExpanded ? "Thu gọn" : "Xem thêm"}
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        isDescriptionExpanded ? "rotate-180" : ""
-                      }`}
+                      className={`h-4 w-4 transition-transform ${isDescriptionExpanded ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                 </div>

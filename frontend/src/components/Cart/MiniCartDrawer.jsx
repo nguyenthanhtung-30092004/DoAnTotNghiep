@@ -41,13 +41,7 @@ const MiniCartDrawer = () => {
 
   const getCartItemImage = (item) => {
     return (
-      item.variantImage ||
-      item.colorImage ||
-      item.image ||
-      item.thumbnail ||
-      item.product?.thumbnail?.url ||
-      item.product?.thumbnail ||
-      ""
+      item.image || ""
     );
   };
 
@@ -64,6 +58,7 @@ const MiniCartDrawer = () => {
     try {
       setLoading(true);
       const res = await CartService.getCart();
+      console.log("Cart data:", res.data);
       dispatch(setCart(getResponseData(res) || { items: [] }));
     } catch (error) {
       console.log(error);
@@ -180,7 +175,7 @@ const MiniCartDrawer = () => {
                 const isUpdating = updatingId === itemId;
                 const productLink = item.productSlug
                   ? `/product/${item.productSlug}`
-                  : `/product/${item.product?._id || item.productId || item.product}`;
+                  : `/product/${item.productId}`;
 
                 return (
                   <div key={itemId} className="flex gap-3 border-b pb-4">

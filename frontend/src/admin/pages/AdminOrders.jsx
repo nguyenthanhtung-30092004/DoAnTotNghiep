@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import orderService from "../../services/order.service";
+import socket from "../../socket/socket";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -275,6 +276,38 @@ const AdminOrders = () => {
     return () => clearTimeout(timer);
   }, [keyword]);
 
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    socket.emit("join-admin-room");
+
+    const handleAdminOrderUpdated = (payload) => {
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === payload.orderId
+            ? {
+              ...order,
+              orderStatus: payload.orderStatus,
+              paymentStatus: payload.paymentStatus,
+              deliveredAt: payload.deliveredAt,
+              cancelReason: payload.cancelReason,
+              cancelledBy: payload.cancelledBy,
+              cancelledAt: payload.cancelledAt,
+            }
+            : order,
+        ),
+      );
+    };
+
+    socket.on("admin:order-updated", handleAdminOrderUpdated);
+
+    return () => {
+      socket.off("admin:order-updated", handleAdminOrderUpdated);
+    };
+  }, []);
+
   const filteredOrders = useMemo(() => {
     const searchText = keyword.trim().toLowerCase();
 
@@ -330,9 +363,9 @@ const AdminOrders = () => {
         prev.map((order) =>
           order._id === orderId
             ? {
-                ...order,
-                orderStatus: nextStatus,
-              }
+              ...order,
+              orderStatus: nextStatus,
+            }
             : order,
         ),
       );
@@ -367,11 +400,11 @@ const AdminOrders = () => {
         prev.map((order) =>
           order._id === orderId
             ? {
-                ...order,
-                orderStatus: "CANCELLED",
-                cancelReason: reason.trim(),
-                cancelledBy: "ADMIN",
-              }
+              ...order,
+              orderStatus: "CANCELLED",
+              cancelReason: reason.trim(),
+              cancelledBy: "ADMIN",
+            }
             : order,
         ),
       );
@@ -428,11 +461,10 @@ const AdminOrders = () => {
               setPaymentStatus((prev) => (prev === "PAID" ? "" : "PAID"));
               setPage(1);
             }}
-            className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-              paymentStatus === "PAID"
-                ? "border-indigo-600 text-indigo-600"
-                : "border-transparent text-slate-600 hover:text-slate-900"
-            }`}
+            className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${paymentStatus === "PAID"
+              ? "border-indigo-600 text-indigo-600"
+              : "border-transparent text-slate-600 hover:text-slate-900"
+              }`}
           >
             Đã thanh toán
             <span className="ml-1.5 text-xs text-slate-400">
@@ -635,26 +667,26 @@ const AdminOrders = () => {
                           {!["CANCELLED", "DELIVERED", "RETURNED"].includes(
                             order.orderStatus,
                           ) && (
-                            <select
-                              value={order.orderStatus}
-                              disabled={updatingId === order._id}
-                              onChange={(e) =>
-                                handleChangeOrderStatus(
-                                  order._id,
-                                  e.target.value,
-                                )
-                              }
-                              className="h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs outline-none focus:border-indigo-500"
-                            >
-                              {orderStatusOptions
-                                .filter((item) => item.value)
-                                .map((item) => (
-                                  <option key={item.value} value={item.value}>
-                                    {item.label}
-                                  </option>
-                                ))}
-                            </select>
-                          )}
+                              <select
+                                value={order.orderStatus}
+                                disabled={updatingId === order._id}
+                                onChange={(e) =>
+                                  handleChangeOrderStatus(
+                                    order._id,
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs outline-none focus:border-indigo-500"
+                              >
+                                {orderStatusOptions
+                                  .filter((item) => item.value)
+                                  .map((item) => (
+                                    <option key={item.value} value={item.value}>
+                                      {item.label}
+                                    </option>
+                                  ))}
+                              </select>
+                            )}
                         </div>
                       </td>
 
@@ -728,11 +760,10 @@ const OrderTab = ({ active, label, count, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-        active
-          ? "border-indigo-600 text-indigo-600"
-          : "border-transparent text-slate-600 hover:text-slate-900"
-      }`}
+      className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${active
+        ? "border-indigo-600 text-indigo-600"
+        : "border-transparent text-slate-600 hover:text-slate-900"
+        }`}
     >
       {label}
       <span className="ml-1.5 text-xs text-slate-400">({count})</span>

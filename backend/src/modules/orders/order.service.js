@@ -3,6 +3,7 @@ const orderModel = require("../../models/order.model");
 const productModel = require("../../models/product.model");
 const couponService = require("../../services/coupon.service");
 const { getFinalPrice } = require("./order.helper");
+const { getIO } = require("../../socket/socket");
 
 class OrderService {
   validateShippingAddress(shippingAddress) {
@@ -360,6 +361,26 @@ class OrderService {
 
     await order.save();
 
+    const io = getIO();
+
+    io.to(`user:${order.user.toString()}`).emit("order:updated", {
+      orderId: order._id,
+      orderCode: order.orderCode,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      deliveredAt: order.deliveredAt,
+      updatedAt: order.updatedAt,
+    });
+
+    io.to("admin:orders").emit("admin:order-updated", {
+      orderId: order._id,
+      orderCode: order.orderCode,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      deliveredAt: order.deliveredAt,
+      updatedAt: order.updatedAt,
+    });
+
     return order;
   }
 
@@ -389,6 +410,30 @@ class OrderService {
     }
 
     await order.save();
+
+    const io = getIO();
+
+    io.to(`user:${order.user.toString()}`).emit("order:updated", {
+      orderId: order._id,
+      orderCode: order.orderCode,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      cancelReason: order.cancelReason,
+      cancelledBy: order.cancelledBy,
+      cancelledAt: order.cancelledAt,
+      updatedAt: order.updatedAt,
+    });
+
+    io.to("admin:orders").emit("admin:order-updated", {
+      orderId: order._id,
+      orderCode: order.orderCode,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      cancelReason: order.cancelReason,
+      cancelledBy: order.cancelledBy,
+      cancelledAt: order.cancelledAt,
+      updatedAt: order.updatedAt,
+    });
 
     return order;
   }
