@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 
-import orderService from "../services/order.service";
+import orderService from "../features/checkout/services/order.service";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;

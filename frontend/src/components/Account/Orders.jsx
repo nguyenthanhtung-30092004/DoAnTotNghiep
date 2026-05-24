@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import orderService from "../../services/order.service";
+import orderService from "../../features/checkout/services/order.service";
 import socket from "../../socket/socket";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";

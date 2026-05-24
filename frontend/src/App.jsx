@@ -1,13 +1,13 @@
 import "./App.css";
 import { RouterProvider } from "react-router";
-import router from "./route/routing";
+import router from "./app/router";
 import { Provider } from "react-redux";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { store } from "./redux/store";
+import { store } from "./app/store";
 import { ToastContainer, Slide } from "react-toastify";
-import authService from "./services/auth.service";
-import { clearUser, setUser } from "./redux/feature/authSlice";
+import authService from "./features/auth/services/auth.service";
+import { clearUser, setUser } from "./features/users/slice/authSlice";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;

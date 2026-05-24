@@ -1,6 +1,6 @@
 import axios from "axios";
-import { clearUser } from "../redux/feature/authSlice";
-import store from "../redux/store";
+import { clearUser } from "../features/users/slice/authSlice";
+import store from "../app/store";
 import { API_BASE } from "../utils/constants/api";
 
 let isRedirectingToLogin = false;

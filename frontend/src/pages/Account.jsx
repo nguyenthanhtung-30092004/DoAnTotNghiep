@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Header from "../components/Headers/Header";
+import Header from "../components/common/Header";
 import {
   Briefcase,
   Calendar,
@@ -23,9 +23,9 @@ import Orders from "../components/Account/Orders";
 import Address from "../components/Account/Address";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { clearUser, setAuthLoading } from "../redux/feature/authSlice";
+import { clearUser, setAuthLoading } from "../features/users/slice/authSlice";
 import { toast } from "react-toastify";
-import authService from "../services/auth.service";
+import authService from "../features/auth/services/auth.service";
 
 const Account = () => {
   const { user } = useSelector((state) => state.auth);
