@@ -1,4 +1,4 @@
-const orderModel = require("../../models/Order");
+const orderModel = require("../../models/order.model");
 
 const cartService = require("../cart/cart.service");
 const couponService = require("../coupons/coupon.service");

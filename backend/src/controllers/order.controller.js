@@ -1,5 +1,5 @@
 const { Created, OK } = require("../core/success.response");
-const orderService = require("../services/order.Service");
+const orderService = require("../services/order.service");
 
 class OrderController {
   // user create order

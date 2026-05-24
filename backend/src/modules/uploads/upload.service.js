@@ -1,4 +1,4 @@
-const cloudinary = require("../../configs/cloudinary.config");
+const cloudinary = require("../../configs/cloudDinary");
 const fs = require("fs/promises");
 
 class UploadService {
