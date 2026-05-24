@@ -116,6 +116,7 @@ const Orders = () => {
 
       const res = await orderService.getMyOrders();
       const data = getResponseData(res);
+      console.log(data)
 
       const list = Array.isArray(data)
         ? data
@@ -133,6 +134,40 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
+  useEffect(() => {
+    if (!user?._id && !user?.id) return;
+
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    const handleOrderUpdated = (payload) => {
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === payload.orderId
+            ? {
+                ...order,
+                orderStatus: payload.orderStatus,
+                paymentStatus: payload.paymentStatus,
+                deliveredAt: payload.deliveredAt,
+                cancelReason: payload.cancelReason,
+                cancelledBy: payload.cancelledBy,
+                cancelledAt: payload.cancelledAt,
+              }
+            : order,
+        ),
+      );
+
+      toast.info(`Đơn hàng ${payload.orderCode} vừa được cập nhật`);
+    };
+
+    socket.on("order:updated", handleOrderUpdated);
+
+    return () => {
+      socket.off("order:updated", handleOrderUpdated);
+    };
+  }, [user?._id, user?.id]);
+
   if (loading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
@@ -143,7 +178,7 @@ const Orders = () => {
 
   if (orders.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6"> 
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-foreground">
             Lịch sử đơn hàng

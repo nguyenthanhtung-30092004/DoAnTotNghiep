@@ -255,6 +255,7 @@ const AdminProducts = () => {
 
       {openProductForm && (
         <AddForm
+          key={selectedProduct?._id || "create-product"}
           product={selectedProduct}
           brands={brands}
           categories={categories}

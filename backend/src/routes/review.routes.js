@@ -13,29 +13,51 @@ router.get(
 );
 
 // User routes
-router.use(authUser);
+router.post(
+  "/",
+  authUser,
+  asyncHandler(ReviewController.createReview),
+);
 
-router.post("/", asyncHandler(ReviewController.createReview));
+router.get(
+  "/me",
+  authUser,
+  asyncHandler(ReviewController.getMyReviews),
+);
 
-router.get("/me", asyncHandler(ReviewController.getMyReviews));
-
-router.patch("/:reviewId", asyncHandler(ReviewController.updateMyReview));
-
-router.delete("/:reviewId", asyncHandler(ReviewController.deleteMyReview));
-
-// Admin routes
-router.use(authAdmin);
-
-router.get("/admin", asyncHandler(ReviewController.adminGetReviews));
+// Admin routes nên đặt trước /:reviewId
+router.get(
+  "/admin",
+  authUser,
+  authAdmin,
+  asyncHandler(ReviewController.adminGetReviews),
+);
 
 router.patch(
   "/admin/:reviewId/approve",
+  authUser,
+  authAdmin,
   asyncHandler(ReviewController.adminApproveReview),
 );
 
 router.delete(
   "/admin/:reviewId",
+  authUser,
+  authAdmin,
   asyncHandler(ReviewController.adminDeleteReview),
+);
+
+// User review detail routes đặt sau cùng
+router.patch(
+  "/:reviewId",
+  authUser,
+  asyncHandler(ReviewController.updateMyReview),
+);
+
+router.delete(
+  "/:reviewId",
+  authUser,
+  asyncHandler(ReviewController.deleteMyReview),
 );
 
 module.exports = router;

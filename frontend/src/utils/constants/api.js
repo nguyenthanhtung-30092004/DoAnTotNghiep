@@ -38,3 +38,25 @@ export const API_ORDER = `${API_BASE}/orders`;
 export const API_ORDER_CHECKOUT = `${API_ORDER}/checkout`;
 export const API_MY_ORDERS = `${API_ORDER}/my-orders`;
 export const API_ADMIN_ORDERS = `${API_ORDER}/admin/orders`;
+
+// Review 
+// Review
+export const API_REVIEW = `${API_BASE}/reviews`;
+
+export const API_PRODUCT_REVIEWS = (productId) =>
+  `${API_REVIEW}/products/${productId}/reviews`;
+
+export const API_REVIEW_CREATE = `${API_REVIEW}/`;
+
+export const API_MY_REVIEWS = `${API_REVIEW}/me`;
+
+export const API_MY_REVIEW_DETAIL = (reviewId) =>
+  `${API_REVIEW}/${reviewId}`;
+
+export const API_ADMIN_REVIEWS = `${API_REVIEW}/admin`;
+
+export const API_ADMIN_REVIEW_APPROVE = (reviewId) =>
+  `${API_REVIEW}/admin/${reviewId}/approve`;
+
+export const API_ADMIN_REVIEW_DETAIL = (reviewId) =>
+  `${API_REVIEW}/admin/${reviewId}`;

@@ -4,6 +4,8 @@ const reviewModel = require("../models/review.model");
 const productModel = require("../models/product.model");
 const orderModel = require("../models/order.model");
 
+const { getIO } = require("../socket/socket");
+
 class ReviewService {
   async updateProductRating(productId) {
     const result = await reviewModel.aggregate([
@@ -36,8 +38,12 @@ class ReviewService {
     });
   }
 
-  async createReview({ userId, productId, orderId, rating, content = "" }) {
-    if (!productId || !orderId || !rating) {
+  async createReview({ userId, productId, rating, content = "" }) {
+    if (!userId) {
+      throw new BadRequestError("Không xác định được người dùng");
+    }
+
+    if (!productId || !rating) {
       throw new BadRequestError("Thiếu thông tin đánh giá");
     }
 
@@ -56,28 +62,21 @@ class ReviewService {
       throw new NotFoundError("Sản phẩm không tồn tại");
     }
 
-    const order = await orderModel.findOne({
-      _id: orderId,
+    const deliveredOrder = await orderModel.findOne({
       user: userId,
       orderStatus: "DELIVERED",
+      "items.product": productId,
     });
 
-    if (!order) {
-      throw new BadRequestError("Bạn chỉ được đánh giá đơn hàng đã giao");
-    }
-
-    const boughtProduct = order.items.some(
-      (item) => item.product.toString() === productId,
-    );
-
-    if (!boughtProduct) {
-      throw new BadRequestError("Bạn chưa mua sản phẩm này trong đơn hàng");
+    if (!deliveredOrder) {
+      throw new BadRequestError(
+        "Bạn chỉ được đánh giá sản phẩm đã mua và đơn hàng đã giao",
+      );
     }
 
     const existingReview = await reviewModel.findOne({
       user: userId,
       product: productId,
-      order: orderId,
       isDeleted: false,
     });
 
@@ -88,57 +87,79 @@ class ReviewService {
     const review = await reviewModel.create({
       user: userId,
       product: productId,
-      order: orderId,
+      order: deliveredOrder._id,
       rating,
       content,
     });
 
+    const populatedReview = await reviewModel
+      .findById(review._id)
+      .populate("user", "name email")
+      .populate("product", "name slug thumbnail")
+      .populate("order", "orderCode orderStatus")
+      .lean();
+
+    try {
+      const io = getIO();
+
+      io.to("admin:review").emit("review:new", {
+        message: "Có đánh giá mới đang chờ duyệt",
+        review: populatedReview,
+      });
+
+      io.to(`user:${userId}`).emit("review:submitted", {
+        message: "Bạn đã gửi đánh giá thành công, vui lòng chờ admin duyệt",
+        review: populatedReview,
+      });
+    } catch (error) {
+      console.log("Socket emit skipped:", error.message);
+    }
     await this.updateProductRating(product._id);
 
-    return review;
+    return populatedReview;
   }
 
   async getProductReviews({ productId, page = 1, limit = 10, rating }) {
-    page = Number(page);
-    limit = Number(limit);
+      page = Number(page);
+      limit = Number(limit);
 
-    if (page < 1 || limit < 1) {
-      throw new BadRequestError("Page hoặc limit không hợp lệ");
-    }
+      if (page < 1 || limit < 1) {
+        throw new BadRequestError("Page hoặc limit không hợp lệ");
+      }
 
-    const filter = {
-      product: productId,
-      isDeleted: false,
-      isApproved: true,
-    };
+      const filter = {
+        product: productId,
+        isDeleted: false,
+        isApproved: true,
+      };
 
-    if (rating) {
-      filter.rating = Number(rating);
-    }
+      if (rating) {
+        filter.rating = Number(rating);
+      }
 
-    const skip = (page - 1) * limit;
+      const skip = (page - 1) * limit;
 
-    const [reviews, total] = await Promise.all([
-      reviewModel
-        .find(filter)
-        .populate("user", "name email")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+      const [reviews, total] = await Promise.all([
+        reviewModel
+          .find(filter)
+          .populate("user", "name email")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
 
-      reviewModel.countDocuments(filter),
-    ]);
+        reviewModel.countDocuments(filter),
+      ]);
 
-    return {
-      reviews,
-      pagination: {
-        currentPage: page,
-        totalPage: Math.ceil(total / limit),
-        totalReview: total,
-        limit,
-      },
-    };
+      return {
+        reviews,
+        pagination: {
+          currentPage: page,
+          totalPage: Math.ceil(total / limit),
+          totalReview: total,
+          limit,
+        },
+      };
   }
 
   async getMyReviews({ userId, page = 1, limit = 10 }) {
@@ -295,7 +316,24 @@ class ReviewService {
 
     await this.updateProductRating(review.product);
 
-    return review;
+    const populatedReview = await reviewModel
+      .findById(review._id)
+      .populate("user", "name email")
+      .populate("product", "name slug thumbnail ratingAverage ratingCount")
+      .populate("order", "orderCode orderStatus")
+      .lean();
+
+    try {
+      const io = getIO();
+
+      io.to(`user:${userId}`).emit("review:submitted", {
+        message: "Bạn đã gửi đánh giá thành công, vui lòng chờ admin duyệt",
+        review: populatedReview,
+      });
+    } catch (error) {
+      console.log("Socket emit skipped:", error.message);
+    }
+    return populatedReview;
   }
 
   async adminDeleteReview(reviewId) {
@@ -313,6 +351,22 @@ class ReviewService {
     await review.save();
 
     await this.updateProductRating(review.product);
+
+    try {
+      const io = getIO();
+
+      io.to("admin:review").emit("review:new", {
+        message: "Có đánh giá mới đang chờ duyệt",
+        review: populatedReview,
+      });
+
+      io.to(`user:${userId}`).emit("review:submitted", {
+        message: "Bạn đã gửi đánh giá thành công, vui lòng chờ admin duyệt",
+        review: populatedReview,
+      });
+    } catch (error) {
+      console.log("Socket emit skipped:", error.message);
+    }
 
     return {
       id: reviewId,

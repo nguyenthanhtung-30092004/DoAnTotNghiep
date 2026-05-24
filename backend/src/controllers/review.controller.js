@@ -1,14 +1,15 @@
-const { OK } = require("../core/success.response");
 const reviewService = require("../services/review.service");
+const { OK, Created } = require("../core/success.response");
 
 class ReviewController {
   createReview = async (req, res) => {
-    new OK({
-      message: "Đánh giá sản phẩm thành công",
+    const userId = req.user?._id || req.user?.userId || req.user?.id;
+
+    new Created({
+      message: "Tạo đánh giá thành công",
       metadata: await reviewService.createReview({
-        userId: req.user._id,
+        userId,
         productId: req.body.productId,
-        orderId: req.body.orderId,
         rating: req.body.rating,
         content: req.body.content,
       }),
@@ -17,29 +18,36 @@ class ReviewController {
 
   getProductReviews = async (req, res) => {
     new OK({
-      message: "Lấy danh sách đánh giá sản phẩm thành công",
+      message: "Lấy đánh giá sản phẩm thành công",
       metadata: await reviewService.getProductReviews({
         productId: req.params.productId,
-        ...req.query,
+        page: req.query.page,
+        limit: req.query.limit,
+        rating: req.query.rating,
       }),
     }).send(res);
   };
 
   getMyReviews = async (req, res) => {
+    const userId = req.user?._id || req.user?.userId || req.user?.id;
+
     new OK({
       message: "Lấy đánh giá của tôi thành công",
       metadata: await reviewService.getMyReviews({
-        userId: req.user._id,
-        ...req.query,
+        userId,
+        page: req.query.page,
+        limit: req.query.limit,
       }),
     }).send(res);
   };
 
   updateMyReview = async (req, res) => {
+    const userId = req.user?._id || req.user?.userId || req.user?.id;
+
     new OK({
       message: "Cập nhật đánh giá thành công",
       metadata: await reviewService.updateMyReview({
-        userId: req.user._id,
+        userId,
         reviewId: req.params.reviewId,
         rating: req.body.rating,
         content: req.body.content,
@@ -48,10 +56,12 @@ class ReviewController {
   };
 
   deleteMyReview = async (req, res) => {
+    const userId = req.user?._id || req.user?.userId || req.user?.id;
+
     new OK({
       message: "Xóa đánh giá thành công",
       metadata: await reviewService.deleteMyReview({
-        userId: req.user._id,
+        userId,
         reviewId: req.params.reviewId,
       }),
     }).send(res);
@@ -60,7 +70,14 @@ class ReviewController {
   adminGetReviews = async (req, res) => {
     new OK({
       message: "Admin lấy danh sách đánh giá thành công",
-      metadata: await reviewService.adminGetReviews(req.query),
+      metadata: await reviewService.adminGetReviews({
+        page: req.query.page,
+        limit: req.query.limit,
+        product: req.query.product,
+        user: req.query.user,
+        isApproved: req.query.isApproved,
+        rating: req.query.rating,
+      }),
     }).send(res);
   };
 

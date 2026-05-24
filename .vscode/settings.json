@@ -9,9 +9,14 @@
   "editor.fontSize": 18,
   "editor.lineHeight": 1.8,
   "editor.fontWeight": "500",
+  
+  // --- CẤU HÌNH FORMAT CODE ---
   "editor.formatOnSave": true,
   "editor.formatOnPaste": false,
   "editor.formatOnType": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode", 
+  // -----------------------------
+
   "editor.minimap.enabled": false,
   "editor.wordWrap": "on",
   "editor.renderWhitespace": "selection",

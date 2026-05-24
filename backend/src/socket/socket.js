@@ -1,44 +1,63 @@
 let io;
+
 const initSocket = (server) => {
-    const { Server } = require("socket.io");
-    io = new Server(server, {
-        cors: {
-            origin: process.env.CLIENT_URL || "http://localhost:5173",
-            credentials: true
-        }
+  const { Server } = require("socket.io");
+
+  io = new Server(server, {
+    cors: {
+      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      credentials: true,
+    },
+  });
+
+  io.on("connection", (socket) => {
+    console.log("Socket connected:", socket.id);
+
+    socket.on("join-user-room", (userId) => {
+      if (!userId) return;
+
+      socket.join(`user:${userId}`);
+      console.log(`User joined room user:${userId}`);
     });
 
-    io.on("connection", (socket) => {
-        console.log("Socket connected: ", socket.id);
+    socket.on("join-admin-room", () => {
+      socket.join("admin:order");
+      socket.join("admin:review");
 
-        socket.on("join-user-room", (userId) => {
-            if (!userId) return;
-            socket.join(`user:${userId}`);
-            console.log(`User joined room user:${userId}`);
-        });
+      console.log("Admin joined rooms: admin:order, admin:review");
+    });
 
-        socket.on("join-admin-room", () => {
-            socket.join("admin:order");
-            console.log("Admin joined room admin:order");
-        })
+    socket.on("join-product-room", (productId) => {
+      if (!productId) return;
 
-        socket.on("disconnect", () => {
-            console.log("Socket disconnected: ", socket.id)
-        })
-    })
+      socket.join(`product:${productId}`);
+      console.log(`Socket joined room product:${productId}`);
+    });
 
-    return io;
-}
+    socket.on("leave-product-room", (productId) => {
+      if (!productId) return;
+
+      socket.leave(`product:${productId}`);
+      console.log(`Socket left room product:${productId}`);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected:", socket.id);
+    });
+  });
+
+  return io;
+};
 
 const getIO = () => {
-    if (!io) {
-        throw new Error("Socket.io chưa được khởi tạo");
-    }
+  if (!io) {
+    throw new Error("Socket.io chưa được khởi tạo");
+  }
 
-    return io;
-}
+  return io;
+};
 
 module.exports = {
-    initSocket,
-    getIO
-}
+  initSocket,
+  getIO,
+};

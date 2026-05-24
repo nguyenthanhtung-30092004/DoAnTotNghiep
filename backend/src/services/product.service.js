@@ -97,31 +97,49 @@ class ProductService {
           publicId: uploadThumbnail.public_id,
         };
       }
+      const variantImageFiles = (files || [])
+        .map((file) => {
+          const match = file.fieldname.match(/variantImages-(\d+)/);
 
-      for (const file of files || []) {
-        const match = file.fieldname.match(/variantImages-(\d+)/);
+          if (!match) return null;
 
-        if (!match) continue;
+          const variantIndex = Number(match[1]);
 
-        const variantIndex = Number(match[1]);
+          if (!variants[variantIndex]) return null;
 
-        if (!variants[variantIndex]) continue;
+          return {
+            file,
+            variantIndex,
+          };
+        })
+        .filter(Boolean);
 
-        const uploadImage = await cloudinary.uploader.upload(file.path, {
-          folder: "products/variants",
-        });
+      const uploadedVariantImages = await Promise.all(
+        variantImageFiles.map(async ({ file, variantIndex }) => {
+          const uploadedImage = await cloudinary.uploader.upload(file.path, {
+            folder: "products/variants",
+          });
 
-        uploadedImages.push(uploadImage.public_id);
+          return {
+            variantIndex,
+            publicId: uploadedImage.public_id,
+            url: uploadedImage.secure_url,
+          };
+        }),
+      );
 
-        if (!variants[variantIndex].images) {
-          variants[variantIndex].images = [];
+      uploadedVariantImages.forEach((image) => {
+        uploadedImages.push(image.publicId);
+
+        if (!variants[image.variantIndex].images) {
+          variants[image.variantIndex].images = [];
         }
 
-        variants[variantIndex].images.push({
-          url: uploadImage.secure_url,
-          publicId: uploadImage.public_id,
+        variants[image.variantIndex].images.push({
+          url: image.url,
+          publicId: image.publicId,
         });
-      }
+      });
 
       const product = await productModel.create({
         name,
@@ -137,7 +155,7 @@ class ProductService {
       if (uploadedImages.length > 0) {
         await Promise.all(
           uploadedImages.map((publicId) =>
-            cloudinary.uploader.destroy(publicId).catch(() => {}),
+            cloudinary.uploader.destroy(publicId).catch(() => { }),
           ),
         );
       }
@@ -146,7 +164,7 @@ class ProductService {
     } finally {
       if (files?.length > 0) {
         await Promise.all(
-          files.map((file) => fs.unlink(file.path).catch(() => {})),
+          files.map((file) => fs.unlink(file.path).catch(() => { })),
         );
       }
     }
@@ -408,7 +426,7 @@ class ProductService {
         if (product.thumbnail?.publicId) {
           await cloudinary.uploader
             .destroy(product.thumbnail.publicId)
-            .catch(() => {});
+            .catch(() => { });
         }
 
         product.thumbnail = {
@@ -421,28 +439,49 @@ class ProductService {
         product.variants = variants;
       }
 
-      for (const file of files || []) {
-        const match = file.fieldname.match(/variantImages-(\d+)/);
+      const variantImageFiles = (files || [])
+        .map((file) => {
+          const match = file.fieldname.match(/variantImages-(\d+)/);
 
-        if (!match) continue;
+          if (!match) return null;
 
-        const variantIndex = Number(match[1]);
+          const variantIndex = Number(match[1]);
 
-        if (!product.variants[variantIndex]) {
-          continue;
+          if (!product.variants[variantIndex]) return null;
+
+          return {
+            file,
+            variantIndex,
+          };
+        })
+        .filter(Boolean);
+
+      const uploadedVariantImages = await Promise.all(
+        variantImageFiles.map(async ({ file, variantIndex }) => {
+          const uploadedImage = await cloudinary.uploader.upload(file.path, {
+            folder: "products/variants",
+          });
+
+          return {
+            variantIndex,
+            publicId: uploadedImage.public_id,
+            url: uploadedImage.secure_url,
+          };
+        }),
+      );
+
+      uploadedVariantImages.forEach((image) => {
+        uploadedImages.push(image.publicId);
+
+        if (!product.variants[image.variantIndex].images) {
+          product.variants[image.variantIndex].images = [];
         }
 
-        const uploadedImage = await cloudinary.uploader.upload(file.path, {
-          folder: "products/variants",
+        product.variants[image.variantIndex].images.push({
+          url: image.url,
+          publicId: image.publicId,
         });
-
-        uploadedImages.push(uploadedImage.public_id);
-
-        product.variants[variantIndex].images.push({
-          url: uploadedImage.secure_url,
-          publicId: uploadedImage.public_id,
-        });
-      }
+      });
 
       await product.save();
 
@@ -451,7 +490,7 @@ class ProductService {
       if (uploadedImages.length > 0) {
         await Promise.all(
           uploadedImages.map((id) =>
-            cloudinary.uploader.destroy(id).catch(() => {}),
+            cloudinary.uploader.destroy(id).catch(() => { }),
           ),
         );
       }
@@ -460,7 +499,7 @@ class ProductService {
     } finally {
       if (files?.length > 0) {
         await Promise.all(
-          files.map((file) => fs.unlink(file.path).catch(() => {})),
+          files.map((file) => fs.unlink(file.path).catch(() => { })),
         );
       }
     }

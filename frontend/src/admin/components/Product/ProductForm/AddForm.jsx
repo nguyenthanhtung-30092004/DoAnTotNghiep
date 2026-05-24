@@ -1,22 +1,32 @@
-import { ImagePlus, Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import ProductService from "../../../../services/product.service";
 
-const emptySize = {
+const createEmptySize = () => ({
   size: "",
   sku: "",
   price: "",
   salePrice: "",
   stock: "",
-};
+});
 
-const emptyVariant = {
+const createEmptyVariant = () => ({
   color: "Mặc định",
   colorCode: "#d1d5db",
   images: [],
-  sizes: [{ ...emptySize }],
-};
+  sizes: [createEmptySize()],
+});
+
+const createEmptyForm = () => ({
+  name: "",
+  description: "",
+  category: "",
+  brand: "",
+  isPublished: true,
+  thumbnail: null,
+  thumbnailPreview: "",
+});
 
 const getId = (value) => {
   if (!value) return "";
@@ -33,7 +43,7 @@ const getImageUrl = (image) => {
 
 const normalizeProductVariants = (product) => {
   if (!Array.isArray(product?.variants) || product.variants.length === 0) {
-    return [{ ...emptyVariant }];
+    return [createEmptyVariant()];
   }
 
   return product.variants.map((variant) => ({
@@ -44,14 +54,14 @@ const normalizeProductVariants = (product) => {
     sizes:
       Array.isArray(variant.sizes) && variant.sizes.length > 0
         ? variant.sizes.map((item) => ({
-            _id: item._id,
-            size: item.size || "",
-            sku: item.sku || "",
-            price: item.price ?? "",
-            salePrice: item.salePrice ?? "",
-            stock: item.stock ?? "",
-          }))
-        : [{ ...emptySize }],
+          _id: item._id,
+          size: item.size || "",
+          sku: item.sku || "",
+          price: item.price ?? "",
+          salePrice: item.salePrice ?? "",
+          stock: item.stock ?? "",
+        }))
+        : [createEmptySize()],
   }));
 };
 
@@ -69,33 +79,18 @@ const AddForm = ({
 
   const [loading, setLoading] = useState(false);
   const [hasSize, setHasSize] = useState(true);
+  const [form, setForm] = useState(createEmptyForm);
+  const [variants, setVariants] = useState(() => [createEmptyVariant()]);
 
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    category: "",
-    brand: "",
-    isPublished: true,
-    thumbnail: null,
-    thumbnailPreview: "",
-  });
-
-  const [variants, setVariants] = useState([{ ...emptyVariant }]);
+  const resetForm = () => {
+    setForm(createEmptyForm());
+    setVariants([createEmptyVariant()]);
+    setHasSize(true);
+  };
 
   useEffect(() => {
     if (!product) {
-      setForm({
-        name: "",
-        description: "",
-        category: "",
-        brand: "",
-        isPublished: true,
-        thumbnail: null,
-        thumbnailPreview: "",
-      });
-
-      setVariants([{ ...emptyVariant }]);
-      setHasSize(true);
+      resetForm();
       return;
     }
 
@@ -119,6 +114,11 @@ const AddForm = ({
     setHasSize(!isNoSize);
   }, [product]);
 
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   const changeForm = (name, value) => {
     setForm((prev) => ({
       ...prev,
@@ -130,32 +130,41 @@ const AddForm = ({
     setForm((prev) => ({
       ...prev,
       thumbnail: file || null,
-      thumbnailPreview: file
-        ? URL.createObjectURL(file)
-        : prev.thumbnailPreview,
+      thumbnailPreview: file ? URL.createObjectURL(file) : "",
     }));
   };
 
   const changeVariant = (variantIndex, name, value) => {
-    const newVariants = [...variants];
-
-    newVariants[variantIndex] = {
-      ...newVariants[variantIndex],
-      [name]: value,
-    };
-
-    setVariants(newVariants);
+    setVariants((prev) =>
+      prev.map((variant, index) =>
+        index === variantIndex
+          ? {
+            ...variant,
+            [name]: value,
+          }
+          : variant,
+      ),
+    );
   };
 
   const changeSize = (variantIndex, sizeIndex, name, value) => {
-    const newVariants = [...variants];
+    setVariants((prev) =>
+      prev.map((variant, vIndex) => {
+        if (vIndex !== variantIndex) return variant;
 
-    newVariants[variantIndex].sizes[sizeIndex] = {
-      ...newVariants[variantIndex].sizes[sizeIndex],
-      [name]: value,
-    };
-
-    setVariants(newVariants);
+        return {
+          ...variant,
+          sizes: variant.sizes.map((size, sIndex) =>
+            sIndex === sizeIndex
+              ? {
+                ...size,
+                [name]: value,
+              }
+              : size,
+          ),
+        };
+      }),
+    );
   };
 
   const changeVariantImages = (variantIndex, files) => {
@@ -163,61 +172,37 @@ const AddForm = ({
 
     if (imageList.length === 0) return;
 
-    const newVariants = [...variants];
-
-    newVariants[variantIndex] = {
-      ...newVariants[variantIndex],
-      images: [...newVariants[variantIndex].images, ...imageList],
-    };
-
-    setVariants(newVariants);
-
-    if (!form.thumbnail && !form.thumbnailPreview) {
-      changeThumbnail(imageList[0]);
-    }
-  };
-
-  const handleQuickImages = (files) => {
-    const imageList = Array.from(files || []);
-
-    if (imageList.length === 0) return;
-
-    setVariants((prev) => {
-      const newVariants = [...prev];
-
-      newVariants[0] = {
-        ...newVariants[0],
-        images: [...newVariants[0].images, ...imageList],
-      };
-
-      return newVariants;
-    });
+    setVariants((prev) =>
+      prev.map((variant, index) =>
+        index === variantIndex
+          ? {
+            ...variant,
+            images: [...variant.images, ...imageList],
+          }
+          : variant,
+      ),
+    );
 
     if (!form.thumbnail && !form.thumbnailPreview) {
       changeThumbnail(imageList[0]);
     }
-
-    toast.success(`Đã thêm ${imageList.length} ảnh`);
   };
 
   const removeImage = (variantIndex, imageIndex) => {
-    const newVariants = [...variants];
+    setVariants((prev) =>
+      prev.map((variant, index) => {
+        if (index !== variantIndex) return variant;
 
-    newVariants[variantIndex].images.splice(imageIndex, 1);
-
-    setVariants(newVariants);
+        return {
+          ...variant,
+          images: variant.images.filter((_, i) => i !== imageIndex),
+        };
+      }),
+    );
   };
 
   const addVariant = () => {
-    setVariants((prev) => [
-      ...prev,
-      {
-        color: "",
-        colorCode: "#d1d5db",
-        images: [],
-        sizes: [{ ...emptySize }],
-      },
-    ]);
+    setVariants((prev) => [...prev, createEmptyVariant()]);
   };
 
   const removeVariant = (variantIndex) => {
@@ -230,24 +215,36 @@ const AddForm = ({
   };
 
   const addSize = (variantIndex) => {
-    const newVariants = [...variants];
-
-    newVariants[variantIndex].sizes.push({ ...emptySize });
-
-    setVariants(newVariants);
+    setVariants((prev) =>
+      prev.map((variant, index) =>
+        index === variantIndex
+          ? {
+            ...variant,
+            sizes: [...variant.sizes, createEmptySize()],
+          }
+          : variant,
+      ),
+    );
   };
 
   const removeSize = (variantIndex, sizeIndex) => {
-    const newVariants = [...variants];
+    const currentVariant = variants[variantIndex];
 
-    if (newVariants[variantIndex].sizes.length === 1) {
+    if (!currentVariant || currentVariant.sizes.length === 1) {
       toast.warning("Mỗi biến thể phải có ít nhất 1 dòng");
       return;
     }
 
-    newVariants[variantIndex].sizes.splice(sizeIndex, 1);
+    setVariants((prev) =>
+      prev.map((variant, index) => {
+        if (index !== variantIndex) return variant;
 
-    setVariants(newVariants);
+        return {
+          ...variant,
+          sizes: variant.sizes.filter((_, i) => i !== sizeIndex),
+        };
+      }),
+    );
   };
 
   const handleChangeHasSize = (value) => {
@@ -269,26 +266,27 @@ const AddForm = ({
           ],
         })),
       );
-    } else {
-      setVariants((prev) =>
-        prev.map((variant) => ({
-          ...variant,
-          sizes: [
-            {
-              ...variant.sizes[0],
-              size:
-                variant.sizes[0]?.size === "FREESIZE"
-                  ? ""
-                  : variant.sizes[0]?.size || "",
-              sku: variant.sizes[0]?.sku || "",
-              price: variant.sizes[0]?.price || "",
-              salePrice: variant.sizes[0]?.salePrice || "",
-              stock: variant.sizes[0]?.stock || "",
-            },
-          ],
-        })),
-      );
+      return;
     }
+
+    setVariants((prev) =>
+      prev.map((variant) => ({
+        ...variant,
+        sizes: [
+          {
+            ...variant.sizes[0],
+            size:
+              variant.sizes[0]?.size === "FREESIZE"
+                ? ""
+                : variant.sizes[0]?.size || "",
+            sku: variant.sizes[0]?.sku || "",
+            price: variant.sizes[0]?.price || "",
+            salePrice: variant.sizes[0]?.salePrice || "",
+            stock: variant.sizes[0]?.stock || "",
+          },
+        ],
+      })),
+    );
   };
 
   const validateForm = () => {
@@ -317,10 +315,12 @@ const AddForm = ({
         toast.error("Vui lòng nhập màu hoặc tên biến thể");
         return false;
       }
+
       if (!variant.colorCode || !/^#[0-9A-Fa-f]{6}$/.test(variant.colorCode)) {
         toast.error("Vui lòng nhập mã màu hợp lệ, ví dụ #000000");
         return false;
       }
+
       for (const item of variant.sizes) {
         if (hasSize && !item.size.trim()) {
           toast.error("Vui lòng nhập size");
@@ -410,12 +410,14 @@ const AddForm = ({
       }
 
       await onSuccess();
+
+      resetForm();
       onClose();
     } catch (error) {
       console.log(error);
       toast.error(
         error.response?.data?.message ||
-          (isEdit ? "Cập nhật sản phẩm thất bại" : "Thêm sản phẩm thất bại"),
+        (isEdit ? "Cập nhật sản phẩm thất bại" : "Thêm sản phẩm thất bại"),
       );
     } finally {
       setLoading(false);
@@ -438,7 +440,7 @@ const AddForm = ({
           </div>
 
           <button
-            onClick={onClose}
+            onClick={handleClose}
             disabled={loading}
             className="text-slate-400 hover:text-slate-700 disabled:opacity-60"
           >
@@ -479,7 +481,7 @@ const AddForm = ({
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => changeThumbnail(e.target.files[0])}
+                  onChange={(e) => changeThumbnail(e.target.files?.[0])}
                   className="mt-1 h-10 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
                 />
               </div>
@@ -807,7 +809,7 @@ const AddForm = ({
 
         <div className="flex justify-end gap-2 mt-6">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             disabled={loading}
             className="h-10 px-5 rounded-lg border text-sm font-semibold hover:bg-slate-100 disabled:opacity-60"
           >

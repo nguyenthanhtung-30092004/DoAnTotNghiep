@@ -38,7 +38,7 @@ function routes(app) {
   app.use("/v1/api/payment", paymentRoutes);
   app.use("/v1/api/payments", paymentRoutes);
 
-  app.use("/v1/api/review", reviewRoutes);
+  app.use("/v1/api/reviews", reviewRoutes);
   app.use("/v1/api/uploads", uploadRoutes);
 }
 
