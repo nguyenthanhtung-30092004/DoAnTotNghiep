@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import Header from "./Header";
-import MiniCartDrawer from "../../features/cart/components/MiniCartDrawer";
+import MiniCartDrawer from "../cart/MiniCartDrawer";
 import socket from "../../socket/socket";
 
 const Layout = () => {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChevronRight,
   CircleCheck,
   Clock,
@@ -8,10 +8,11 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import orderService from "../../features/checkout/services/order.service";
+import orderService from "../../services/order.service";
 import socket from "../../socket/socket";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { ORDER_STATUS_LABELS } from "../../constants/order.constants";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -31,37 +32,37 @@ const formatDate = (date) => {
 
 const statusMap = {
   PENDING: {
-    label: "Chờ xác nhận",
+    label: ORDER_STATUS_LABELS.PENDING,
     icon: Clock,
     className: "bg-amber-50 text-amber-600",
   },
   CONFIRMED: {
-    label: "Đã xác nhận",
+    label: ORDER_STATUS_LABELS.CONFIRMED,
     icon: CircleCheck,
     className: "bg-primary/10 text-primary",
   },
   PROCESSING: {
-    label: "Đang xử lý",
+    label: ORDER_STATUS_LABELS.PROCESSING,
     icon: Clock,
     className: "bg-amber-50 text-amber-600",
   },
   SHIPPING: {
-    label: "Đang giao",
+    label: ORDER_STATUS_LABELS.SHIPPING,
     icon: Truck,
     className: "bg-blue-50 text-blue-600",
   },
   DELIVERED: {
-    label: "Đã giao",
+    label: ORDER_STATUS_LABELS.DELIVERED,
     icon: CircleCheck,
     className: "bg-green-50 text-green-600",
   },
   CANCELLED: {
-    label: "Đã hủy",
+    label: ORDER_STATUS_LABELS.CANCELLED,
     icon: XCircle,
     className: "bg-red-50 text-red-600",
   },
   RETURNED: {
-    label: "Đã trả hàng",
+    label: ORDER_STATUS_LABELS.RETURNED,
     icon: XCircle,
     className: "bg-red-50 text-red-600",
   },
@@ -98,7 +99,7 @@ const Orders = () => {
         ),
       );
 
-      toast.info(`Đơn hàng ${payload.orderCode} vừa được cập nhật`);
+      toast.info(`ÄÆ¡n hÃ ng ${payload.orderCode} vá»«a Ä‘Æ°á»£c cáº­p nháº­t`);
     };
 
     socket.on("order:updated", handleOrderUpdated);
@@ -158,7 +159,7 @@ const Orders = () => {
         ),
       );
 
-      toast.info(`Đơn hàng ${payload.orderCode} vừa được cập nhật`);
+      toast.info(`ÄÆ¡n hÃ ng ${payload.orderCode} vá»«a Ä‘Æ°á»£c cáº­p nháº­t`);
     };
 
     socket.on("order:updated", handleOrderUpdated);
@@ -171,7 +172,7 @@ const Orders = () => {
   if (loading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-        Đang tải đơn hàng...
+        Äang táº£i Ä‘Æ¡n hÃ ng...
       </div>
     );
   }
@@ -181,9 +182,9 @@ const Orders = () => {
       <div className="space-y-6"> 
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-foreground">
-            Lịch sử đơn hàng
+            Lá»‹ch sá»­ Ä‘Æ¡n hÃ ng
           </h2>
-          <p className="text-sm text-muted-foreground">0 đơn hàng</p>
+          <p className="text-sm text-muted-foreground">0 Ä‘Æ¡n hÃ ng</p>
         </div>
 
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
@@ -192,11 +193,11 @@ const Orders = () => {
           </div>
 
           <h3 className="text-base font-semibold text-foreground">
-            Bạn chưa có đơn hàng nào
+            Báº¡n chÆ°a cÃ³ Ä‘Æ¡n hÃ ng nÃ o
           </h3>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            Các đơn hàng sau khi mua sẽ hiển thị tại đây.
+            CÃ¡c Ä‘Æ¡n hÃ ng sau khi mua sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.
           </p>
         </div>
       </div>
@@ -206,9 +207,9 @@ const Orders = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">Lịch sử đơn hàng</h2>
+        <h2 className="text-xl font-bold text-foreground">Lá»‹ch sá»­ Ä‘Æ¡n hÃ ng</h2>
         <p className="text-sm text-muted-foreground">
-          {orders.length} đơn hàng
+          {orders.length} Ä‘Æ¡n hÃ ng
         </p>
       </div>
 
@@ -269,7 +270,7 @@ const Orders = () => {
                           className="size-8 rounded-lg object-cover"
                         />
                       ) : (
-                        <span className="text-lg">👟</span>
+                        <span className="text-lg">ðŸ‘Ÿ</span>
                       )}
 
                       <span className="truncate text-foreground">
@@ -289,13 +290,13 @@ const Orders = () => {
 
                 {order.items?.length > 3 && (
                   <p className="text-xs text-muted-foreground">
-                    +{order.items.length - 3} sản phẩm khác
+                    +{order.items.length - 3} sáº£n pháº©m khÃ¡c
                   </p>
                 )}
               </div>
 
               <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Tổng tiền</span>
+                <span className="text-sm text-muted-foreground">Tá»•ng tiá»n</span>
                 <span className="text-base font-bold text-foreground">
                   {formatPrice(order.finalPrice)}
                 </span>
@@ -309,3 +310,4 @@ const Orders = () => {
 };
 
 export default Orders;
+

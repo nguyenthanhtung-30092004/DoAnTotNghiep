@@ -4,11 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/Button";
 import NavItem from "../ui/NavItem";
 import { useDispatch, useSelector } from "react-redux";
-import { clearUser, setAuthLoading } from "../../features/users/slice/authSlice";
-import { openCartDrawer } from "../../features/cart/slice/cartSlice";
+import { clearUser, setAuthLoading } from "../../redux/slices/authSlice";
+import { openCartDrawer } from "../../redux/slices/cartSlice";
 import { Dropdown } from "antd";
 import { toast } from "react-toastify";
-import authService from "../../features/auth/services/auth.service";
+import authService from "../../services/auth.service";
 
 import { LogoutOutlined, SettingOutlined } from "@ant-design/icons";
 const navLinks = [

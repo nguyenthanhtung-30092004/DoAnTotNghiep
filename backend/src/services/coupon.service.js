@@ -41,6 +41,10 @@ class CouponService {
       throw new BadRequestError("Thiếu thông tin mã giảm giá");
     }
 
+    if (Number(discountValue) <= 0) {
+      throw new BadRequestError("Giá trị giảm phải lớn hơn 0");
+    }
+
     if (!["PERCENT", "FIXED"].includes(discountType)) {
       throw new BadRequestError("Loại giảm giá không hợp lệ");
     }
@@ -231,6 +235,10 @@ class CouponService {
         coupon[field] = body[field];
       }
     });
+
+    if (Number(coupon.discountValue) <= 0) {
+      throw new BadRequestError("Giá trị giảm phải lớn hơn 0");
+    }
 
     if (coupon.discountType === "PERCENT" && coupon.discountValue > 100) {
       throw new BadRequestError("Giảm theo phần trăm không được vượt quá 100%");

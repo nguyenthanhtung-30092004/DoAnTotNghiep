@@ -1,0 +1,40 @@
+export const ORDER_STATUS = {
+  PENDING: "PENDING",
+  CONFIRMED: "CONFIRMED",
+  PROCESSING: "PROCESSING",
+  SHIPPING: "SHIPPING",
+  DELIVERED: "DELIVERED",
+  CANCELLED: "CANCELLED",
+  RETURNED: "RETURNED",
+};
+
+export const ORDER_STATUS_LABELS = {
+  [ORDER_STATUS.PENDING]: "Chờ xác nhận",
+  [ORDER_STATUS.CONFIRMED]: "Đã xác nhận",
+  [ORDER_STATUS.PROCESSING]: "Đang xử lý",
+  [ORDER_STATUS.SHIPPING]: "Đang giao",
+  [ORDER_STATUS.DELIVERED]: "Đã giao",
+  [ORDER_STATUS.CANCELLED]: "Đã hủy",
+  [ORDER_STATUS.RETURNED]: "Đã trả hàng",
+};
+
+export const ORDER_STATUS_OPTIONS = Object.values(ORDER_STATUS).map((value) => ({
+  value,
+  label: ORDER_STATUS_LABELS[value],
+}));
+
+export const ORDER_STATUS_FILTER_OPTIONS = [
+  {
+    value: "",
+    label: "Tất cả",
+  },
+  ...ORDER_STATUS_OPTIONS,
+];
+
+export const ORDER_PROGRESS_STEPS = [
+  ORDER_STATUS.PENDING,
+  ORDER_STATUS.CONFIRMED,
+  ORDER_STATUS.SHIPPING,
+  ORDER_STATUS.DELIVERED,
+];
+

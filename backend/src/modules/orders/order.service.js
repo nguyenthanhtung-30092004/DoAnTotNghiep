@@ -5,6 +5,8 @@ const couponService = require("../../services/coupon.service");
 const { getFinalPrice } = require("./order.helper");
 const { getIO } = require("../../socket/socket");
 
+const phoneRegex = /^(0|\+84)\d{9,10}$/;
+
 class OrderService {
   validateShippingAddress(shippingAddress) {
     const requiredFields = [
@@ -20,6 +22,10 @@ class OrderService {
 
     if (missingField) {
       throw new BadRequestError("Thiếu địa chỉ giao hàng");
+    }
+
+    if (!phoneRegex.test(String(shippingAddress.phone || "").trim())) {
+      throw new BadRequestError("Số điện thoại không hợp lệ");
     }
   }
 

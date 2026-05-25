@@ -1,27 +1,69 @@
 const express = require("express");
 const couponController = require("./coupon.controller");
+const couponValidation = require("./coupon.validation");
 const asyncHandler = require("../../middlewares/asyncHandler");
 const { authUser, authAdmin } = require("../../middlewares/authentication");
+const validate = require("../../middlewares/validate");
 
 const router = express.Router();
 
 router.use(authUser);
 
-router.post("/coupons/validate", asyncHandler(couponController.validateCouponForCart));
-router.post("/validate", asyncHandler(couponController.validateCouponForCart));
+router.post(
+  "/coupons/validate",
+  validate(couponValidation.validateCouponForCart),
+  asyncHandler(couponController.validateCouponForCart),
+);
+router.post(
+  "/validate",
+  validate(couponValidation.validateCouponForCart),
+  asyncHandler(couponController.validateCouponForCart),
+);
 
 router.use(authAdmin);
 
-router.post("/admin/coupons", asyncHandler(couponController.createCoupon));
+router.post(
+  "/admin/coupons",
+  validate(couponValidation.createCoupon),
+  asyncHandler(couponController.createCoupon),
+);
 router.get("/admin/coupons", asyncHandler(couponController.getCoupons));
-router.get("/admin/coupons/:id", asyncHandler(couponController.getCouponDetail));
-router.patch("/admin/coupons/:id", asyncHandler(couponController.updateCoupon));
-router.delete("/admin/coupons/:id", asyncHandler(couponController.deleteCoupon));
+router.get(
+  "/admin/coupons/:id",
+  validate(couponValidation.couponIdParam),
+  asyncHandler(couponController.getCouponDetail),
+);
+router.patch(
+  "/admin/coupons/:id",
+  validate(couponValidation.updateCoupon),
+  asyncHandler(couponController.updateCoupon),
+);
+router.delete(
+  "/admin/coupons/:id",
+  validate(couponValidation.couponIdParam),
+  asyncHandler(couponController.deleteCoupon),
+);
 
-router.post("/", asyncHandler(couponController.createCoupon));
+router.post(
+  "/",
+  validate(couponValidation.createCoupon),
+  asyncHandler(couponController.createCoupon),
+);
 router.get("/", asyncHandler(couponController.getCoupons));
-router.get("/:id", asyncHandler(couponController.getCouponDetail));
-router.patch("/:id", asyncHandler(couponController.updateCoupon));
-router.delete("/:id", asyncHandler(couponController.deleteCoupon));
+router.get(
+  "/:id",
+  validate(couponValidation.couponIdParam),
+  asyncHandler(couponController.getCouponDetail),
+);
+router.patch(
+  "/:id",
+  validate(couponValidation.updateCoupon),
+  asyncHandler(couponController.updateCoupon),
+);
+router.delete(
+  "/:id",
+  validate(couponValidation.couponIdParam),
+  asyncHandler(couponController.deleteCoupon),
+);
 
 module.exports = router;

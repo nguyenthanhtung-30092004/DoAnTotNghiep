@@ -53,6 +53,10 @@ class ReviewService {
       throw new BadRequestError("Rating phải từ 1 đến 5");
     }
 
+    if (String(content || "").length > 1000) {
+      throw new BadRequestError("Nội dung đánh giá không được vượt quá 1000 ký tự");
+    }
+
     const product = await productModel.findOne({
       _id: productId,
       isDeleted: false,
@@ -218,6 +222,10 @@ class ReviewService {
     }
 
     if (content !== undefined) {
+      if (String(content || "").length > 1000) {
+        throw new BadRequestError("Nội dung đánh giá không được vượt quá 1000 ký tự");
+      }
+
       review.content = content;
     }
 
