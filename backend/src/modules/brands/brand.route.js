@@ -10,7 +10,6 @@ const router = express.Router();
 const upload = createUploader("uploads/brands");
 
 router.get("/", asyncHandler(brandController.getAllBrand));
-router.get("/listbrand", asyncHandler(brandController.getAllBrand));
 router.post(
   "/",
   authAdmin,
