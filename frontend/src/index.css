@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,35 +7,47 @@
 /* ================= BASE ================= */
 @layer base {
   :root {
+    /* Backgrounds */
     --background: 0 0% 100%;
-    --background-soft: 210 20% 98%;
-    --foreground: 220 20% 10%;
+    --background-soft: 220 14% 97%;
 
+    /* Foreground */
+    --foreground: 222 47% 7%;
+
+    /* Card */
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 222 47% 7%;
 
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 222 47% 7%;
 
-    --primary: 142 71% 45%;
+    /* Primary — Indigo 500 */
+    --primary: 239 84% 67%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 76% 36%;
+    /* Secondary — Darker Indigo */
+    --secondary: 239 84% 55%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 220 10% 46%;
+    /* Muted — Slate tones */
+    --muted: 220 14% 95%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 149 80% 96%;
-    --accent-foreground: 142 76% 26%;
+    /* Accent — Very light indigo */
+    --accent: 226 100% 97%;
+    --accent-foreground: 239 84% 50%;
 
+    /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 142 71% 45%;
+    /* Border & Input */
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 239 84% 67%;
 
+    /* Radius */
     --radius: 0.75rem;
   }
 
@@ -43,15 +57,10 @@
 
   body {
     @apply bg-background text-foreground antialiased tracking-tight;
-    font-family: 'Be Vietnam Pro', sans-serif;
+    font-family: 'DM Sans', system-ui, sans-serif;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
     @apply tracking-tight;
   }
 }
@@ -59,7 +68,7 @@
 /* ================= COMPONENTS ================= */
 @layer components {
   .container {
-    @apply max-w-[1480px] px-12 mx-auto w-full;
+    @apply max-w-[1480px] px-4 sm:px-8 xl:px-12 mx-auto w-full;
   }
 }
 

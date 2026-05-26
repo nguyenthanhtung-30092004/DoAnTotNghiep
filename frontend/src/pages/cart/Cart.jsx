@@ -75,6 +75,7 @@ const Cart = () => {
 
       const res = await CartService.getCart();
       const data = getResponseData(res);
+      console.log(data);
 
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));

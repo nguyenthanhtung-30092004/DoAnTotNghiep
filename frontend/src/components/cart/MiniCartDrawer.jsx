@@ -1,4 +1,4 @@
-import { Loader2, Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import { Loader2, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -27,7 +27,6 @@ const formatPrice = (price) => {
 const getItemPrice = (item) => {
   const price = Number(item.price || 0);
   const salePrice = Number(item.salePrice || 0);
-
   return salePrice > 0 && salePrice < price ? salePrice : price;
 };
 
@@ -39,12 +38,6 @@ const MiniCartDrawer = () => {
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState("");
 
-  const getCartItemImage = (item) => {
-    return (
-      item.image || ""
-    );
-  };
-
   const subtotal = useMemo(() => {
     return items.reduce(
       (sum, item) => sum + getItemPrice(item) * Number(item.quantity || 0),
@@ -52,13 +45,15 @@ const MiniCartDrawer = () => {
     );
   }, [items]);
 
+  const totalQty = useMemo(() => {
+    return items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  }, [items]);
+
   const fetchCart = async () => {
     if (!user || !isDrawerOpen) return;
-
     try {
       setLoading(true);
       const res = await CartService.getCart();
-      console.log("Cart data:", res.data);
       dispatch(setCart(getResponseData(res) || { items: [] }));
     } catch (error) {
       console.log(error);
@@ -71,24 +66,17 @@ const MiniCartDrawer = () => {
 
   const handleQuantity = async (item, nextQuantity) => {
     if (nextQuantity < 1) return;
-
     if (!user) {
-      if (nextQuantity > item.quantity) {
-        dispatch(increaseQuantity(item.localId));
-      } else {
-        dispatch(decreaseQuantity(item.localId));
-      }
+      if (nextQuantity > item.quantity) dispatch(increaseQuantity(item.localId));
+      else dispatch(decreaseQuantity(item.localId));
       return;
     }
-
     try {
       setUpdatingId(item._id);
       const res = await CartService.updateQuantity(item._id, nextQuantity);
       dispatch(setCart(getResponseData(res) || { items: [] }));
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Cập nhật giỏ hàng thất bại",
-      );
+      toast.error(error.response?.data?.message || "Cập nhật giỏ hàng thất bại");
     } finally {
       setUpdatingId("");
     }
@@ -99,7 +87,6 @@ const MiniCartDrawer = () => {
       dispatch(removeCartItem(item.localId));
       return;
     }
-
     try {
       setUpdatingId(item._id);
       const res = await CartService.removeFromCart(item._id);
@@ -124,107 +111,124 @@ const MiniCartDrawer = () => {
 
   return (
     <div className="fixed inset-0 z-[80]">
+      {/* Backdrop */}
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={handleClose}
         aria-label="Đóng giỏ hàng"
       />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b px-5 py-4">
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">Giỏ hàng</h2>
-            <p className="text-sm text-gray-500">{items.length} sản phẩm</p>
+      {/* Drawer panel */}
+      <aside className="absolute right-0 top-0 flex h-full w-full max-w-[420px] flex-col bg-white shadow-2xl animate-slide-in-right">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+              <ShoppingBag className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Giỏ hàng</h2>
+              <p className="text-xs text-slate-400">{totalQty} sản phẩm</p>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={handleClose}
-            className="flex size-10 items-center justify-center rounded-lg hover:bg-gray-100"
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
             aria-label="Đóng"
           >
-            <X className="size-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
+        {/* Content */}
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
-            <div className="flex h-40 items-center justify-center text-gray-500">
-              <Loader2 className="mr-2 size-5 animate-spin" />
-              Đang tải giỏ hàng...
+            <div className="flex h-48 items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
+              <span className="text-sm text-slate-500">Đang tải...</span>
             </div>
           ) : items.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-accent">
-                <ShoppingCart className="size-7 text-primary" />
+            <div className="flex h-full flex-col items-center justify-center text-center py-16">
+              <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-5">
+                <ShoppingBag className="h-9 w-9 text-slate-300" />
               </div>
-              <p className="font-semibold text-gray-900">Giỏ hàng đang trống</p>
+              <p className="font-semibold text-slate-700 text-base">Giỏ hàng đang trống</p>
+              <p className="text-sm text-slate-400 mt-1 mb-6">Thêm sản phẩm yêu thích vào giỏ nhé</p>
               <Link
                 to="/shop"
                 onClick={handleClose}
-                className="mt-4 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white"
+                className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-secondary transition-colors"
               >
-                Tiếp tục mua sắm
+                Khám phá ngay
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {items.map((item) => {
                 const itemId = item._id || item.localId;
                 const isUpdating = updatingId === itemId;
                 const productLink = item.productSlug
                   ? `/product/${item.productSlug}`
                   : `/product/${item.productId}`;
+                const itemPrice = getItemPrice(item);
 
                 return (
-                  <div key={itemId} className="flex gap-3 border-b pb-4">
+                  <div
+                    key={itemId}
+                    className={`flex gap-3 p-3 rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors ${isUpdating ? "opacity-60" : ""}`}
+                  >
+                    {/* Image */}
                     <Link
                       to={productLink}
                       onClick={handleClose}
-                      className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100"
+                      className="flex-shrink-0 w-[72px] h-[72px] rounded-xl bg-slate-50 overflow-hidden"
                     >
-                      {getCartItemImage(item) ? (
+                      {item.image || item.thumbnail ? (
                         <img
-                          src={getCartItemImage(item)}
+                          src={item.image || item.thumbnail}
                           alt={item.productName}
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <ShoppingCart className="size-6 text-gray-400" />
+                        <div className="h-full w-full flex items-center justify-center">
+                          <ShoppingBag className="h-6 w-6 text-slate-300" />
+                        </div>
                       )}
                     </Link>
 
+                    {/* Info */}
                     <div className="min-w-0 flex-1">
                       <Link
                         to={productLink}
                         onClick={handleClose}
-                        className="line-clamp-2 text-sm font-semibold text-gray-900 hover:text-primary"
+                        className="block text-sm font-semibold text-slate-800 hover:text-primary transition-colors line-clamp-1"
                       >
                         {item.productName || item.product?.name}
                       </Link>
-                      <p className="mt-1 text-xs text-gray-500">
-                        {item.color} / Size {item.size}
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {item.color} · Size {item.size}
                       </p>
-                      <p className="mt-2 text-sm font-bold text-red-500">
-                        {formatPrice(getItemPrice(item))}
+                      <p className="text-sm font-bold text-primary mt-1">
+                        {formatPrice(itemPrice)}
                       </p>
 
-                      <div className="mt-3 flex items-center justify-between">
-                        <div className="inline-flex items-center rounded-lg border">
+                      {/* Qty controls */}
+                      <div className="flex items-center justify-between mt-2.5">
+                        <div className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 h-7">
                           <button
                             type="button"
                             disabled={isUpdating || item.quantity <= 1}
-                            onClick={() =>
-                              handleQuantity(item, Number(item.quantity) - 1)
-                            }
-                            className="flex size-8 items-center justify-center disabled:opacity-40"
+                            onClick={() => handleQuantity(item, Number(item.quantity) - 1)}
+                            className="w-7 h-7 flex items-center justify-center text-slate-600 disabled:opacity-30 hover:text-slate-900 transition-colors"
                           >
-                            <Minus className="size-4" />
+                            <Minus className="h-3 w-3" />
                           </button>
-                          <span className="w-9 text-center text-sm font-semibold">
+                          <span className="w-8 text-center text-xs font-bold text-slate-800">
                             {isUpdating ? (
-                              <Loader2 className="mx-auto size-4 animate-spin" />
+                              <Loader2 className="h-3 w-3 animate-spin mx-auto" />
                             ) : (
                               item.quantity
                             )}
@@ -232,12 +236,10 @@ const MiniCartDrawer = () => {
                           <button
                             type="button"
                             disabled={isUpdating}
-                            onClick={() =>
-                              handleQuantity(item, Number(item.quantity) + 1)
-                            }
-                            className="flex size-8 items-center justify-center disabled:opacity-40"
+                            onClick={() => handleQuantity(item, Number(item.quantity) + 1)}
+                            className="w-7 h-7 flex items-center justify-center text-slate-600 disabled:opacity-30 hover:text-slate-900 transition-colors"
                           >
-                            <Plus className="size-4" />
+                            <Plus className="h-3 w-3" />
                           </button>
                         </div>
 
@@ -245,10 +247,10 @@ const MiniCartDrawer = () => {
                           type="button"
                           disabled={isUpdating}
                           onClick={() => handleRemove(item)}
-                          className="flex size-8 items-center justify-center rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600"
+                          className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
                           aria-label="Xóa sản phẩm"
                         >
-                          <Trash2 className="size-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </div>
@@ -259,25 +261,34 @@ const MiniCartDrawer = () => {
           )}
         </div>
 
+        {/* Footer CTA */}
         {items.length > 0 && (
-          <div className="border-t p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-gray-500">Tạm tính</span>
-              <span className="text-lg font-bold">{formatPrice(subtotal)}</span>
+          <div className="border-t border-slate-100 p-5 space-y-3">
+            {/* Subtotal */}
+            <div className="flex items-center justify-between py-1">
+              <span className="text-sm text-slate-500">Tạm tính</span>
+              <span className="text-lg font-bold text-slate-900">{formatPrice(subtotal)}</span>
             </div>
 
+            {/* Free shipping note */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700">
+              <span className="text-xs font-medium">🚚 Miễn phí vận chuyển cho đơn hàng này!</span>
+            </div>
+
+            {/* Buttons */}
             <button
               type="button"
+              id="mini-cart-checkout-btn"
               onClick={handleCheckout}
-              className="flex h-12 w-full items-center justify-center rounded-xl bg-primary font-semibold text-white hover:bg-secondary"
+              className="w-full h-12 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-secondary transition-colors shadow-primary-glow"
             >
-              Thanh toán
+              Thanh toán ngay
             </button>
 
             <Link
               to="/cart"
               onClick={handleClose}
-              className="mt-3 flex h-11 w-full items-center justify-center rounded-xl border font-semibold text-gray-900 hover:bg-gray-50"
+              className="flex items-center justify-center w-full h-10 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors"
             >
               Xem giỏ hàng
             </Link>

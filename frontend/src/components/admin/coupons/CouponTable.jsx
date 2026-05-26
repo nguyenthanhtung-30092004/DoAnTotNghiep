@@ -16,8 +16,8 @@ const CouponTable = ({
   onCopy,
 }) => {
   const formatMoney = (value) => {
-    if (!value) return "0 â‚«";
-    return Number(value).toLocaleString("vi-VN") + " â‚«";
+    if (!value) return "0 ₫";
+    return Number(value).toLocaleString("vi-VN") + " ₫";
   };
 
   const formatDiscount = (coupon) => {
@@ -29,7 +29,7 @@ const CouponTable = ({
   };
 
   const formatDate = (date) => {
-    if (!date) return "KhÃ´ng cÃ³";
+    if (!date) return "Không có";
     return date.slice(0, 10);
   };
 
@@ -39,7 +39,11 @@ const CouponTable = ({
   };
 
   const getApplyToText = (applyTo) => {
-    return COUPON_APPLY_TO_LABELS[applyTo] || applyTo || COUPON_APPLY_TO_LABELS.ALL;
+    return (
+      COUPON_APPLY_TO_LABELS[applyTo] ||
+      applyTo ||
+      COUPON_APPLY_TO_LABELS.ALL
+    );
   };
 
   const getUsagePercent = (coupon) => {
@@ -59,15 +63,15 @@ const CouponTable = ({
     return (
       <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-12 text-center">
         <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-slate-100">
-          <span className="text-2xl">ðŸŽŸï¸</span>
+          <span className="text-2xl">🎟️</span>
         </div>
 
         <h3 className="mt-4 text-base font-bold text-slate-900">
-          ChÆ°a cÃ³ mÃ£ giáº£m giÃ¡
+          Chưa có mã giảm giá
         </h3>
 
         <p className="mt-1 text-sm text-slate-500">
-          HÃ£y táº¡o mÃ£ giáº£m giÃ¡ Ä‘áº§u tiÃªn cho cá»­a hÃ ng cá»§a báº¡n.
+          Hãy tạo mã giảm giá đầu tiên cho cửa hàng của bạn.
         </p>
       </div>
     );
@@ -80,31 +84,31 @@ const CouponTable = ({
           <thead className="border-b border-slate-200 bg-slate-50">
             <tr>
               <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                MÃ£ giáº£m giÃ¡
+                Mã giảm giá
               </th>
 
               <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Loáº¡i giáº£m
+                Loại giảm
               </th>
 
               <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Äiá»u kiá»‡n
+                Điều kiện
               </th>
 
               <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Thá»i gian
+                Thời gian
               </th>
 
               <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                LÆ°á»£t dÃ¹ng
+                Lượt dùng
               </th>
 
               <th className="px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Tráº¡ng thÃ¡i
+                Trạng thái
               </th>
 
               <th className="px-5 py-4 text-right text-xs font-bold uppercase tracking-wide text-slate-500">
-                Thao tÃ¡c
+                Thao tác
               </th>
             </tr>
           </thead>
@@ -128,6 +132,7 @@ const CouponTable = ({
                           type="button"
                           onClick={() => onCopy(coupon.code)}
                           className="text-slate-400 hover:text-indigo-600"
+                          title="Copy mã"
                         >
                           <Copy className="size-3.5" />
                         </button>
@@ -138,7 +143,7 @@ const CouponTable = ({
                       </p>
 
                       <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">
-                        {coupon.description || "KhÃ´ng cÃ³ mÃ´ táº£"}
+                        {coupon.description || "Không có mô tả"}
                       </p>
                     </div>
                   </div>
@@ -150,16 +155,17 @@ const CouponTable = ({
                   </p>
 
                   <p className="mt-1 text-xs text-slate-500">
-                    {DISCOUNT_TYPE_LABELS[coupon.discountType] || coupon.discountType}
+                    {DISCOUNT_TYPE_LABELS[coupon.discountType] ||
+                      coupon.discountType}
                   </p>
 
                   {coupon.discountType === DISCOUNT_TYPE.PERCENT && (
                     <p className="mt-1 text-xs text-slate-500">
-                      Tá»‘i Ä‘a:{" "}
+                      Tối đa:{" "}
                       <span className="font-semibold text-slate-700">
                         {coupon.maxDiscount
                           ? formatMoney(coupon.maxDiscount)
-                          : "KhÃ´ng giá»›i háº¡n"}
+                          : "Không giới hạn"}
                       </span>
                     </p>
                   )}
@@ -167,21 +173,21 @@ const CouponTable = ({
 
                 <td className="px-5 py-4">
                   <p className="text-sm font-medium text-slate-900">
-                    Tá»« {formatMoney(coupon.minOrderValue)}
+                    Từ {formatMoney(coupon.minOrderValue)}
                   </p>
 
                   <p className="mt-1 text-xs text-slate-500">
-                    Ãp dá»¥ng: {getApplyToText(coupon.applyTo)}
+                    Áp dụng: {getApplyToText(coupon.applyTo)}
                   </p>
 
                   <p className="mt-1 text-xs text-slate-500">
-                    Má»—i user: {coupon.usageLimitPerUser || 1} láº§n
+                    Mỗi user: {coupon.usageLimitPerUser || 1} lần
                   </p>
                 </td>
 
                 <td className="px-5 py-4">
                   <p className="text-xs text-slate-500">
-                    Báº¯t Ä‘áº§u:{" "}
+                    Bắt đầu:{" "}
                     <span className="font-semibold text-slate-700">
                       {formatDate(coupon.startAt)}
                     </span>
@@ -194,7 +200,7 @@ const CouponTable = ({
                         : "text-slate-500"
                     }`}
                   >
-                    Káº¿t thÃºc:{" "}
+                    Kết thúc:{" "}
                     <span className="font-semibold">
                       {formatDate(coupon.endAt)}
                     </span>
@@ -204,10 +210,10 @@ const CouponTable = ({
                 <td className="px-5 py-4">
                   <div className="w-36">
                     <div className="mb-1 flex justify-between text-xs">
-                      <span className="text-slate-500">ÄÃ£ dÃ¹ng</span>
+                      <span className="text-slate-500">Đã dùng</span>
 
                       <span className="font-semibold text-slate-900">
-                        {coupon.usedCount || 0}/{coupon.usageLimit || "âˆž"}
+                        {coupon.usedCount || 0}/{coupon.usageLimit || "∞"}
                       </span>
                     </div>
 
@@ -232,12 +238,12 @@ const CouponTable = ({
                         : "bg-slate-100 text-slate-500"
                     }`}
                   >
-                    {coupon.isActive ? "Äang báº­t" : "ÄÃ£ táº¯t"}
+                    {coupon.isActive ? "Đang bật" : "Đã tắt"}
                   </button>
 
                   {isExpired(coupon.endAt) && (
                     <p className="mt-2 inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600">
-                      Háº¿t háº¡n
+                      Hết hạn
                     </p>
                   )}
                 </td>
@@ -248,6 +254,7 @@ const CouponTable = ({
                       type="button"
                       onClick={() => onEdit(coupon)}
                       className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                      title="Sửa mã"
                     >
                       <Edit className="size-4" />
                     </button>
@@ -256,6 +263,7 @@ const CouponTable = ({
                       type="button"
                       onClick={() => onDelete(coupon)}
                       className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      title="Xóa mã"
                     >
                       <Trash2 className="size-4" />
                     </button>
@@ -271,4 +279,3 @@ const CouponTable = ({
 };
 
 export default CouponTable;
-

@@ -91,7 +91,7 @@ const AdminOrderDetail = () => {
             </p>
           </div>
           <div className="text-sm text-slate-600">
-            <p>Trạng thái: {order.orderStatus}</p>
+            <p>Trạng thá: {order.orderStatus}</p>
             <p>Thanh toán: {order.paymentMethod} / {order.paymentStatus}</p>
           </div>
         </div>

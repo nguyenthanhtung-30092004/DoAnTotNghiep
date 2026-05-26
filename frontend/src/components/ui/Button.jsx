@@ -6,40 +6,48 @@ export function Button({
   ...props
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.97] focus:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
 
   const variants = {
     default:
-      "bg-primary text-primary-foreground hover:bg-secondary shadow-soft hover:shadow-card-hover",
+      "bg-primary text-primary-foreground hover:bg-secondary shadow-soft hover:shadow-primary-glow",
 
     destructive:
       "bg-destructive text-destructive-foreground hover:bg-destructive/90",
 
     outline:
-      "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+      "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300",
 
-    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+    secondary:
+      "bg-secondary text-secondary-foreground hover:bg-secondary/80",
 
-    ghost: "hover:bg-accent hover:text-accent-foreground",
+    ghost:
+      "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
 
-    link: "text-primary underline-offset-4 hover:underline",
+    link:
+      "text-primary underline-offset-4 hover:underline",
 
-    hero: "bg-primary text-primary-foreground hover:bg-secondary shadow-lg hover:shadow-xl text-base",
+    dark:
+      "bg-slate-900 text-white hover:bg-slate-800 shadow-soft",
+
+    hero:
+      "bg-primary text-primary-foreground hover:bg-secondary shadow-lg hover:shadow-primary-glow text-base",
+
     "hero-outline":
-      "border-2 border-primary text-primary bg-background hover:bg-accent text-base",
+      "border-2 border-white/30 text-white bg-white/10 hover:bg-white/20 backdrop-blur text-base",
   };
 
   const sizes = {
     default: "h-10 px-5 py-2",
-    sm: "h-9 px-3 text-sm",
-    lg: "h-12 px-8 text-base",
-    xl: "h-14 px-10 text-base",
-    icon: "h-10 w-10",
+    sm:      "h-9 px-4 text-sm rounded-lg",
+    lg:      "h-12 px-8 text-base rounded-xl",
+    xl:      "h-14 px-10 text-base rounded-2xl",
+    icon:    "h-10 w-10",
   };
 
   return (
     <button
-      className={`${base} ${variants[variant] || ""} ${sizes[size] || ""} ${className}`}
+      className={`${base} ${variants[variant] ?? ""} ${sizes[size] ?? ""} ${className}`}
       {...props}
     >
       {children}

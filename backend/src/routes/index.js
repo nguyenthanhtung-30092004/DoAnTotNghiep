@@ -25,17 +25,16 @@ function routes(app) {
   app.use("/api/uploads", uploadRoutes);
 
   // Backward-compatible paths for current frontend
-  app.use("/v1/api/user", authRoutes);
+  app.use("/v1/api/users", authRoutes);
   app.use("/v1/api/categories", categoryRoutes);
-  app.use("/v1/api/brand", brandRoutes);
+  app.use("/v1/api/brands", brandRoutes);
   app.use("/v1/api/products", productRoutes);
   app.use("/v1/api/cart", cartRoutes);
-  app.use("/v1/api/coupon", couponRoutes);
-  app.use("/v1/api/order", orderRoutes);
+  app.use("/v1/api/coupons", couponRoutes);
+  app.use("/v1/api/orders", orderRoutes);
   app.use("/v1/api/orders", orderRoutes);
 
   // Payment routes
-  app.use("/v1/api/payment", paymentRoutes);
   app.use("/v1/api/payments", paymentRoutes);
 
   app.use("/v1/api/reviews", reviewRoutes);

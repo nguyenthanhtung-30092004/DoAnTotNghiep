@@ -28,7 +28,7 @@ export const API_PRODUCT = `${API_BASE}/products`;
 export const API_CART = `${API_BASE}/cart`;
 
 // Coupon
-export const API_COUPON = `${API_BASE}/coupon`;
+export const API_COUPON = `${API_BASE}/coupons`;
 export const API_COUPON_VALIDATE = `${API_COUPON}/coupons/validate`;
 export const API_ADMIN_COUPON = `${API_COUPON}/admin/coupons`;
 
