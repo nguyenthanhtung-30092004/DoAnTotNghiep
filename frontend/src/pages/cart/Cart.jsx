@@ -1,20 +1,32 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import {
-  ChevronLeft,
+  Banknote,
+  Check,
+  ChevronRight,
+  CreditCard,
+  Dot,
   Loader2,
   LockKeyhole,
-  Minus,
-  Plus,
+  RotateCcw,
+  Shield,
   ShoppingCart,
-  Trash2,
-  Truck,
 } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { setCart as setCartRedux } from "../../redux/slices/cartSlice";
 
 import CartService from "../../services/cart.service";
+
+import { setCart as setCartRedux } from "../../redux/slices/cartSlice";
+import orderService from "../../services/order.service";
+import couponService from "../../services/coupon.service";
+import addressService from "../../services/address.service";
+import CheckoutAddress from "../../components/checkout/CheckoutAddress";
+import CheckoutSummary from "../../components/checkout/CheckoutSummary";
+import {
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHODS,
+} from "../../constants/payment.constants";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -38,14 +50,53 @@ const getItemPrice = (item) => {
   return price;
 };
 
-const Cart = () => {
+const paymentMethods = [
+  {
+    value: PAYMENT_METHODS.COD,
+    title: PAYMENT_METHOD_LABELS.COD,
+    description: "Thanh toán bằng tiền mặt khi đơn hàng được giao tới bạn",
+    icon: Banknote,
+    disabled: false,
+  },
+  {
+    value: PAYMENT_METHODS.VNPAY,
+    title: PAYMENT_METHOD_LABELS.VNPAY,
+    description: "Thanh toán qua cổng VNPAY",
+    icon: CreditCard,
+    disabled: false,
+  },
+];
+
+const Checkout = () => {
+  const [status, setStatus] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [placingOrder, setPlacingOrder] = useState(false);
+
   const [cart, setCart] = useState({
     items: [],
   });
-  const dispatch = useDispatch();
 
-  const [loading, setLoading] = useState(false);
-  const [updatingItemId, setUpdatingItemId] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS.COD);
+  const [addressErrors, setAddressErrors] = useState({});
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+
+  const [shippingAddress, setShippingAddress] = useState({
+    fullName: "",
+    phone: "",
+    province: "",
+    district: "",
+    ward: "",
+    detailAddress: "",
+  });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const items = Array.isArray(cart?.items) ? cart.items : [];
 
@@ -66,8 +117,9 @@ const Cart = () => {
   }, [items]);
 
   const productDiscount = Math.max(totalOriginalPrice - subtotal, 0);
+  const couponDiscount = Number(appliedCoupon?.couponDiscount || 0);
   const shippingFee = subtotal > 0 ? 0 : 0;
-  const finalPrice = Math.max(subtotal + shippingFee, 0);
+  const finalPrice = Math.max(subtotal - couponDiscount + shippingFee, 0);
 
   const fetchCart = async () => {
     try {
@@ -86,145 +138,560 @@ const Cart = () => {
     }
   };
 
-  const handleUpdateQuantity = async (item, newQuantity) => {
-    if (newQuantity < 1) return;
+  const getProductLink = (item) => {
+    if (item.productSlug) return `/product/${item.productSlug}`;
+    return `/product/${item.product?._id || item.product}`;
+  };
 
-    if (item.maxQuantity && newQuantity > item.maxQuantity) {
-      toast.warning(`Chỉ còn ${item.maxQuantity} sản phẩm`);
+  const handleChangeShipping = (e) => {
+    const { name, value } = e.target;
+
+    setShippingAddress((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setAddressErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
+
+  const validateShippingAddress = () => {
+    const errors = {};
+
+    if (!shippingAddress.fullName.trim()) {
+      errors.fullName = "Vui lòng nhập họ và tên";
+    }
+
+    if (!shippingAddress.phone.trim()) {
+      errors.phone = "Vui lòng nhập số điện thoại";
+    } else if (!/^(0|\+84)\d{9,10}$/.test(shippingAddress.phone.trim())) {
+      errors.phone = "Số điện thoại không hợp lệ";
+    }
+
+    if (!shippingAddress.province.trim()) {
+      errors.province = "Vui lòng chọn tỉnh/thành phố";
+    }
+
+    if (!shippingAddress.district.trim()) {
+      errors.district = "Vui lòng chọn quận/huyện";
+    }
+
+    if (!shippingAddress.ward.trim()) {
+      errors.ward = "Vui lòng chọn phường/xã";
+    }
+
+    if (!shippingAddress.detailAddress.trim()) {
+      errors.detailAddress = "Vui lòng nhập địa chỉ cụ thể";
+    }
+
+    setAddressErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      toast.warning("Vui lòng kiểm tra thông tin giao hàng");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+
+    if (!code) {
+      toast.warning("Vui lòng nhập mã giảm giá");
       return;
     }
 
     try {
-      setUpdatingItemId(item._id);
-
-      const res = await CartService.updateQuantity(item._id, newQuantity);
+      setApplyingCoupon(true);
+      const res = await couponService.validateCoupon(code);
       const data = getResponseData(res);
 
-      setCart(data || { items: [] });
-      dispatch(setCartRedux(data || { items: [] }));
-
-      localStorage.removeItem("appliedCoupon");
+      setAppliedCoupon(data);
+      setCouponCode(data.code || code);
+      localStorage.setItem("appliedCoupon", JSON.stringify(data));
+      toast.success("Áp mã giảm giá thành công");
     } catch (error) {
-      console.log(error);
-      toast.error(
-        error.response?.data?.message || "Cập nhật số lượng thất bại",
-      );
+      setAppliedCoupon(null);
+      localStorage.removeItem("appliedCoupon");
+      toast.error(error.response?.data?.message || "Mã giảm giá không hợp lệ");
     } finally {
-      setUpdatingItemId("");
+      setApplyingCoupon(false);
     }
   };
 
-  const handleRemoveItem = async (itemId) => {
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    localStorage.removeItem("appliedCoupon");
+  };
+
+  const selectProvince = async (e) => {
+    const code = e.target.value;
+    const province = provinces.find((item) => String(item.code) === code);
+
+    setShippingAddress((prev) => ({
+      ...prev,
+      province: province?.name || "",
+      district: "",
+      ward: "",
+    }));
+    setDistricts([]);
+    setWards([]);
+    setAddressErrors((prev) => ({
+      ...prev,
+      province: "",
+      district: "",
+      ward: "",
+    }));
+
+    if (!code) return;
+
     try {
-      setUpdatingItemId(itemId);
-
-      const res = await CartService.removeFromCart(itemId);
-      const data = getResponseData(res);
-
-      setCart(data || { items: [] });
-      dispatch(setCartRedux(data || { items: [] }));
-
-      localStorage.removeItem("appliedCoupon");
-
-      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+      setAddressLoading(true);
+      const res = await addressService.getDistricts(code);
+      setDistricts(res.data?.districts || []);
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Xóa sản phẩm thất bại");
+      toast.error("Không tải được danh sách quận/huyện");
     } finally {
-      setUpdatingItemId("");
+      setAddressLoading(false);
     }
   };
 
-  const handleSyncCart = async () => {
+  const selectDistrict = async (e) => {
+    const code = e.target.value;
+    const district = districts.find((item) => String(item.code) === code);
+
+    setShippingAddress((prev) => ({
+      ...prev,
+      district: district?.name || "",
+      ward: "",
+    }));
+    setWards([]);
+    setAddressErrors((prev) => ({ ...prev, district: "", ward: "" }));
+
+    if (!code) return;
+
     try {
-      const res = await CartService.syncCart();
+      setAddressLoading(true);
+      const res = await addressService.getWards(code);
+      setWards(res.data?.wards || []);
+    } catch (error) {
+      console.log(error);
+      toast.error("Không tải được danh sách phường/xã");
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const selectWard = (e) => {
+    const code = e.target.value;
+    const ward = wards.find((item) => String(item.code) === code);
+
+    setShippingAddress((prev) => ({
+      ...prev,
+      ward: ward?.name || "",
+    }));
+    setAddressErrors((prev) => ({ ...prev, ward: "" }));
+  };
+
+  const handleNextToPayment = () => {
+    if (!validateShippingAddress()) return;
+    setStatus(2);
+  };
+
+  const handleNextToReview = () => {
+    if (!paymentMethod) {
+      toast.warning("Vui lòng chọn phương thức thanh toán");
+      return;
+    }
+
+    setStatus(3);
+  };
+
+  const handlePlaceOrder = async () => {
+    if (items.length === 0) {
+      toast.warning("Giỏ hàng đang trống");
+      navigate("/cart");
+      return;
+    }
+
+    if (!validateShippingAddress()) {
+      setStatus(1);
+      return;
+    }
+
+    try {
+      setPlacingOrder(true);
+
+      const payload = {
+        shippingAddress,
+        paymentMethod,
+        couponCode: appliedCoupon?.code || "",
+        note: "",
+      };
+
+      const res = await orderService.checkout(payload);
       const data = getResponseData(res);
 
-      if (data) {
-        setCart(data);
-        dispatch(setCartRedux(data));
+      if (data?.paymentUrl) {
+        window.location.href = data.paymentUrl;
+        return;
       }
+
+      toast.success(data?.message || "Đặt hàng thành công");
+
+      localStorage.removeItem("appliedCoupon");
+      setAppliedCoupon(null);
+
+      await fetchCart();
+
+      const order = data?.order || data;
+
+      navigate("/account", {
+        state: {
+          order,
+          orderSuccess: true,
+        },
+      });
     } catch (error) {
       console.log(error);
+      toast.error(error.response?.data?.message || "Đặt hàng thất bại");
+    } finally {
+      setPlacingOrder(false);
     }
   };
 
   useEffect(() => {
     fetchCart();
-    handleSyncCart();
+
+    const savedCoupon = localStorage.getItem("appliedCoupon");
+
+    if (savedCoupon) {
+      try {
+        const parsedCoupon = JSON.parse(savedCoupon);
+        setAppliedCoupon(parsedCoupon);
+        setCouponCode(parsedCoupon.code || "");
+      } catch (error) {
+        console.log(error);
+        localStorage.removeItem("appliedCoupon");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const res = await addressService.getProvinces();
+        setProvinces(Array.isArray(res.data) ? res.data : []);
+      } catch (error) {
+        console.log(error);
+        toast.error("Không tải được danh sách tỉnh/thành phố");
+      }
+    };
+
+    fetchProvinces();
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="flex flex-col items-center text-gray-500">
-          <Loader2 className="h-9 w-9 animate-spin mb-3" />
-          <p>Đang tải giỏ hàng...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background-soft">
+        <div className="flex flex-col items-center text-muted-foreground">
+          <Loader2 className="mb-3 size-9 animate-spin" />
+          <p>Đang tải thông tin thanh toán...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-background-soft">
+        <div className="container flex min-h-screen flex-col items-center justify-center text-center">
+          <div className="mb-4 flex size-20 items-center justify-center rounded-full bg-accent">
+            <ShoppingCart className="size-9 text-primary" />
+          </div>
+
+          <h1 className="text-2xl font-bold">
+            Không có sản phẩm để thanh toán
+          </h1>
+
+          <p className="mt-2 text-muted-foreground">
+            Vui lòng thêm sản phẩm vào giỏ hàng trước.
+          </p>
+
+          <Link
+            to="/cart"
+            className="mt-6 inline-flex h-12 items-center justify-center rounded-lg bg-primary px-8 font-semibold text-white hover:bg-primary/90"
+          >
+            Quay lại giỏ hàng
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="px-8 py-10 bg-accent">
-        <div className="container">
-          <h1 className="text-3xl font-bold">Giỏ hàng</h1>
-          <p>{totalQuantity} sản phẩm trong giỏ</p>
+    <div className="container max-w-5xl py-8">
+      <div className="flex items-center justify-between">
+        <nav className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
+          <Link to="/cart" className="transition-colors hover:text-foreground">
+            Cart
+          </Link>
+
+          <ChevronRight className="size-4" />
+          <span className="font-medium text-foreground">Checkout</span>
+        </nav>
+
+        <Link
+          to="/cart"
+          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Quay lại giỏ hàng
+        </Link>
+      </div>
+
+      <div className="flex items-center justify-center gap-0">
+        <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <div className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-soft transition-all duration-300">
+              {status > 1 ? <Check className="size-4" /> : 1}
+            </div>
+
+            <span className="hidden text-sm font-medium text-foreground sm:block">
+              Giao hàng
+            </span>
+          </div>
+
+          <div
+            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${
+              status > 1 ? "bg-primary" : "bg-border"
+            }`}
+          />
+        </div>
+
+        <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <div
+              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${
+                status >= 2
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {status > 2 ? <Check className="size-4" /> : 2}
+            </div>
+
+            <span
+              className={`hidden text-sm font-medium sm:block ${
+                status >= 2 ? "text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              Thanh toán
+            </span>
+          </div>
+
+          <div
+            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${
+              status > 2 ? "bg-primary" : "bg-border"
+            }`}
+          />
+        </div>
+
+        <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <div
+              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${
+                status >= 3
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              3
+            </div>
+
+            <span
+              className={`hidden text-sm font-medium sm:block ${
+                status >= 3 ? "text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              Xác nhận
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="container py-8">
-        {items.length === 0 ? (
-          <div className="min-h-[45vh] flex flex-col items-center justify-center text-center">
-            <div className="size-20 rounded-full bg-accent flex items-center justify-center mb-4">
-              <ShoppingCart className="size-9 text-primary" />
-            </div>
+      <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:gap-12">
+        <div className="min-w-0 flex-1">
+          {status === 1 ? (
+            <CheckoutAddress
+              shippingAddress={shippingAddress}
+              addressErrors={addressErrors}
+              handleChangeShipping={handleChangeShipping}
+              provinces={provinces}
+              districts={districts}
+              wards={wards}
+              selectProvince={selectProvince}
+              selectDistrict={selectDistrict}
+              selectWard={selectWard}
+              addressLoading={addressLoading}
+              handleNextToPayment={handleNextToPayment}
+            />
+          ) : status === 2 ? (
+            <div className="space-y-6">
+              <div className="space-y-4 rounded-2xl bg-card p-6 shadow-card">
+                <h2 className="text-lg font-bold">Phương thức thanh toán</h2>
 
-            <h2 className="text-2xl font-bold">Giỏ hàng đang trống</h2>
-
-            <p className="text-muted-foreground mt-2">
-              Hãy thêm sản phẩm yêu thích vào giỏ hàng nhé.
-            </p>
-
-            <Link
-              to="/shop"
-              className="inline-flex items-center justify-center font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors mt-6 px-8 h-12 gap-2"
-            >
-              <ShoppingCart className="size-5" />
-              Tiếp tục mua sắm
-            </Link>
-          </div>
-        ) : (
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            <div className="flex-1 min-w-0">
-              <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-4 pb-3 border-b border-border mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                <span>Sản phẩm</span>
-                <span className="w-28 text-center">Số lượng</span>
-                <span className="w-28 text-right">Giá</span>
-                <span className="w-10"></span>
-              </div>
-
-              <div className="divide-y divide-border">
-                {items.map((item) => {
-                  const itemPrice = getItemPrice(item);
-                  const itemTotal = itemPrice * Number(item.quantity || 0);
-                  const isUpdating = updatingItemId === item._id;
-                  const productLink = item.productSlug
-                    ? `/product/${item.productSlug}`
-                    : `/product/${item.product?._id || item.product}`;
+                {paymentMethods.map((method) => {
+                  const Icon = method.icon;
+                  const isSelected = paymentMethod === method.value;
 
                   return (
-                    <div
-                      key={item._id}
-                      className={`grid grid-cols-1 sm:grid-cols-[1fr_auto_auto_auto] gap-4 py-5 items-center ${
-                        !item.isAvailable ? "opacity-60" : ""
+                    <button
+                      key={method.value}
+                      type="button"
+                      disabled={method.disabled}
+                      onClick={() => {
+                        if (method.disabled) {
+                          toast.info("Phương thức này sẽ được hỗ trợ sau");
+                          return;
+                        }
+
+                        setPaymentMethod(method.value);
+                      }}
+                      className={`w-full active:scale-[0.99] flex items-center gap-4 rounded-xl border-2 p-4 text-left shadow-soft duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+                        isSelected
+                          ? "border-primary bg-accent"
+                          : "border-border bg-background hover:border-primary/60"
                       }`}
                     >
-                      <div className="flex items-center gap-4">
+                      <div
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-accent text-foreground"
+                        }`}
+                      >
+                        <Icon className="size-5" />
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold">
+                            {method.title}
+                          </p>
+
+                          {method.disabled && (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                              Sắp có
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {method.description}
+                        </p>
+                      </div>
+
+                      <div
+                        className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                          isSelected ? "border-primary" : "border-border"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="size-2.5 rounded-full bg-primary" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setStatus(1)}
+                  type="button"
+                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-input bg-background px-8 text-sm font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
+                >
+                  Quay lại
+                </button>
+
+                <button
+                  onClick={handleNextToReview}
+                  type="button"
+                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-input bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-secondary hover:shadow-xl"
+                >
+                  Xem lại đơn hàng
+                </button>
+              </div>
+            </div>
+          ) : status === 3 ? (
+            <div className="space-y-6">
+              <div className="rounded-2xl bg-card p-6 shadow-card">
+                <h2 className="mb-4 text-lg font-bold">Xem lại đơn hàng</h2>
+
+                <div className="mb-4 flex items-start justify-between border-b border-border pb-4">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Giao tới
+                    </p>
+                    <p className="text-sm font-medium">
+                      {shippingAddress.fullName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {shippingAddress.phone}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {shippingAddress.detailAddress}, {shippingAddress.ward},{" "}
+                      {shippingAddress.district}, {shippingAddress.province}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setStatus(1)}
+                    className="text-xs text-primary underline-offset-4 hover:underline"
+                  >
+                    Chỉnh sửa
+                  </button>
+                </div>
+
+                <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Thanh toán
+                    </p>
+                    <p className="text-sm font-medium">
+                      {PAYMENT_METHOD_LABELS[paymentMethod]}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setStatus(2)}
+                    className="text-xs text-primary underline-offset-4 hover:underline"
+                  >
+                    Sửa
+                  </button>
+                </div>
+
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Sản phẩm ({totalQuantity})
+                </p>
+
+                <div className="space-y-3">
+                  {items.map((item) => {
+                    const itemPrice = getItemPrice(item);
+                    const itemTotal = itemPrice * Number(item.quantity || 0);
+
+                    return (
+                      <div key={item._id} className="flex items-center gap-3">
                         <Link
-                          to={productLink}
-                          className="shrink-0 w-[128px] h-[80px] rounded-xl bg-accent flex items-center justify-center overflow-hidden hover:shadow-card-hover transition-shadow"
+                          to={getProductLink(item)}
+                          className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent"
                         >
                           {item.thumbnail ? (
                             <img
@@ -233,181 +700,67 @@ const Cart = () => {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <ShoppingCart className="size-8 text-muted-foreground" />
+                            <ShoppingCart className="size-5 text-muted-foreground" />
                           )}
                         </Link>
 
-                        <div className="min-w-0">
-                          <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
-                            {item.color || "Sản phẩm"}
-                          </p>
-
-                          <Link
-                            className="font-semibold text-sm hover:text-primary transition-colors line-clamp-1"
-                            to={productLink}
-                          >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">
                             {item.productName || item.product?.name}
-                          </Link>
-
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Size: {item.size}
                           </p>
-
-                          {!item.isAvailable && (
-                            <p className="text-xs text-red-500 font-medium mt-1">
-                              Sản phẩm hiện không khả dụng
-                            </p>
-                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Size {item.size} | SL {item.quantity}
+                          </p>
                         </div>
-                      </div>
 
-                      <div className="flex items-center sm:justify-center">
-                        <div className="inline-flex items-center justify-center border border-border rounded-xl">
-                          <button
-                            type="button"
-                            disabled={isUpdating || item.quantity <= 1}
-                            onClick={() =>
-                              handleUpdateQuantity(item, item.quantity - 1)
-                            }
-                            className="size-7 flex items-center justify-center hover:bg-muted rounded-l-xl transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <Minus className="size-4" />
-                          </button>
-
-                          <span className="w-10 text-center text-sm font-semibold tabular-nums">
-                            {isUpdating ? (
-                              <Loader2 className="size-4 animate-spin mx-auto" />
-                            ) : (
-                              item.quantity
-                            )}
-                          </span>
-
-                          <button
-                            type="button"
-                            disabled={
-                              isUpdating ||
-                              (item.maxQuantity &&
-                                item.quantity >= item.maxQuantity)
-                            }
-                            onClick={() =>
-                              handleUpdateQuantity(item, item.quantity + 1)
-                            }
-                            className="size-7 flex items-center justify-center hover:bg-muted rounded-r-xl transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <Plus className="size-4" />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="w-28 sm:text-right">
-                        <p className="font-bold text-red-500 text-sm tabular-nums">
+                        <p className="shrink-0 text-sm font-semibold tabular-nums">
                           {formatPrice(itemTotal)}
                         </p>
-
-                        {Number(item.salePrice || 0) > 0 &&
-                          Number(item.salePrice) < Number(item.price) && (
-                            <p className="text-xs text-muted-foreground line-through">
-                              {formatPrice(
-                                Number(item.price || 0) *
-                                  Number(item.quantity || 0),
-                              )}
-                            </p>
-                          )}
                       </div>
-
-                      <div>
-                        <button
-                          type="button"
-                          disabled={isUpdating}
-                          onClick={() => handleRemoveItem(item._id)}
-                          className="size-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Trash2 className="size-5 hover:text-red-600" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center justify-center whitespace-nowrap font-semibold text-black hover:text-slate-500 py-2 rounded-lg transition-colors h-14 gap-2"
-                >
-                  <ChevronLeft className="" />
-                  Tiếp tục mua sắm
-                </Link>
-              </div>
-            </div>
-
-            <div className="lg:w-96 shrink-0">
-              <div className="bg-card rounded-2xl shadow-card p-6 lg:sticky lg:top-24">
-                <h2 className="text-lg font-bold mb-5">Tóm tắt đơn hàng</h2>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Tạm tính ({totalQuantity} sản phẩm)
-                    </span>
-                    <span className="font-medium tabular-nums">
-                      {formatPrice(subtotal)}
-                    </span>
-                  </div>
-
-                  {productDiscount > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Giảm giá sản phẩm
-                      </span>
-                      <span className="font-medium text-red-500 tabular-nums">
-                        -{formatPrice(productDiscount)}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Phí vận chuyển
-                    </span>
-                    <span className="font-medium text-primary">
-                      {shippingFee === 0
-                        ? "Miễn phí"
-                        : formatPrice(shippingFee)}
-                    </span>
-                  </div>
-
-                  <div className="border-t border-border pt-3 mt-3">
-                    <div className="flex justify-between font-bold">
-                      <span>Tổng cộng</span>
-                      <span className="tabular-nums">
-                        {formatPrice(finalPrice)}
-                      </span>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-                <Link
-                  to="/checkout"
-                  className="inline-flex items-center justify-center whitespace-nowrap font-semibold text-white bg-primary hover:bg-primary/90 py-2 rounded-lg transition-colors w-full mt-5 px-10 h-14 gap-2"
-                >
+              <button
+                onClick={handlePlaceOrder}
+                disabled={placingOrder}
+                className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary px-10 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-secondary hover:shadow-xl disabled:opacity-60"
+              >
+                {placingOrder ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : (
                   <LockKeyhole className="size-5" />
-                  Thanh toán
-                </Link>
-
-                <div className="flex items-center gap-2 mt-4 p-3 rounded-xl bg-accent text-xs">
-                  <Truck className="size-4 text-primary shrink-0" />
-                  <span className="text-primary font-medium">
-                    Bạn đã được miễn phí vận chuyển 🎉
-                  </span>
-                </div>
-              </div>
+                )}
+                {paymentMethod === PAYMENT_METHODS.COD
+                  ? "Đặt hàng COD"
+                  : "Thanh toán VNPAY"}
+              </button>
             </div>
-          </div>
-        )}
+          ) : null}
+        </div>
+
+        <CheckoutSummary
+          items={items}
+          getProductLink={getProductLink}
+          formatPrice={formatPrice}
+          getItemPrice={getItemPrice}
+          totalQuantity={totalQuantity}
+          subtotal={subtotal}
+          productDiscount={productDiscount}
+          appliedCoupon={appliedCoupon}
+          couponDiscount={couponDiscount}
+          handleRemoveCoupon={handleRemoveCoupon}
+          couponCode={couponCode}
+          setCouponCode={setCouponCode}
+          handleApplyCoupon={handleApplyCoupon}
+          applyingCoupon={applyingCoupon}
+          shippingFee={shippingFee}
+          finalPrice={finalPrice}
+        />
       </div>
     </div>
   );
 };
 
-export default Cart;
+export default Checkout;

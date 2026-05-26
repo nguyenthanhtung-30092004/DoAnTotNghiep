@@ -13,7 +13,7 @@ module.exports = {
         1480: "1480px",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ['"Be Vietnam Pro"', "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

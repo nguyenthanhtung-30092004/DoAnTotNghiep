@@ -43,7 +43,7 @@
 
   body {
     @apply bg-background text-foreground antialiased tracking-tight;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
   }
 
   h1,
