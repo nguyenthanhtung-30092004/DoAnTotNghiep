@@ -63,10 +63,10 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-950 text-slate-300 mt-20">
-      {/* Top bar — CTA strip */}
-      <div className="border-b border-slate-800">
-        <div className="container py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+    <footer className="bg-slate-950 text-slate-300">
+      {/* Newsletter strip */}
+      <div className="border-b border-slate-800/60">
+        <div className="container py-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-400 mb-2">
               RunVault Newsletter
@@ -82,14 +82,17 @@ const Footer = () => {
             onSubmit={(e) => e.preventDefault()}
             className="flex gap-2 w-full md:w-auto"
           >
-            <input
-              type="email"
-              placeholder="Email của bạn..."
-              className="flex-1 md:w-64 h-11 rounded-xl bg-slate-800 border border-slate-700 px-4 text-sm text-white placeholder-slate-500 outline-none focus:border-indigo-500 transition-colors"
-            />
+            <div className="relative flex-1 md:w-72">
+              <input
+                type="email"
+                placeholder="Email của bạn..."
+                aria-label="Nhập email nhận bản tin"
+                className="w-full h-11 rounded-xl bg-slate-800/80 border border-slate-700 px-4 pr-10 text-sm text-white placeholder-slate-500 outline-none focus:border-indigo-500 focus:bg-slate-800 transition-all"
+              />
+            </div>
             <button
               type="submit"
-              className="h-11 px-5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-colors shrink-0"
+              className="h-11 px-6 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors shrink-0 shadow-md shadow-indigo-500/20"
             >
               Đăng ký
             </button>
@@ -98,7 +101,7 @@ const Footer = () => {
       </div>
 
       {/* Main footer grid */}
-      <div className="container py-14 grid grid-cols-2 md:grid-cols-4 gap-10">
+      <div className="container py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
         {/* Brand column */}
         <div className="col-span-2 md:col-span-1">
           <Link to="/" className="flex items-center gap-2 mb-5 group">

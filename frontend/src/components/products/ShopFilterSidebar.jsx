@@ -1,29 +1,92 @@
-import { Check } from "lucide-react";
-import { Button } from "../../components/ui/Button";
+import { Check, RotateCcw, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
+/* ── Dải giá — giữ nguyên data shape để không vỡ API ── */
 const priceOptions = [
-  {
-    label: "Dưới 500.000đ",
-    minPrice: "",
-    maxPrice: 500000,
-  },
-  {
-    label: "500.000đ - 1.000.000đ",
-    minPrice: 500000,
-    maxPrice: 1000000,
-  },
-  {
-    label: "1.000.000đ - 2.000.000đ",
-    minPrice: 1000000,
-    maxPrice: 2000000,
-  },
-  {
-    label: "Trên 2.000.000đ",
-    minPrice: 2000000,
-    maxPrice: "",
-  },
+  { label: "Dưới 500.000đ", minPrice: "", maxPrice: 500000 },
+  { label: "500.000đ – 1.000.000đ", minPrice: 500000, maxPrice: 1000000 },
+  { label: "1.000.000đ – 2.000.000đ", minPrice: 1000000, maxPrice: 2000000 },
+  { label: "Trên 2.000.000đ", minPrice: 2000000, maxPrice: "" },
 ];
 
+/* ── FilterSection: collapsible group ── */
+const FilterSection = ({ title, children, defaultOpen = true }) => {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-slate-100 py-4 last:border-0">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500">
+          {title}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && <div className="mt-4 space-y-2.5">{children}</div>}
+    </div>
+  );
+};
+
+/* ── RadioItem ── */
+const RadioItem = ({ label, checked, onChange }) => (
+  <label className="group flex cursor-pointer items-center gap-3">
+    <div
+      className={`flex h-4.5 w-4.5 items-center justify-center rounded-full border-2 transition-colors ${
+        checked
+          ? "border-indigo-600 bg-indigo-600"
+          : "border-slate-300 group-hover:border-indigo-400"
+      }`}
+      style={{ width: "18px", height: "18px", minWidth: "18px" }}
+    >
+      {checked && <div className="h-2 w-2 rounded-full bg-white" />}
+    </div>
+    <input
+      type="radio"
+      name="price"
+      checked={checked}
+      className="sr-only"
+      onChange={onChange}
+    />
+    <span
+      className={`text-sm transition-colors ${
+        checked ? "font-semibold text-slate-800" : "text-slate-600 group-hover:text-slate-800"
+      }`}
+    >
+      {label}
+    </span>
+  </label>
+);
+
+/* ── CheckboxItem ── */
+const CheckboxItem = ({ label, checked, onChange }) => (
+  <label className="group flex cursor-pointer items-center gap-3">
+    <div
+      className={`flex items-center justify-center rounded-md border-2 transition-colors ${
+        checked
+          ? "border-indigo-600 bg-indigo-600"
+          : "border-slate-300 group-hover:border-indigo-400"
+      }`}
+      style={{ width: "18px", height: "18px", minWidth: "18px" }}
+    >
+      {checked && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+    </div>
+    <input type="checkbox" checked={checked} className="sr-only" onChange={onChange} />
+    <span
+      className={`text-sm transition-colors ${
+        checked ? "font-semibold text-slate-800" : "text-slate-600 group-hover:text-slate-800"
+      }`}
+    >
+      {label}
+    </span>
+  </label>
+);
+
+/* ── Main ShopFilterSidebar ── */
 const ShopFilterSidebar = ({
   brands,
   activeBrand,
@@ -32,112 +95,94 @@ const ShopFilterSidebar = ({
   onChangePrice,
   onReset,
 }) => {
+  const hasActiveFilter = activeBrand || activePrice;
+
   return (
-    <div className="space-y-8 pr-4">
-      <div>
-        <h3 className="text-gray-900 font-bold text-sm uppercase tracking-wider mb-4">
-          Mức Giá
-        </h3>
-
-        <div className="space-y-3">
-          {priceOptions.map((price) => (
-            <label
-              key={price.label}
-              className="flex items-center gap-3 cursor-pointer group"
-            >
-              <div
-                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-                  activePrice === price.label
-                    ? "border-[#22C55E] bg-[#22C55E]"
-                    : "border-gray-300 group-hover:border-[#22C55E]"
-                }`}
-              >
-                {activePrice === price.label && (
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                )}
-              </div>
-
-              <input
-                type="radio"
-                name="price"
-                checked={activePrice === price.label}
-                className="hidden"
-                onChange={() => onChangePrice(price)}
-              />
-
-              <span
-                className={`text-[14px] ${
-                  activePrice === price.label
-                    ? "text-gray-900 font-medium"
-                    : "text-gray-600"
-                }`}
-              >
-                {price.label}
-              </span>
-            </label>
-          ))}
-        </div>
+    <div className="w-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-sm font-bold text-slate-800">Bộ lọc</h2>
+        {hasActiveFilter && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Xóa bộ lọc
+          </button>
+        )}
       </div>
 
-      <div className="h-[1px] w-full bg-gray-100" />
-
-      <div>
-        <h3 className="text-gray-900 font-bold text-sm uppercase tracking-wider mb-4">
-          Thương Hiệu
-        </h3>
-
-        <div className="space-y-3">
-          {brands.length === 0 && (
-            <p className="text-sm text-gray-500">Chưa có thương hiệu</p>
+      {/* Active filters */}
+      {hasActiveFilter && (
+        <div className="mt-2 mb-1 flex flex-wrap gap-1.5">
+          {activePrice && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+              {activePrice}
+              <button
+                type="button"
+                onClick={() => onChangePrice({ label: "", minPrice: "", maxPrice: "" })}
+                className="ml-0.5 hover:text-indigo-900"
+              >
+                ×
+              </button>
+            </span>
           )}
-
-          {brands.map((brand) => (
-            <label
-              key={brand._id}
-              className="flex items-center gap-3 cursor-pointer group"
-            >
-              <div
-                className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-                  activeBrand === brand._id
-                    ? "border-[#22C55E] bg-[#22C55E]"
-                    : "border-gray-300 group-hover:border-[#22C55E]"
-                }`}
+          {activeBrand && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+              {brands.find((b) => b._id === activeBrand)?.nameBrand || "Thương hiệu"}
+              <button
+                type="button"
+                onClick={() => onChangeBrand("")}
+                className="ml-0.5 hover:text-indigo-900"
               >
-                {activeBrand === brand._id && (
-                  <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                )}
-              </div>
-
-              <input
-                type="checkbox"
-                checked={activeBrand === brand._id}
-                className="hidden"
-                onChange={() =>
-                  onChangeBrand(activeBrand === brand._id ? "" : brand._id)
-                }
-              />
-
-              <span
-                className={`text-[14px] ${
-                  activeBrand === brand._id
-                    ? "text-gray-900 font-medium"
-                    : "text-gray-600"
-                }`}
-              >
-                {brand.nameBrand || brand.name}
-              </span>
-            </label>
-          ))}
+                ×
+              </button>
+            </span>
+          )}
         </div>
-      </div>
+      )}
 
-      <Button
-        variant="outline"
-        className="w-full mt-4 text-[#22C55E] border-[#22C55E] hover:bg-[#22C55E] hover:text-white transition-colors"
-        onClick={onReset}
-      >
-        Xóa bộ lọc
-      </Button>
+      {/* Divider */}
+      <div className="mt-3 border-t border-slate-100" />
+
+      {/* Mức giá */}
+      <FilterSection title="Mức giá">
+        {priceOptions.map((price) => (
+          <RadioItem
+            key={price.label}
+            label={price.label}
+            checked={activePrice === price.label}
+            onChange={() =>
+              activePrice === price.label
+                ? onChangePrice({ label: "", minPrice: "", maxPrice: "" })
+                : onChangePrice(price)
+            }
+          />
+        ))}
+      </FilterSection>
+
+      {/* Thương hiệu */}
+      <FilterSection title="Thương hiệu">
+        {brands.length === 0 ? (
+          <p className="text-xs text-slate-400">Chưa có thương hiệu</p>
+        ) : (
+          brands.slice(0, 12).map((brand) => (
+            <CheckboxItem
+              key={brand._id}
+              label={brand.nameBrand || brand.name}
+              checked={activeBrand === brand._id}
+              onChange={() => onChangeBrand(activeBrand === brand._id ? "" : brand._id)}
+            />
+          ))
+        )}
+        {brands.length > 12 && (
+          <p className="text-xs text-indigo-600 font-semibold cursor-pointer hover:underline">
+            +{brands.length - 12} thương hiệu khác
+          </p>
+        )}
+      </FilterSection>
     </div>
   );
 };

@@ -111,8 +111,6 @@ const getMinPrice = (product) => {
   return Math.min(...prices);
 };
 
-
-
 const ProductDetail = () => {
   const dispatch = useDispatch();
 
@@ -826,9 +824,9 @@ const ProductDetail = () => {
                     </div>
 
                     <div className="rounded-xl bg-green-50 border border-green-100 px-4 py-3 text-sm text-green-700">
-                      Bạn chỉ có thể đánh giá sản phẩm đã mua và đơn hàng đã giao.
+                      Bạn chỉ có thể đánh giá sản phẩm đã mua và đơn hàng đã
+                      giao.
                     </div>
-
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
