@@ -66,6 +66,7 @@ const paymentMethods = [
     disabled: false,
   },
 ];
+
 const Checkout = () => {
   const [status, setStatus] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -131,7 +132,7 @@ const Checkout = () => {
       dispatch(setCartRedux(data || { items: [] }));
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Láº¥y giá» hÃ ng tháº¥t báº¡i");
+      toast.error(error.response?.data?.message || "Lấy giỏ hàng thất bại");
     } finally {
       setLoading(false);
     }
@@ -160,35 +161,35 @@ const Checkout = () => {
     const errors = {};
 
     if (!shippingAddress.fullName.trim()) {
-      errors.fullName = "Vui lÃ²ng nháº­p há» vÃ  tÃªn";
+      errors.fullName = "Vui lòng nhập họ và tên";
     }
 
     if (!shippingAddress.phone.trim()) {
-      errors.phone = "Vui lÃ²ng nháº­p sá»‘ Ä‘iá»‡n thoáº¡i";
+      errors.phone = "Vui lòng nhập số điện thoại";
     } else if (!/^(0|\+84)\d{9,10}$/.test(shippingAddress.phone.trim())) {
-      errors.phone = "Sá»‘ Ä‘iá»‡n thoáº¡i khÃ´ng há»£p lá»‡";
+      errors.phone = "Số điện thoại không hợp lệ";
     }
 
     if (!shippingAddress.province.trim()) {
-      errors.province = "Vui lÃ²ng chá»n tá»‰nh/thÃ nh phá»‘";
+      errors.province = "Vui lòng chọn tỉnh/thành phố";
     }
 
     if (!shippingAddress.district.trim()) {
-      errors.district = "Vui lÃ²ng chá»n quáº­n/huyá»‡n";
+      errors.district = "Vui lòng chọn quận/huyện";
     }
 
     if (!shippingAddress.ward.trim()) {
-      errors.ward = "Vui lÃ²ng chá»n phÆ°á»ng/xÃ£";
+      errors.ward = "Vui lòng chọn phường/xã";
     }
 
     if (!shippingAddress.detailAddress.trim()) {
-      errors.detailAddress = "Vui lÃ²ng nháº­p Ä‘á»‹a chá»‰ cá»¥ thá»ƒ";
+      errors.detailAddress = "Vui lòng nhập địa chỉ cụ thể";
     }
 
     setAddressErrors(errors);
 
     if (Object.keys(errors).length > 0) {
-      toast.warning("Vui lÃ²ng kiá»ƒm tra thÃ´ng tin giao hÃ ng");
+      toast.warning("Vui lòng kiểm tra thông tin giao hàng");
       return false;
     }
 
@@ -199,7 +200,7 @@ const Checkout = () => {
     const code = couponCode.trim().toUpperCase();
 
     if (!code) {
-      toast.warning("Vui lÃ²ng nháº­p mÃ£ giáº£m giÃ¡");
+      toast.warning("Vui lòng nhập mã giảm giá");
       return;
     }
 
@@ -211,11 +212,11 @@ const Checkout = () => {
       setAppliedCoupon(data);
       setCouponCode(data.code || code);
       localStorage.setItem("appliedCoupon", JSON.stringify(data));
-      toast.success("Ãp mÃ£ giáº£m giÃ¡ thÃ nh cÃ´ng");
+      toast.success("Áp mã giảm giá thành công");
     } catch (error) {
       setAppliedCoupon(null);
       localStorage.removeItem("appliedCoupon");
-      toast.error(error.response?.data?.message || "MÃ£ giáº£m giÃ¡ khÃ´ng há»£p lá»‡");
+      toast.error(error.response?.data?.message || "Mã giảm giá không hợp lệ");
     } finally {
       setApplyingCoupon(false);
     }
@@ -239,7 +240,12 @@ const Checkout = () => {
     }));
     setDistricts([]);
     setWards([]);
-    setAddressErrors((prev) => ({ ...prev, province: "", district: "", ward: "" }));
+    setAddressErrors((prev) => ({
+      ...prev,
+      province: "",
+      district: "",
+      ward: "",
+    }));
 
     if (!code) return;
 
@@ -249,7 +255,7 @@ const Checkout = () => {
       setDistricts(res.data?.districts || []);
     } catch (error) {
       console.log(error);
-      toast.error("KhÃ´ng táº£i Ä‘Æ°á»£c danh sÃ¡ch quáº­n/huyá»‡n");
+      toast.error("Không tải được danh sách quận/huyện");
     } finally {
       setAddressLoading(false);
     }
@@ -275,7 +281,7 @@ const Checkout = () => {
       setWards(res.data?.wards || []);
     } catch (error) {
       console.log(error);
-      toast.error("KhÃ´ng táº£i Ä‘Æ°á»£c danh sÃ¡ch phÆ°á»ng/xÃ£");
+      toast.error("Không tải được danh sách phường/xã");
     } finally {
       setAddressLoading(false);
     }
@@ -299,7 +305,7 @@ const Checkout = () => {
 
   const handleNextToReview = () => {
     if (!paymentMethod) {
-      toast.warning("Vui lÃ²ng chá»n phÆ°Æ¡ng thá»©c thanh toÃ¡n");
+      toast.warning("Vui lòng chọn phương thức thanh toán");
       return;
     }
 
@@ -308,7 +314,7 @@ const Checkout = () => {
 
   const handlePlaceOrder = async () => {
     if (items.length === 0) {
-      toast.warning("Giá» hÃ ng Ä‘ang trá»‘ng");
+      toast.warning("Giỏ hàng đang trống");
       navigate("/cart");
       return;
     }
@@ -336,7 +342,7 @@ const Checkout = () => {
         return;
       }
 
-      toast.success(data?.message || "Äáº·t hÃ ng thÃ nh cÃ´ng");
+      toast.success(data?.message || "Đặt hàng thành công");
 
       localStorage.removeItem("appliedCoupon");
       setAppliedCoupon(null);
@@ -353,7 +359,7 @@ const Checkout = () => {
       });
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Äáº·t hÃ ng tháº¥t báº¡i");
+      toast.error(error.response?.data?.message || "Đặt hàng thất bại");
     } finally {
       setPlacingOrder(false);
     }
@@ -383,7 +389,7 @@ const Checkout = () => {
         setProvinces(Array.isArray(res.data) ? res.data : []);
       } catch (error) {
         console.log(error);
-        toast.error("KhÃ´ng táº£i Ä‘Æ°á»£c danh sÃ¡ch tá»‰nh/thÃ nh phá»‘");
+        toast.error("Không tải được danh sách tỉnh/thành phố");
       }
     };
 
@@ -395,7 +401,7 @@ const Checkout = () => {
       <div className="min-h-screen flex items-center justify-center bg-background-soft">
         <div className="flex flex-col items-center text-muted-foreground">
           <Loader2 className="mb-3 size-9 animate-spin" />
-          <p>Äang táº£i thÃ´ng tin thanh toÃ¡n...</p>
+          <p>Đang tải thông tin thanh toán...</p>
         </div>
       </div>
     );
@@ -410,18 +416,18 @@ const Checkout = () => {
           </div>
 
           <h1 className="text-2xl font-bold">
-            KhÃ´ng cÃ³ sáº£n pháº©m Ä‘á»ƒ thanh toÃ¡n
+            Không có sản phẩm để thanh toán
           </h1>
 
           <p className="mt-2 text-muted-foreground">
-            Vui lÃ²ng thÃªm sáº£n pháº©m vÃ o giá» hÃ ng trÆ°á»›c.
+            Vui lòng thêm sản phẩm vào giỏ hàng trước.
           </p>
 
           <Link
             to="/cart"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-lg bg-primary px-8 font-semibold text-white hover:bg-primary/90"
           >
-            Quay láº¡i giá» hÃ ng
+            Quay lại giỏ hàng
           </Link>
         </div>
       </div>
@@ -439,15 +445,14 @@ const Checkout = () => {
           <ChevronRight className="size-4" />
           <span className="font-medium text-foreground">Checkout</span>
         </nav>
+
         <Link
           to="/cart"
           className="text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          Quay láº¡i giá» hÃ ng
+          Quay lại giỏ hàng
         </Link>
       </div>
-
-
 
       <div className="flex items-center justify-center gap-0">
         <div className="flex items-center">
@@ -457,57 +462,63 @@ const Checkout = () => {
             </div>
 
             <span className="hidden text-sm font-medium text-foreground sm:block">
-              Giao hÃ ng
+              Giao hàng
             </span>
           </div>
 
           <div
-            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${status > 1 ? "bg-primary" : "bg-border"
-              }`}
+            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${
+              status > 1 ? "bg-primary" : "bg-border"
+            }`}
           />
         </div>
 
         <div className="flex items-center">
           <div className="flex items-center gap-2">
             <div
-              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${status >= 2
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
-                }`}
+              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${
+                status >= 2
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
             >
               {status > 2 ? <Check className="size-4" /> : 2}
             </div>
 
             <span
-              className={`hidden text-sm font-medium sm:block ${status >= 2 ? "text-foreground" : "text-muted-foreground"
-                }`}
+              className={`hidden text-sm font-medium sm:block ${
+                status >= 2 ? "text-foreground" : "text-muted-foreground"
+              }`}
             >
-              Thanh toÃ¡n
+              Thanh toán
             </span>
           </div>
 
           <div
-            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${status > 2 ? "bg-primary" : "bg-border"
-              }`}
+            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${
+              status > 2 ? "bg-primary" : "bg-border"
+            }`}
           />
         </div>
 
         <div className="flex items-center">
           <div className="flex items-center gap-2">
             <div
-              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${status >= 3
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
-                }`}
+              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${
+                status >= 3
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
             >
               3
             </div>
 
             <span
-              className={`hidden text-sm font-medium sm:block ${status >= 3 ? "text-foreground" : "text-muted-foreground"
-                }`}
+              className={`hidden text-sm font-medium sm:block ${
+                status >= 3 ? "text-foreground" : "text-muted-foreground"
+              }`}
             >
-              XÃ¡c nháº­n
+              Xác nhận
             </span>
           </div>
         </div>
@@ -532,7 +543,7 @@ const Checkout = () => {
           ) : status === 2 ? (
             <div className="space-y-6">
               <div className="space-y-4 rounded-2xl bg-card p-6 shadow-card">
-                <h2 className="text-lg font-bold">PhÆ°Æ¡ng thá»©c thanh toÃ¡n</h2>
+                <h2 className="text-lg font-bold">Phương thức thanh toán</h2>
 
                 {paymentMethods.map((method) => {
                   const Icon = method.icon;
@@ -545,22 +556,24 @@ const Checkout = () => {
                       disabled={method.disabled}
                       onClick={() => {
                         if (method.disabled) {
-                          toast.info("PhÆ°Æ¡ng thá»©c nÃ y sáº½ Ä‘Æ°á»£c há»— trá»£ sau");
+                          toast.info("Phương thức này sẽ được hỗ trợ sau");
                           return;
                         }
 
                         setPaymentMethod(method.value);
                       }}
-                      className={`w-full active:scale-[0.99] flex items-center gap-4 rounded-xl border-2 p-4 text-left shadow-soft duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${isSelected
-                        ? "border-primary bg-accent"
-                        : "border-border bg-background hover:border-primary/60"
-                        }`}
+                      className={`w-full active:scale-[0.99] flex items-center gap-4 rounded-xl border-2 p-4 text-left shadow-soft duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+                        isSelected
+                          ? "border-primary bg-accent"
+                          : "border-border bg-background hover:border-primary/60"
+                      }`}
                     >
                       <div
-                        className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-accent text-foreground"
-                          }`}
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-accent text-foreground"
+                        }`}
                       >
                         <Icon className="size-5" />
                       </div>
@@ -573,7 +586,7 @@ const Checkout = () => {
 
                           {method.disabled && (
                             <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                              Sáº¯p cÃ³
+                              Sắp có
                             </span>
                           )}
                         </div>
@@ -584,8 +597,9 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${isSelected ? "border-primary" : "border-border"
-                          }`}
+                        className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                          isSelected ? "border-primary" : "border-border"
+                        }`}
                       >
                         {isSelected && (
                           <div className="size-2.5 rounded-full bg-primary" />
@@ -602,7 +616,7 @@ const Checkout = () => {
                   type="button"
                   className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-input bg-background px-8 text-sm font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
                 >
-                  Quay láº¡i
+                  Quay lại
                 </button>
 
                 <button
@@ -610,19 +624,19 @@ const Checkout = () => {
                   type="button"
                   className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-input bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-secondary hover:shadow-xl"
                 >
-                  Xem láº¡i Ä‘Æ¡n hÃ ng
+                  Xem lại đơn hàng
                 </button>
               </div>
             </div>
           ) : status === 3 ? (
             <div className="space-y-6">
               <div className="rounded-2xl bg-card p-6 shadow-card">
-                <h2 className="mb-4 text-lg font-bold">Xem láº¡i Ä‘Æ¡n hÃ ng</h2>
+                <h2 className="mb-4 text-lg font-bold">Xem lại đơn hàng</h2>
 
                 <div className="mb-4 flex items-start justify-between border-b border-border pb-4">
                   <div>
                     <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Giao tá»›i
+                      Giao tới
                     </p>
                     <p className="text-sm font-medium">
                       {shippingAddress.fullName}
@@ -641,14 +655,14 @@ const Checkout = () => {
                     onClick={() => setStatus(1)}
                     className="text-xs text-primary underline-offset-4 hover:underline"
                   >
-                    Chá»‰nh sá»­a
+                    Chỉnh sửa
                   </button>
                 </div>
 
                 <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
                   <div>
                     <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Thanh toÃ¡n
+                      Thanh toán
                     </p>
                     <p className="text-sm font-medium">
                       {PAYMENT_METHOD_LABELS[paymentMethod]}
@@ -660,12 +674,12 @@ const Checkout = () => {
                     onClick={() => setStatus(2)}
                     className="text-xs text-primary underline-offset-4 hover:underline"
                   >
-                    Sá»­a
+                    Sửa
                   </button>
                 </div>
 
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Sáº£n pháº©m ({totalQuantity})
+                  Sản phẩm ({totalQuantity})
                 </p>
 
                 <div className="space-y-3">
@@ -719,8 +733,8 @@ const Checkout = () => {
                   <LockKeyhole className="size-5" />
                 )}
                 {paymentMethod === PAYMENT_METHODS.COD
-                  ? "Äáº·t hÃ ng COD"
-                  : "Thanh toÃ¡n VNPAY"}
+                  ? "Đặt hàng COD"
+                  : "Thanh toán VNPAY"}
               </button>
             </div>
           ) : null}
@@ -746,9 +760,7 @@ const Checkout = () => {
         />
       </div>
     </div>
-
   );
 };
 
 export default Checkout;
-
