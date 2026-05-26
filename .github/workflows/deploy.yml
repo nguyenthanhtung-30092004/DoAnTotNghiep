@@ -1,35 +1,47 @@
 name: Deploy to EC2
 
-on: 
+on:
   push:
-    branches: 
+    branches:
       - main
 
-jobs: 
-  deploy: 
-    runs-on: ubuntu-lastest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
     steps:
-      -name: Deploy via SSH
-      user: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          set -e
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
 
-          cd /var/www/shop
-          git pull origin main
+            echo "Go to project..."
+            cd /var/www/shop
 
-          cd backend
-          npm install
-          pm2 restart shop-backend --update-env
+            echo "Pull latest code..."
+            git pull origin main
 
-          cd ../frontend
-          npm install
-          rm -rf dist
-          npm run build
+            echo "Install backend dependencies..."
+            cd backend
+            npm install
 
-          sudo nginx -t
-          sudo systemctl reload nginx
+            echo "Restart backend..."
+            pm2 restart shop-backend --update-env
+
+            echo "Install frontend dependencies..."
+            cd ../frontend
+            npm install
+
+            echo "Build frontend..."
+            rm -rf dist
+            npm run build
+
+            echo "Reload nginx..."
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+            echo "Deploy completed!"
