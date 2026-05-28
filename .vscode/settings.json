@@ -1,32 +1,54 @@
 {
+  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.iconTheme": "material-icon-theme",
+
+  "editor.fontFamily": "JetBrains Mono, Fira Code, Cascadia Code, Consolas, monospace",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 14,
+  "editor.lineHeight": 24,
+  "editor.fontWeight": "500",
+
   "editor.cursorBlinking": "smooth",
   "editor.cursorSmoothCaretAnimation": "on",
   "editor.smoothScrolling": true,
   "workbench.list.smoothScrolling": true,
   "terminal.integrated.smoothScrolling": true,
-  "editor.fontFamily": "JetBrains Mono, Fira Code, Cascadia Code, Consolas, monospace",
-  "editor.fontLigatures": true,
-  "editor.fontSize": 14,
-  "editor.lineHeight": 1.8,
-  "editor.fontWeight": "500",
-
-  // --- CẤU HÌNH FORMAT CODE ---
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": false,
-  "editor.formatOnType": false,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  // -----------------------------
 
   "editor.minimap.enabled": false,
   "editor.wordWrap": "on",
   "editor.renderWhitespace": "selection",
   "editor.renderControlCharacters": false,
   "editor.bracketPairColorization.enabled": true,
-  "editor.guides.bracketPairs": true,
+  "editor.guides.bracketPairs": false,
+  "editor.guides.indentation": true,
+  "editor.guides.highlightActiveIndentation": true,
+
   "editor.quickSuggestionsDelay": 80,
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.acceptSuggestionOnCommitCharacter": false,
   "editor.dragAndDrop": false,
   "editor.links": false,
-  "editor.largeFileOptimizations": true
+  "editor.largeFileOptimizations": true,
+
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "window.commandCenter": false,
+  "window.titleBarStyle": "custom",
+  "workbench.startupEditor": "none",
+
+  "workbench.colorCustomizations": {
+    "editor.background": "#11111B",
+    "sideBar.background": "#11111B",
+    "activityBar.background": "#11111B",
+    "tab.activeBackground": "#181825",
+    "tab.inactiveBackground": "#11111B",
+    "editorLineNumber.foreground": "#6C7086",
+    "editorLineNumber.activeForeground": "#CDD6F4",
+    "editorIndentGuide.background1": "#313244",
+    "editorIndentGuide.activeBackground1": "#89B4FA",
+    "editor.lineHighlightBackground": "#181825"
+  }
 }

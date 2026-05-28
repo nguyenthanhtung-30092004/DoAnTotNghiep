@@ -43,7 +43,7 @@ const PaymentResult = () => {
 
         <div className="mt-6 flex flex-col gap-3">
           <Link
-            to="/account"
+            to="/account?tab=orders"
             className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
           >
             Xem đơn hàng

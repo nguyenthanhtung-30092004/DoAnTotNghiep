@@ -27,6 +27,10 @@ function AuthBootstrap() {
 
         if (currentUser) {
           dispatch(setUser(currentUser));
+          
+          if (currentUser.role === "admin" && window.location.pathname === "/") {
+            window.location.href = "/admin";
+          }
         }
       } catch {
         dispatch(clearUser());

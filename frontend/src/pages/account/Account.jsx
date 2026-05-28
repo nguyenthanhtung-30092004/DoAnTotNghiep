@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import Header from "../../components/common/Header";
+import React from "react";
 import {
   Briefcase,
   Calendar,
@@ -22,16 +21,23 @@ import Profile from "../../components/account/Profile";
 import Orders from "../../components/account/Orders";
 import Address from "../../components/account/Address";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { clearUser, setAuthLoading } from "../../redux/slices/authSlice";
 import { toast } from "react-toastify";
 import authService from "../../services/auth.service";
 
 const Account = () => {
   const { user } = useSelector((state) => state.auth);
-  const [activeTab, setActiveTab] = useState("profile");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "profile";
+  
+  const setActiveTab = (tab) => {
+    setSearchParams({ tab });
+  };
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleLogout = async () => {
     try {
       dispatch(setAuthLoading(true));
@@ -46,6 +52,7 @@ const Account = () => {
       dispatch(setAuthLoading(false));
     }
   };
+
   return (
     <div>
       <div className="container py-8 md:py-12">

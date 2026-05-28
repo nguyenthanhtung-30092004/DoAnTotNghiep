@@ -8,7 +8,7 @@ import { Dropdown } from "antd";
 import { toast } from "react-toastify";
 import authService from "../../services/auth.service";
 import categoryService from "../../services/category.service";
-import { LogoutOutlined, SettingOutlined } from "@ant-design/icons";
+import { LogoutOutlined, SettingOutlined, DashboardOutlined, UserOutlined } from "@ant-design/icons";
 
 const getResponseData = (res) => {
   return res?.data?.metadata || res?.data?.data || res?.data || [];
@@ -206,10 +206,20 @@ const Header = () => {
   };
 
   const userMenuItems = [
+    ...(user?.role === "admin"
+      ? [
+          {
+            key: "admin",
+            label: <Link to="/admin">Trang quản trị</Link>,
+            icon: <DashboardOutlined />,
+          },
+          { type: "divider" },
+        ]
+      : []),
     {
       key: "1",
       label: <Link to="/account">Hồ sơ cá nhân</Link>,
-      icon: <SettingOutlined />,
+      icon: <UserOutlined />,
     },
     { type: "divider" },
     {
