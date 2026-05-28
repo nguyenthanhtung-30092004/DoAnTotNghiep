@@ -20,6 +20,7 @@ router.post(
 router.post("/refresh-token", asyncHandler(authController.refreshToken));
 router.post("/logout", asyncHandler(authController.logout));
 router.get("/me", authUser, asyncHandler(authController.me));
+router.patch("/me", authUser, asyncHandler(authController.updateMe));
 router.post(
   "/forgot-password",
   validate(authValidation.forgotPassword),

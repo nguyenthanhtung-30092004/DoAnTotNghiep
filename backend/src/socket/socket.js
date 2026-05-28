@@ -3,9 +3,17 @@ let io;
 const initSocket = (server) => {
   const { Server } = require("socket.io");
 
+  const allowedOrigins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://runshopvn.store",
+    "https://runshopvn.store",
+    process.env.CLIENT_URL,
+  ].filter(Boolean);
+
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      origin: allowedOrigins,
       credentials: true,
     },
   });

@@ -378,7 +378,7 @@ class OrderService {
       updatedAt: order.updatedAt,
     });
 
-    io.to("admin:orders").emit("admin:order-updated", {
+    io.to("admin:order").emit("admin:order-updated", {
       orderId: order._id,
       orderCode: order.orderCode,
       orderStatus: order.orderStatus,
@@ -430,7 +430,7 @@ class OrderService {
       updatedAt: order.updatedAt,
     });
 
-    io.to("admin:orders").emit("admin:order-updated", {
+    io.to("admin:order").emit("admin:order-updated", {
       orderId: order._id,
       orderCode: order.orderCode,
       orderStatus: order.orderStatus,

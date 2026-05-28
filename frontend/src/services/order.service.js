@@ -9,8 +9,8 @@ const checkout = (data) => {
   return axiosClient.post(API_ORDER_CHECKOUT, data);
 };
 
-const getMyOrders = () => {
-  return axiosClient.get(API_MY_ORDERS);
+const getMyOrders = (params = {}) => {
+  return axiosClient.get(API_MY_ORDERS, { params });
 };
 
 const getMyOrderDetail = (orderId) => {

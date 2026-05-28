@@ -1,4 +1,5 @@
-export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/v1/api";
+export const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/v1/api";
 export const API_AUTH = `${API_BASE}/users`;
 export const API_REGISTER = `${API_AUTH}/register`;
 export const API_LOGIN = `${API_AUTH}/login`;
@@ -23,6 +24,10 @@ export const API_BRAND_DELETE = `${API_BRAND}/delete`;
 
 // Product
 export const API_PRODUCT = `${API_BASE}/products`;
+export const API_PRODUCT_BY_CATEGORY = (categoryId) =>
+  `${API_PRODUCT}/category/${categoryId}`;
+export const API_PRODUCT_BY_BRAND = (brandId) =>
+  `${API_PRODUCT}/brand/${brandId}`;
 
 // Cart
 export const API_CART = `${API_BASE}/cart`;
@@ -38,7 +43,7 @@ export const API_ORDER_CHECKOUT = `${API_ORDER}/checkout`;
 export const API_MY_ORDERS = `${API_ORDER}/my-orders`;
 export const API_ADMIN_ORDERS = `${API_ORDER}/admin/orders`;
 
-// Review 
+// Review
 // Review
 export const API_REVIEW = `${API_BASE}/reviews`;
 
@@ -49,8 +54,7 @@ export const API_REVIEW_CREATE = `${API_REVIEW}/`;
 
 export const API_MY_REVIEWS = `${API_REVIEW}/me`;
 
-export const API_MY_REVIEW_DETAIL = (reviewId) =>
-  `${API_REVIEW}/${reviewId}`;
+export const API_MY_REVIEW_DETAIL = (reviewId) => `${API_REVIEW}/${reviewId}`;
 
 export const API_ADMIN_REVIEWS = `${API_REVIEW}/admin`;
 
@@ -59,3 +63,8 @@ export const API_ADMIN_REVIEW_APPROVE = (reviewId) =>
 
 export const API_ADMIN_REVIEW_DETAIL = (reviewId) =>
   `${API_REVIEW}/admin/${reviewId}`;
+
+// Admin Users
+export const API_ADMIN_USERS = `${API_BASE}/users/admin/users`;
+export const API_ADMIN_USER_DETAIL = (userId) => `${API_ADMIN_USERS}/${userId}`;
+export const API_ADMIN_USER_ROLE = (userId) => `${API_ADMIN_USERS}/${userId}/role`;

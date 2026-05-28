@@ -89,13 +89,12 @@ class UsersService {
     user.refreshToken = refreshToken;
     await user.save();
 
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    delete userResponse.refreshToken;
+
     return {
-      user: {
-        id: user._id,
-        name: user.fullName,
-        email: user.email,
-        role: user.role,
-      },
+      user: userResponse,
       accessToken,
       refreshToken,
     };
@@ -214,6 +213,146 @@ class UsersService {
 
     await otpModel.deleteMany({ email: decoded.email });
 
+    return true;
+  }
+
+  async updateMe({ userId, body }) {
+    const { fullName, phone } = body;
+
+    const updateData = {};
+
+    if (fullName !== undefined) {
+      const trimmedFullName = String(fullName).trim();
+
+      if (!trimmedFullName) {
+        throw new ConflictRequestError("Họ tên không được để trống");
+      }
+
+      if (trimmedFullName.length < 2) {
+        throw new ConflictRequestError("Họ tên phải có ít nhất 2 ký tự");
+      }
+
+      if (trimmedFullName.length > 100) {
+        throw new ConflictRequestError("Họ tên không được vượt quá 100 ký tự");
+      }
+
+      updateData.fullName = trimmedFullName;
+    }
+
+    if (phone !== undefined) {
+      const trimmedPhone = String(phone).trim();
+
+      if (trimmedPhone && !/^(0|\+84)[0-9]{9,10}$/.test(trimmedPhone)) {
+        throw new ConflictRequestError("Số điện thoại không hợp lệ");
+      }
+
+      updateData.phone = trimmedPhone;
+    }
+
+    if (body.email !== undefined) {
+      throw new ConflictRequestError("Không được cập nhật email tại đây");
+    }
+
+    if (body.password !== undefined) {
+      throw new ConflictRequestError("Không được cập nhật mật khẩu tại đây");
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new ConflictRequestError("Không có thông tin nào để cập nhật");
+    }
+
+    const updatedUser = await userModel
+      .findByIdAndUpdate(userId, updateData, {
+        new: true,
+        runValidators: true,
+      })
+      .select("-password -refreshToken");
+
+    if (!updatedUser) {
+      throw new NotFoundError("Người dùng không tồn tại");
+    }
+
+    return updatedUser;
+  }
+
+  // ===== ADMIN METHODS =====
+
+  async getAllUsers({ page = 1, limit = 10, keyword = "", role = "" }) {
+    const query = {};
+
+    if (keyword && keyword.trim()) {
+      const searchText = keyword.trim();
+      query.$or = [
+        { fullName: { $regex: searchText, $options: "i" } },
+        { email: { $regex: searchText, $options: "i" } },
+      ];
+    }
+
+    if (role && ["customer", "admin"].includes(role)) {
+      query.role = role;
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await userModel.countDocuments(query);
+
+    const users = await userModel
+      .find(query)
+      .select("-password -refreshToken")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    return {
+      users,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    };
+  }
+
+  async getUserById(userId) {
+    const user = await userModel
+      .findById(userId)
+      .select("-password -refreshToken");
+
+    if (!user) {
+      throw new NotFoundError("Người dùng không tồn tại");
+    }
+
+    return user;
+  }
+
+  async updateUserRole({ userId, role }) {
+    if (!role || !["customer", "admin"].includes(role)) {
+      throw new ConflictRequestError("Role không hợp lệ");
+    }
+
+    const user = await userModel
+      .findByIdAndUpdate(userId, { role }, { new: true, runValidators: true })
+      .select("-password -refreshToken");
+
+    if (!user) {
+      throw new NotFoundError("Người dùng không tồn tại");
+    }
+
+    return user;
+  }
+
+  async deleteUser(userId) {
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundError("Người dùng không tồn tại");
+    }
+
+    if (user.role === "admin") {
+      throw new ConflictRequestError("Không thể xóa tài khoản Admin");
+    }
+
+    await userModel.findByIdAndDelete(userId);
     return true;
   }
 }

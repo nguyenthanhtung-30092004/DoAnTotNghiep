@@ -26,6 +26,7 @@ function routes(app) {
 
   // Backward-compatible paths for current frontend
   app.use("/v1/api/users", authRoutes);
+  app.use("/v1/api/users", userRoutes);
   app.use("/v1/api/categories", categoryRoutes);
   app.use("/v1/api/brands", brandRoutes);
   app.use("/v1/api/products", productRoutes);

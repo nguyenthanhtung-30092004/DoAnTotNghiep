@@ -155,7 +155,7 @@ class ProductService {
       if (uploadedImages.length > 0) {
         await Promise.all(
           uploadedImages.map((publicId) =>
-            cloudinary.uploader.destroy(publicId).catch(() => { }),
+            cloudinary.uploader.destroy(publicId).catch(() => {}),
           ),
         );
       }
@@ -164,13 +164,13 @@ class ProductService {
     } finally {
       if (files?.length > 0) {
         await Promise.all(
-          files.map((file) => fs.unlink(file.path).catch(() => { })),
+          files.map((file) => fs.unlink(file.path).catch(() => {})),
         );
       }
     }
   }
 
-  async getAllProducts(query) {
+  async getAllProducts({ query = {}, params = {} }) {
     let {
       page = 1,
       limit = 10,
@@ -178,128 +178,136 @@ class ProductService {
       category,
       brand,
       isPublished,
-
-      // lọc theo giá
       minPrice,
       maxPrice,
-
-      // sắp xếp
       sort = "newest",
     } = query;
+
+    const { categoryId, brandId } = params;
+
+    // Params ưu tiên hơn query
+    category = categoryId || category;
+    brand = brandId || brand;
 
     page = Number(page);
     limit = Number(limit);
 
-    if (page < 1 || limit < 1) {
-      throw new BadRequestError("Page hoặc limit không hợp lệ");
+    if (!Number.isInteger(page) || page < 1) {
+      throw new BadRequestError("Page không hợp lệ");
+    }
+
+    if (!Number.isInteger(limit) || limit < 1) {
+      throw new BadRequestError("Limit không hợp lệ");
     }
 
     const skip = (page - 1) * limit;
 
-    // filter cơ bản
     const filter = {
       isDeleted: false,
     };
 
-    // tìm kiếm theo tên / mô tả đã tạo text index
     if (search) {
       filter.$text = {
-        $search: search,
+        $search: String(search).trim(),
       };
     }
 
-    // lọc theo danh mục
     if (category) {
-      filter.category = category;
+      if (!mongoose.Types.ObjectId.isValid(category)) {
+        throw new BadRequestError("Danh mục không hợp lệ");
+      }
+
+      // Lấy luôn tất cả category con để hiện sản phẩm của cả cây
+      const childCategories = await categoryModel
+        .find({ parentId: category })
+        .select("_id")
+        .lean();
+
+      const categoryIds = [
+        new mongoose.Types.ObjectId(category),
+        ...childCategories.map((c) => c._id),
+      ];
+
+      filter.category = { $in: categoryIds };
     }
 
-    // lọc theo thương hiệu
     if (brand) {
+      if (!mongoose.Types.ObjectId.isValid(brand)) {
+        throw new BadRequestError("Thương hiệu không hợp lệ");
+      }
+
       filter.brand = brand;
     }
 
-    // lọc theo trạng thái hiển thị
     if (isPublished !== undefined) {
-      filter.isPublished = isPublished === "true";
+      filter.isPublished = isPublished === "true" || isPublished === true;
     }
 
-    // lọc theo khoảng giá
     if (minPrice || maxPrice) {
       filter.minPrice = {};
 
       if (minPrice) {
-        filter.minPrice.$gte = Number(minPrice);
+        const min = Number(minPrice);
+
+        if (Number.isNaN(min) || min < 0) {
+          throw new BadRequestError("Giá nhỏ nhất không hợp lệ");
+        }
+
+        filter.minPrice.$gte = min;
       }
 
       if (maxPrice) {
-        filter.maxPrice.$gte = Number(maxPrice);
+        const max = Number(maxPrice);
+
+        if (Number.isNaN(max) || max < 0) {
+          throw new BadRequestError("Giá lớn nhất không hợp lệ");
+        }
+
+        filter.minPrice.$lte = max;
       }
     }
 
-    // Mặc định: mới nhất
     let sortOption = {
       createdAt: -1,
     };
 
     switch (sort) {
       case "price_asc":
-        // giá tăng dần
-        sortOption = {
-          minPrice: 1,
-        };
+        sortOption = { minPrice: 1 };
         break;
 
       case "price_desc":
-        sortOption = {
-          minPrice: -1,
-        };
+        sortOption = { minPrice: -1 };
         break;
 
       case "name_asc":
-        // Tên A - Z
-        sortOption = {
-          name: 1,
-        };
+        sortOption = { name: 1 };
         break;
 
       case "name_desc":
-        // Tên Z - A
-        sortOption = {
-          name: -1,
-        };
+        sortOption = { name: -1 };
         break;
 
       case "oldest":
-        // Cũ nhất
-        sortOption = {
-          createdAt: 1,
-        };
-        break;
-
-      case "best_selling":
-        // Bán chạy nhất
-        sortOption = {
-          createdAt: -1,
-        };
+        sortOption = { createdAt: 1 };
         break;
 
       case "stock_desc":
-        // Tồn khi giảm dần
-        sortOption = {
-          totalStock: -1,
-        };
+        sortOption = { totalStock: -1 };
+        break;
+
+      case "best_selling":
+        sortOption = { sold: -1 };
         break;
 
       default:
-        sortOption = {
-          createdAt: -1,
-        };
+        sortOption = { createdAt: -1 };
     }
 
     const [products, total] = await Promise.all([
       productModel
         .find(filter)
-        .populate("category", "name")
+        .populate("category", "name slug")
         .populate("brand", "nameBrand")
         .sort(sortOption)
         .skip(skip)
@@ -312,7 +320,6 @@ class ProductService {
 
     return {
       products,
-
       pagination: {
         currentPage: page,
         totalPage: Math.ceil(total / limit),
@@ -426,7 +433,7 @@ class ProductService {
         if (product.thumbnail?.publicId) {
           await cloudinary.uploader
             .destroy(product.thumbnail.publicId)
-            .catch(() => { });
+            .catch(() => {});
         }
 
         product.thumbnail = {
@@ -490,7 +497,7 @@ class ProductService {
       if (uploadedImages.length > 0) {
         await Promise.all(
           uploadedImages.map((id) =>
-            cloudinary.uploader.destroy(id).catch(() => { }),
+            cloudinary.uploader.destroy(id).catch(() => {}),
           ),
         );
       }
@@ -499,7 +506,7 @@ class ProductService {
     } finally {
       if (files?.length > 0) {
         await Promise.all(
-          files.map((file) => fs.unlink(file.path).catch(() => { })),
+          files.map((file) => fs.unlink(file.path).catch(() => {})),
         );
       }
     }

@@ -9,6 +9,11 @@ const validate = require("../../middlewares/validate");
 const router = express.Router();
 const upload = createUploader("uploads/products");
 
+router.get(
+  "/category/:categoryId",
+  asyncHandler(productController.getAllProducts),
+);
+router.get("/brand/:brandId", asyncHandler(productController.getAllProducts));
 router.get("/", asyncHandler(productController.getAllProducts));
 router.get("/:idOrSlug", asyncHandler(productController.getDetailProduct));
 router.post(

@@ -1,4 +1,4 @@
-﻿import {
+import {
   ChevronRight,
   CircleCheck,
   Clock,
@@ -70,44 +70,6 @@ const statusMap = {
 
 const Orders = () => {
   const { user } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (!user?._id && !user?.id) return;
-
-    const userId = user._id || user.id;
-
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    socket.emit("join-user-room", userId);
-
-    const handleOrderUpdated = (payload) => {
-      setOrders((prev) =>
-        prev.map((order) =>
-          order._id === payload.orderId
-            ? {
-              ...order,
-              orderStatus: payload.orderStatus,
-              paymentStatus: payload.paymentStatus,
-              deliveredAt: payload.deliveredAt,
-              cancelReason: payload.cancelReason,
-              cancelledBy: payload.cancelledBy,
-              cancelledAt: payload.cancelledAt,
-            }
-            : order,
-        ),
-      );
-
-      toast.info(`ÄÆ¡n hÃ ng ${payload.orderCode} vá»«a Ä‘Æ°á»£c cáº­p nháº­t`);
-    };
-
-    socket.on("order:updated", handleOrderUpdated);
-
-    return () => {
-      socket.off("order:updated", handleOrderUpdated);
-    };
-  }, [user?._id, user?.id]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -117,7 +79,6 @@ const Orders = () => {
 
       const res = await orderService.getMyOrders();
       const data = getResponseData(res);
-      console.log(data)
 
       const list = Array.isArray(data)
         ? data
@@ -125,7 +86,7 @@ const Orders = () => {
 
       setOrders(list);
     } catch (error) {
-      console.log(error);
+      console.error("Lỗi tải đơn hàng:", error);
     } finally {
       setLoading(false);
     }
@@ -135,12 +96,24 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
+  // Socket: join room & lắng nghe cập nhật đơn hàng, tự re-join khi reconnect
   useEffect(() => {
     if (!user?._id && !user?.id) return;
 
+    const userId = user._id || user.id;
+
+    const joinRoom = () => {
+      socket.emit("join-user-room", userId);
+    };
+
     if (!socket.connected) {
       socket.connect();
+    } else {
+      joinRoom();
     }
+
+    // Re-join room mỗi khi socket reconnect thành công
+    socket.on("connect", joinRoom);
 
     const handleOrderUpdated = (payload) => {
       setOrders((prev) =>
@@ -159,12 +132,13 @@ const Orders = () => {
         ),
       );
 
-      toast.info(`ÄÆ¡n hÃ ng ${payload.orderCode} vá»«a Ä‘Æ°á»£c cáº­p nháº­t`);
+      toast.info(`Đơn hàng ${payload.orderCode} vừa được cập nhật`);
     };
 
     socket.on("order:updated", handleOrderUpdated);
 
     return () => {
+      socket.off("connect", joinRoom);
       socket.off("order:updated", handleOrderUpdated);
     };
   }, [user?._id, user?.id]);
@@ -172,19 +146,19 @@ const Orders = () => {
   if (loading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-        Äang táº£i Ä‘Æ¡n hÃ ng...
+        Đang tải đơn hàng...
       </div>
     );
   }
 
   if (orders.length === 0) {
     return (
-      <div className="space-y-6"> 
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-foreground">
-            Lá»‹ch sá»­ Ä‘Æ¡n hÃ ng
+            Lịch sử đơn hàng
           </h2>
-          <p className="text-sm text-muted-foreground">0 Ä‘Æ¡n hÃ ng</p>
+          <p className="text-sm text-muted-foreground">0 đơn hàng</p>
         </div>
 
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
@@ -193,11 +167,11 @@ const Orders = () => {
           </div>
 
           <h3 className="text-base font-semibold text-foreground">
-            Báº¡n chÆ°a cÃ³ Ä‘Æ¡n hÃ ng nÃ o
+            Bạn chưa có đơn hàng nào
           </h3>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            CÃ¡c Ä‘Æ¡n hÃ ng sau khi mua sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.
+            Các đơn hàng sau khi mua sẽ hiển thị tại đây.
           </p>
         </div>
       </div>
@@ -207,9 +181,9 @@ const Orders = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">Lá»‹ch sá»­ Ä‘Æ¡n hÃ ng</h2>
+        <h2 className="text-xl font-bold text-foreground">Lịch sử đơn hàng</h2>
         <p className="text-sm text-muted-foreground">
-          {orders.length} Ä‘Æ¡n hÃ ng
+          {orders.length} đơn hàng
         </p>
       </div>
 
@@ -270,7 +244,7 @@ const Orders = () => {
                           className="size-8 rounded-lg object-cover"
                         />
                       ) : (
-                        <span className="text-lg">ðŸ‘Ÿ</span>
+                        <span className="text-lg">👟</span>
                       )}
 
                       <span className="truncate text-foreground">
@@ -290,13 +264,13 @@ const Orders = () => {
 
                 {order.items?.length > 3 && (
                   <p className="text-xs text-muted-foreground">
-                    +{order.items.length - 3} sáº£n pháº©m khÃ¡c
+                    +{order.items.length - 3} sản phẩm khác
                   </p>
                 )}
               </div>
 
               <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Tá»•ng tiá»n</span>
+                <span className="text-sm text-muted-foreground">Tổng tiền</span>
                 <span className="text-base font-bold text-foreground">
                   {formatPrice(order.finalPrice)}
                 </span>
@@ -310,4 +284,3 @@ const Orders = () => {
 };
 
 export default Orders;
-

@@ -13,7 +13,7 @@ module.exports = {
         1480: "1480px",
       },
       fontFamily: {
-        sans: ['"DM Sans"', "system-ui", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -121,7 +121,8 @@ module.exports = {
       boxShadow: {
         soft: "0 2px 8px -2px rgba(0,0,0,0.06), 0 4px 16px -4px rgba(0,0,0,0.04)",
         card: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)",
-        "card-hover": "0 4px 16px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.04)",
+        "card-hover":
+          "0 4px 16px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.04)",
         "primary-glow": "0 4px 24px rgba(99,102,241,0.25)",
       },
 

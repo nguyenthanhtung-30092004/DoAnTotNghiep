@@ -24,6 +24,10 @@ axiosClient.interceptors.response.use(
       ) {
         isRedirectingToLogin = true;
         window.location.href = "/login";
+        // Reset sau 3s để tránh flag bị kẹt nếu navigation thất bại
+        setTimeout(() => {
+          isRedirectingToLogin = false;
+        }, 3000);
       }
     }
 

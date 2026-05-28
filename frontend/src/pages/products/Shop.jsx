@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronRight, PackageSearch, SlidersHorizontal, X } from "lucide-react";
+import {
+  ChevronRight,
+  PackageSearch,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import { toast } from "react-toastify";
 
 import ProductService from "../../services/product.service";
@@ -69,20 +74,33 @@ const Shop = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+
       const params = {
         page: filters.page,
         limit: filters.limit,
         sort: filters.sort,
         isPublished: true,
       };
+
       if (filters.brand) params.brand = filters.brand;
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
-      if (currentCategory?._id) params.category = currentCategory._id;
 
-      const res = await ProductService.getAllProducts(params);
+      let res;
+
+      if (currentCategory?._id) {
+        res = await ProductService.getProductByCategory(
+          currentCategory._id,
+          params,
+        );
+      } else {
+        res = await ProductService.getAllProducts(params);
+      }
+
       const data = getResponseData(res);
+
       setProducts(data.products || []);
+
       setPagination(
         data.pagination || {
           currentPage: filters.page,
@@ -111,9 +129,13 @@ const Shop = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await categoryService.getAllCategories({ page: 1, limit: 100 });
+      const res = await categoryService.getAllCategories({
+        page: 1,
+        limit: 100,
+      });
       const data = getResponseData(res);
-      const list = data?.categories || data?.category || data?.data || data || [];
+      const list =
+        data?.categories || data?.category || data?.data || data || [];
       setCategories(Array.isArray(list) ? list : []);
     } catch {
       setCategories([]);
@@ -146,8 +168,7 @@ const Shop = () => {
   const handleSortChange = (sort) =>
     setFilters((prev) => ({ ...prev, sort, page: 1 }));
 
-  const handlePageChange = (page) =>
-    setFilters((prev) => ({ ...prev, page }));
+  const handlePageChange = (page) => setFilters((prev) => ({ ...prev, page }));
 
   /* ── Effects ── */
   useEffect(() => {
@@ -168,23 +189,26 @@ const Shop = () => {
 
   /* ── Render ── */
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Page header + breadcrumb */}
-      <div className="bg-white border-b border-slate-100">
+      <div className="bg-white border-b border-border">
         <div className="container py-6">
           {/* Breadcrumb */}
-          <nav className="mb-3 flex items-center gap-1.5 text-xs text-slate-400">
-            <Link to="/" className="hover:text-indigo-600 transition-colors">
+          <nav className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Link to="/" className="hover:text-primary transition-colors">
               Trang chủ
             </Link>
             <ChevronRight className="h-3 w-3" />
-            <Link to="/shop" className="hover:text-indigo-600 transition-colors">
+            <Link
+              to="/shop"
+              className="hover:text-primary transition-colors"
+            >
               Cửa hàng
             </Link>
             {categorySlug && (
               <>
                 <ChevronRight className="h-3 w-3" />
-                <span className="font-semibold text-slate-700 capitalize">
+                <span className="font-semibold text-muted-foreground capitalize">
                   {currentCategoryTitle}
                 </span>
               </>
@@ -194,11 +218,11 @@ const Shop = () => {
           {/* Title + stats */}
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black text-slate-900 md:text-3xl">
+              <h1 className="text-2xl font-black text-foreground md:text-3xl">
                 {currentCategoryTitle}
               </h1>
               {pagination.totalProduct > 0 && (
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {pagination.totalProduct} sản phẩm
                 </p>
               )}
@@ -208,26 +232,31 @@ const Shop = () => {
             {hasActiveFilter && (
               <div className="hidden md:flex items-center gap-2">
                 {filters.activePrice && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                     {filters.activePrice}
                     <button
                       type="button"
                       onClick={() =>
-                        handleChangePrice({ label: "", minPrice: "", maxPrice: "" })
+                        handleChangePrice({
+                          label: "",
+                          minPrice: "",
+                          maxPrice: "",
+                        })
                       }
-                      className="hover:text-indigo-900 ml-0.5"
+                      className="hover:text-primary ml-0.5"
                     >
                       ×
                     </button>
                   </span>
                 )}
                 {filters.brand && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                    {brands.find((b) => b._id === filters.brand)?.nameBrand || "Thương hiệu"}
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    {brands.find((b) => b._id === filters.brand)?.nameBrand ||
+                      "Thương hiệu"}
                     <button
                       type="button"
                       onClick={() => handleChangeBrand("")}
-                      className="hover:text-indigo-900 ml-0.5"
+                      className="hover:text-primary ml-0.5"
                     >
                       ×
                     </button>
@@ -236,7 +265,7 @@ const Shop = () => {
                 <button
                   type="button"
                   onClick={handleResetFilter}
-                  className="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors"
+                  className="text-xs font-semibold text-muted-foreground hover:text-destructive transition-colors"
                 >
                   Xóa tất cả
                 </button>
@@ -251,7 +280,7 @@ const Shop = () => {
         <div className="flex gap-8">
           {/* ── Desktop Sidebar ── */}
           <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
-            <div className="sticky top-24 rounded-2xl border border-slate-100 bg-white p-5 shadow-soft">
+            <div className="sticky top-24 rounded-2xl border border-border bg-white p-5 shadow-soft">
               <ShopFilterSidebar
                 brands={brands}
                 activeBrand={filters.brand}
@@ -277,15 +306,17 @@ const Shop = () => {
               {/* Drawer panel */}
               <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[88vw] bg-white overflow-y-auto shadow-2xl animate-slide-in-left">
                 {/* Drawer header */}
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-5 py-4">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-white px-5 py-4">
                   <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="h-4 w-4 text-indigo-600" />
-                    <h2 className="font-bold text-slate-800">Bộ lọc sản phẩm</h2>
+                    <SlidersHorizontal className="h-4 w-4 text-primary" />
+                    <h2 className="font-bold text-foreground">
+                      Bộ lọc sản phẩm
+                    </h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent text-muted-foreground transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -313,11 +344,11 @@ const Shop = () => {
                 </div>
 
                 {/* Apply button */}
-                <div className="sticky bottom-0 border-t border-slate-100 bg-white p-4">
+                <div className="sticky bottom-0 border-t border-border bg-white p-4">
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full h-11 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-500 transition-colors"
+                    className="w-full h-11 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-colors"
                   >
                     Áp dụng
                   </button>
@@ -354,21 +385,21 @@ const Shop = () => {
               </div>
             ) : products.length === 0 ? (
               /* ── Empty state ── */
-              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-slate-100 bg-white text-center px-6 py-16">
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-slate-50">
-                  <PackageSearch className="h-10 w-10 text-slate-300" />
+              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-border bg-white text-center px-6 py-16">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-background">
+                  <PackageSearch className="h-10 w-10 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-700">
+                <h3 className="text-lg font-bold text-muted-foreground">
                   Không tìm thấy sản phẩm
                 </h3>
-                <p className="mt-2 max-w-xs text-sm text-slate-400 leading-6">
+                <p className="mt-2 max-w-xs text-sm text-muted-foreground leading-6">
                   Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.
                 </p>
                 {hasActiveFilter && (
                   <button
                     type="button"
                     onClick={handleResetFilter}
-                    className="mt-6 rounded-xl border border-indigo-200 bg-indigo-50 px-6 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                    className="mt-6 rounded-xl border border-primary/20 bg-primary/10 px-6 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors"
                   >
                     Xóa bộ lọc
                   </button>

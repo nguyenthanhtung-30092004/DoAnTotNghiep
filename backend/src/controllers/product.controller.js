@@ -15,7 +15,10 @@ class ProductController {
   }
 
   async getAllProducts(req, res) {
-    const data = await productService.getAllProducts(req.query);
+    const data = await productService.getAllProducts({
+      query: req.query,
+      params: req.params,
+    });
 
     return new OK({
       message: "Lấy danh sách sản phẩm thành công",

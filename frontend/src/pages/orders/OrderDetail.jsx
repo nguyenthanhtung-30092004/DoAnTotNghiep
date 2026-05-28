@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -9,8 +9,11 @@ import {
   MessageCircle,
   RotateCcw,
   Truck,
+  XCircle,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import socket from "../../socket/socket";
 
 import {
   ORDER_PROGRESS_STEPS,
@@ -72,9 +75,11 @@ const getStepIndex = (orderStatus) => {
 
 const OrderDetail = () => {
   const { orderId } = useParams();
+  const { user } = useSelector((state) => state.auth);
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const currentStep = useMemo(() => {
     return getStepIndex(order?.orderStatus);
@@ -102,19 +107,86 @@ const OrderDetail = () => {
     if (!order?.orderCode) return;
 
     await navigator.clipboard.writeText(order.orderCode);
-    toast.success("ÄÃ£ sao chÃ©p mÃ£ Ä‘Æ¡n hÃ ng");
+    toast.success("Đã sao chép mã đơn hàng");
+  };
+
+  const handleCancelOrder = async () => {
+    if (!order?._id) return;
+
+    const confirmed = window.confirm("Bạn có chắc muốn hủy đơn hàng này không?");
+    if (!confirmed) return;
+
+    try {
+      setIsCancelling(true);
+      await orderService.cancelMyOrder(order._id, "Khách hàng tự hủy");
+      toast.success("Hủy đơn hàng thành công");
+      await fetchOrderDetail();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Hủy đơn hàng thất bại",
+      );
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   useEffect(() => {
     fetchOrderDetail();
   }, [orderId]);
 
+  // Socket: lắng nghe cập nhật đơn hàng real-time, re-join khi reconnect
+  useEffect(() => {
+    if (!user?._id && !user?.id) return;
+
+    const userId = user._id || user.id;
+
+    const joinRoom = () => {
+      socket.emit("join-user-room", userId);
+    };
+
+    if (!socket.connected) {
+      socket.connect();
+    } else {
+      joinRoom();
+    }
+
+    socket.on("connect", joinRoom);
+
+    const handleOrderUpdated = (payload) => {
+      if (payload.orderId !== orderId) return;
+
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              orderStatus: payload.orderStatus,
+              paymentStatus: payload.paymentStatus,
+              deliveredAt: payload.deliveredAt,
+              cancelReason: payload.cancelReason,
+              cancelledBy: payload.cancelledBy,
+              cancelledAt: payload.cancelledAt,
+              updatedAt: payload.updatedAt,
+            }
+          : prev,
+      );
+
+      toast.info("Đơn hàng của bạn vừa được cập nhật trạng thái");
+    };
+
+    socket.on("order:updated", handleOrderUpdated);
+
+    return () => {
+      socket.off("connect", joinRoom);
+      socket.off("order:updated", handleOrderUpdated);
+    };
+  }, [user?._id, user?.id, orderId]);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background-soft">
         <div className="flex flex-col items-center text-muted-foreground">
           <Loader2 className="mb-3 size-9 animate-spin" />
-          <p>Äang táº£i chi tiáº¿t Ä‘Æ¡n hÃ ng...</p>
+          <p>Đang tải chi tiết đơn hàng...</p>
         </div>
       </div>
     );
@@ -128,12 +200,12 @@ const OrderDetail = () => {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
-          Quay láº¡i tÃ i khoáº£n
+          Quay lại tài khoản
         </Link>
 
         <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
           <p className="text-sm text-muted-foreground">
-            KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng.
+            Không tìm thấy đơn hàng.
           </p>
         </div>
       </div>
@@ -143,6 +215,7 @@ const OrderDetail = () => {
   const shippingAddress = order.shippingAddress || {};
   const items = Array.isArray(order.items) ? order.items : [];
   const isCancelled = [ORDER_STATUS.CANCELLED, ORDER_STATUS.RETURNED].includes(order.orderStatus);
+  const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED].includes(order.orderStatus);
 
   return (
     <div>
@@ -153,14 +226,14 @@ const OrderDetail = () => {
             className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="size-4" />
-            Quay láº¡i tÃ i khoáº£n
+            Quay lại tài khoản
           </Link>
 
           <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <div className="mb-1 flex items-center gap-2">
                 <h1 className="text-2xl font-bold text-foreground">
-                  ÄÆ¡n hÃ ng {order.orderCode}
+                  Đơn hàng {order.orderCode}
                 </h1>
 
                 <button
@@ -173,7 +246,7 @@ const OrderDetail = () => {
               </div>
 
               <p className="text-sm text-muted-foreground">
-                Äáº·t ngÃ y {formatDate(order.createdAt)}
+                Đặt ngày {formatDate(order.createdAt)}
               </p>
             </div>
 
@@ -185,7 +258,7 @@ const OrderDetail = () => {
           {!isCancelled && (
             <div className="rounded-2xl border border-border bg-card p-6">
               <h2 className="mb-6 text-sm font-semibold text-foreground">
-                Tiáº¿n trÃ¬nh Ä‘Æ¡n hÃ ng
+                Tiến trình đơn hàng
               </h2>
 
               <div className="hidden items-start justify-between sm:flex relative">
@@ -292,7 +365,7 @@ const OrderDetail = () => {
             <div className="space-y-6 lg:col-span-2">
               <div className="rounded-2xl border border-border bg-card p-6">
                 <h2 className="mb-4 text-sm font-semibold text-foreground">
-                  Sáº£n pháº©m ({items.length})
+                  Sản phẩm ({items.length})
                 </h2>
 
                 <div className="space-y-4">
@@ -309,7 +382,7 @@ const OrderDetail = () => {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          "ðŸ‘Ÿ"
+                          "👟"
                         )}
                       </div>
 
@@ -318,7 +391,7 @@ const OrderDetail = () => {
                           {item.productName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Size: {item.size} | MÃ u: {item.color} | SL:{" "}
+                          Size: {item.size} | Màu: {item.color} | SL:{" "}
                           {item.quantity}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -336,22 +409,22 @@ const OrderDetail = () => {
 
               <div className="rounded-2xl border border-border bg-card p-6">
                 <h2 className="mb-4 text-sm font-semibold text-foreground">
-                  ThÃ´ng tin giao hÃ ng
+                  Thông tin giao hàng
                 </h2>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <InfoItem
-                    label="KhÃ¡ch hÃ ng"
+                    label="Khách hàng"
                     value={shippingAddress.fullName}
                   />
 
                   <InfoItem
-                    label="Sá»‘ Ä‘iá»‡n thoáº¡i"
+                    label="Số điện thoại"
                     value={shippingAddress.phone}
                   />
 
                   <InfoItem
-                    label="Äá»‹a chá»‰"
+                    label="Địa chỉ"
                     value={`${shippingAddress.detailAddress || ""}, ${
                       shippingAddress.ward || ""
                     }, ${shippingAddress.district || ""}, ${
@@ -360,24 +433,24 @@ const OrderDetail = () => {
                   />
 
                   <InfoItem
-                    label="PhÆ°Æ¡ng thá»©c thanh toÃ¡n"
+                    label="Phương thức thanh toán"
                     value={PAYMENT_METHOD_LABELS[order.paymentMethod]}
                   />
 
                   <InfoItem
-                    label="Tráº¡ng thÃ¡i thanh toÃ¡n"
+                    label="Trạng thái thanh toán"
                     value={PAYMENT_STATUS_LABELS[order.paymentStatus]}
                   />
 
                   {order.transactionId && (
                     <InfoItem
-                      label="MÃ£ giao dá»‹ch"
+                      label="Mã giao dịch"
                       value={order.transactionId}
                     />
                   )}
 
                   {order.note && (
-                    <InfoItem label="Ghi chÃº" value={order.note} />
+                    <InfoItem label="Ghi chú" value={order.note} />
                   )}
                 </div>
               </div>
@@ -386,25 +459,25 @@ const OrderDetail = () => {
             <div className="space-y-6">
               <div className="rounded-2xl border border-border bg-card p-6">
                 <h2 className="mb-4 text-sm font-semibold text-foreground">
-                  TÃ³m táº¯t Ä‘Æ¡n hÃ ng
+                  Tóm tắt đơn hàng
                 </h2>
 
                 <div className="space-y-3 text-sm">
                   <SummaryRow
-                    label="Táº¡m tÃ­nh"
+                    label="Tạm tính"
                     value={formatPrice(order.totalPrice)}
                   />
 
                   {order.totalDiscount > 0 && (
                     <SummaryRow
-                      label="Giáº£m sáº£n pháº©m"
+                      label="Giảm sản phẩm"
                       value={`-${formatPrice(order.totalDiscount)}`}
                     />
                   )}
 
                   {order.couponDiscount > 0 && (
                     <SummaryRow
-                      label={`MÃ£ giáº£m giÃ¡ ${
+                      label={`Mã giảm giá ${
                         order.coupon?.code ? `(${order.coupon.code})` : ""
                       }`}
                       value={`-${formatPrice(order.couponDiscount)}`}
@@ -412,10 +485,10 @@ const OrderDetail = () => {
                   )}
 
                   <SummaryRow
-                    label="PhÃ­ váº­n chuyá»ƒn"
+                    label="Phí vận chuyển"
                     value={
                       Number(order.shippingFee) === 0
-                        ? "Miá»…n phÃ­"
+                        ? "Miễn phí"
                         : formatPrice(order.shippingFee)
                     }
                   />
@@ -423,7 +496,7 @@ const OrderDetail = () => {
                   <div className="my-1 h-px bg-border"></div>
 
                   <div className="flex justify-between text-base font-bold text-foreground">
-                    <span>Tá»•ng cá»™ng</span>
+                    <span>Tổng cộng</span>
                     <span>{formatPrice(order.finalPrice)}</span>
                   </div>
                 </div>
@@ -431,17 +504,28 @@ const OrderDetail = () => {
 
               <div className="space-y-3 rounded-2xl border border-border bg-card p-6">
                 <h2 className="mb-1 text-sm font-semibold text-foreground">
-                  Thao tÃ¡c
+                  Thao tác
                 </h2>
 
                 <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-input bg-background px-5 py-2 text-sm font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
                   <RotateCcw className="size-4" />
-                  Äáº·t láº¡i
+                  Đặt lại
                 </button>
+
+                {canCancel && (
+                  <button
+                    onClick={handleCancelOrder}
+                    disabled={isCancelling}
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/5 px-5 py-2 text-sm font-semibold text-destructive transition-all duration-200 hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <XCircle className="size-4" />
+                    {isCancelling ? "Đang hủy..." : "Hủy đơn hàng"}
+                  </button>
+                )}
 
                 <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
                   <MessageCircle className="size-4" />
-                  LiÃªn há»‡ há»— trá»£
+                  Liên hệ hỗ trợ
                 </button>
               </div>
             </div>

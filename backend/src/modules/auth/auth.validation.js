@@ -1,5 +1,6 @@
 const emailRegex = /^\S+@\S+\.\S+$/;
 const otpRegex = /^\d{6}$/;
+const Joi = require("joi");
 
 const createSchema = (validator) => ({
   validate(payload = {}) {
@@ -24,7 +25,9 @@ const createSchema = (validator) => ({
 });
 
 const requireEmail = (email) => {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const normalizedEmail = String(email || "")
+    .trim()
+    .toLowerCase();
 
   if (!normalizedEmail) return { error: "Vui lòng nhập email" };
   if (!emailRegex.test(normalizedEmail)) return { error: "Email không hợp lệ" };

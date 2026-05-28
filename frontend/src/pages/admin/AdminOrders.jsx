@@ -1,4 +1,4 @@
-﻿import {
+import {
   CircleCheck,
   CircleX,
   Clock,
@@ -221,11 +221,18 @@ const AdminOrders = () => {
   }, [keyword]);
 
   useEffect(() => {
+    const joinAdminRoom = () => {
+      socket.emit("join-admin-room");
+    };
+
     if (!socket.connected) {
       socket.connect();
+    } else {
+      joinAdminRoom();
     }
 
-    socket.emit("join-admin-room");
+    // Re-join room mỗi khi socket reconnect thành công
+    socket.on("connect", joinAdminRoom);
 
     const handleAdminOrderUpdated = (payload) => {
       setOrders((prev) =>
@@ -248,6 +255,7 @@ const AdminOrders = () => {
     socket.on("admin:order-updated", handleAdminOrderUpdated);
 
     return () => {
+      socket.off("connect", joinAdminRoom);
       socket.off("admin:order-updated", handleAdminOrderUpdated);
     };
   }, []);

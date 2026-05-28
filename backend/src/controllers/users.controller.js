@@ -9,7 +9,12 @@ class UsersController {
     const result = await usersService.register({ fullName, email, password });
 
     setCookie(res, "accessToken", result.accessToken, 1 * 60 * 60 * 1000);
-    setCookie(res, "refreshToken", result.refreshToken, 30 * 24 * 60 * 60 * 1000);
+    setCookie(
+      res,
+      "refreshToken",
+      result.refreshToken,
+      30 * 24 * 60 * 60 * 1000,
+    );
 
     return new Created({
       message: "Đăng ký thành công",
@@ -26,9 +31,14 @@ class UsersController {
     const result = await usersService.login({ email, password });
 
     setCookie(res, "accessToken", result.accessToken, 1 * 60 * 60 * 1000); // 1 giờ
-    setCookie(res, "refreshToken", result.refreshToken, 30 * 24 * 60 * 60 * 1000); // 30 ngày
+    setCookie(
+      res,
+      "refreshToken",
+      result.refreshToken,
+      30 * 24 * 60 * 60 * 1000,
+    ); // 30 ngày
 
-    return new Created({
+    return new OK({
       message: "Đăng nhập thành công",
       metadata: result.user,
     }).send(res);
@@ -67,6 +77,20 @@ class UsersController {
     }).send(res);
   }
 
+  async updateMe(req, res) {
+    const userId = req.user._id || req.user.id;
+
+    const updatedUser = await usersService.updateMe({
+      userId,
+      body: req.body,
+    });
+
+    return new OK({
+      message: "Cập nhật thông tin cá nhân thành công",
+      metadata: updatedUser,
+    }).send(res);
+  }
+
   async forgotPassword(req, res) {
     const { email } = req.body;
     await usersService.forgotPassword(email);
@@ -101,6 +125,49 @@ class UsersController {
 
     return new OK({
       message: "Đổi mật khẩu thành công",
+    }).send(res);
+  }
+
+  // ===== ADMIN METHODS =====
+
+  async getAllUsers(req, res) {
+    const { page = 1, limit = 10, keyword = "", role = "" } = req.query;
+    const result = await usersService.getAllUsers({ page, limit, keyword, role });
+
+    return new OK({
+      message: "Lấy danh sách người dùng thành công",
+      metadata: result,
+    }).send(res);
+  }
+
+  async getUserById(req, res) {
+    const { userId } = req.params;
+    const user = await usersService.getUserById(userId);
+
+    return new OK({
+      message: "Lấy thông tin người dùng thành công",
+      metadata: user,
+    }).send(res);
+  }
+
+  async updateUserRole(req, res) {
+    const { userId } = req.params;
+    const { role } = req.body;
+    const user = await usersService.updateUserRole({ userId, role });
+
+    return new OK({
+      message: "Cập nhật quyền người dùng thành công",
+      metadata: user,
+    }).send(res);
+  }
+
+  async deleteUser(req, res) {
+    const { userId } = req.params;
+    await usersService.deleteUser(userId);
+
+    return new OK({
+      message: "Xóa người dùng thành công",
+      metadata: true,
     }).send(res);
   }
 }

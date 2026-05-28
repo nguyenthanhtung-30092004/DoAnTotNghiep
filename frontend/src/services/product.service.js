@@ -1,5 +1,9 @@
 import axiosClient from "./axiosClient";
-import { API_PRODUCT } from "../utils/constants/api";
+import {
+  API_PRODUCT,
+  API_PRODUCT_BY_BRAND,
+  API_PRODUCT_BY_CATEGORY,
+} from "../utils/constants/api";
 
 const formDataConfig = {
   headers: {
@@ -9,6 +13,14 @@ const formDataConfig = {
 
 const getAllProducts = (params = {}) => {
   return axiosClient.get(API_PRODUCT, { params });
+};
+
+const getProductByCategory = (categoryId, params = {}) => {
+  return axiosClient.get(API_PRODUCT_BY_CATEGORY(categoryId), { params });
+};
+
+const getProductByBrand = (brandId, params = {}) => {
+  return axiosClient.get(API_PRODUCT_BY_BRAND(brandId), { params });
 };
 
 const getDetailProduct = (id) => {
@@ -33,6 +45,8 @@ const productService = {
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductByCategory,
+  getProductByBrand,
 };
 
 export default productService;

@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import orderService from "../../services/order.service";
+import socket from "../../socket/socket";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -26,23 +27,66 @@ const AdminOrderDetail = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const fetchOrder = async () => {
+    try {
+      setLoading(true);
+      const res = await orderService.getOrderDetail(orderId);
+      const data = getResponseData(res);
+      setOrder(data?.order || data);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Lấy chi tiết đơn hàng thất bại",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        setLoading(true);
-        const res = await orderService.getOrderDetail(orderId);
-        const data = getResponseData(res);
-        setOrder(data?.order || data);
-      } catch (error) {
-        toast.error(
-          error.response?.data?.message || "Lấy chi tiết đơn hàng thất bại",
-        );
-      } finally {
-        setLoading(false);
-      }
+    fetchOrder();
+  }, [orderId]);
+
+  // Socket: lắng nghe cập nhật đơn hàng real-time từ admin khác, re-join khi reconnect
+  useEffect(() => {
+    const joinAdminRoom = () => {
+      socket.emit("join-admin-room");
     };
 
-    fetchOrder();
+    if (!socket.connected) {
+      socket.connect();
+    } else {
+      joinAdminRoom();
+    }
+
+    socket.on("connect", joinAdminRoom);
+
+    const handleAdminOrderUpdated = (payload) => {
+      if (payload.orderId !== orderId) return;
+
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              orderStatus: payload.orderStatus,
+              paymentStatus: payload.paymentStatus,
+              deliveredAt: payload.deliveredAt,
+              cancelReason: payload.cancelReason,
+              cancelledBy: payload.cancelledBy,
+              cancelledAt: payload.cancelledAt,
+              updatedAt: payload.updatedAt,
+            }
+          : prev,
+      );
+
+      toast.info(`Đơn hàng ${payload.orderCode} vừa được cập nhật`);
+    };
+
+    socket.on("admin:order-updated", handleAdminOrderUpdated);
+
+    return () => {
+      socket.off("connect", joinAdminRoom);
+      socket.off("admin:order-updated", handleAdminOrderUpdated);
+    };
   }, [orderId]);
 
   if (loading) {
@@ -90,9 +134,22 @@ const AdminOrderDetail = () => {
               Tạo lúc {formatDate(order.createdAt)}
             </p>
           </div>
-          <div className="text-sm text-slate-600">
-            <p>Trạng thá: {order.orderStatus}</p>
-            <p>Thanh toán: {order.paymentMethod} / {order.paymentStatus}</p>
+          <div className="text-sm text-slate-600 space-y-1">
+            <p>
+              Trạng thái:{" "}
+              <span className="font-semibold text-slate-900">
+                {order.orderStatus}
+              </span>
+            </p>
+            <p>
+              Thanh toán:{" "}
+              <span className="font-semibold text-slate-900">
+                {order.paymentMethod} / {order.paymentStatus}
+              </span>
+            </p>
+            {order.cancelReason && (
+              <p className="text-red-500">Lý do hủy: {order.cancelReason}</p>
+            )}
           </div>
         </div>
       </div>
@@ -123,6 +180,7 @@ const AdminOrderDetail = () => {
                     <p className="text-sm text-slate-500">
                       {item.color} / Size {item.size} / SL {item.quantity}
                     </p>
+                    <p className="text-xs text-slate-400">SKU: {item.sku}</p>
                   </div>
                   <p className="font-semibold">{formatPrice(item.itemTotal)}</p>
                 </div>
@@ -156,7 +214,7 @@ const AdminOrderDetail = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Giảm giá</span>
-                <span>-{formatPrice(order.totalDiscount + order.couponDiscount)}</span>
+                <span>-{formatPrice((order.totalDiscount || 0) + (order.couponDiscount || 0))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Vận chuyển</span>

@@ -21,6 +21,10 @@ const me = () => {
   return axiosClient.get(`${API_AUTH}/me`);
 };
 
+const updateMe = (data) => {
+  return axiosClient.patch(`${API_AUTH}/me`, data);
+};
+
 const register = (data) => {
   return axiosClient.post(API_REGISTER, data);
 };
@@ -45,4 +49,5 @@ export default {
   forgotPassword,
   verifyOtp,
   resetPassword,
+  updateMe,
 };
