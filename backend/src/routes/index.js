@@ -11,7 +11,6 @@ const reviewRoutes = require("../modules/reviews/review.route");
 const uploadRoutes = require("../modules/uploads/upload.route");
 
 function routes(app) {
-  // New module-based API paths
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/categories", categoryRoutes);
@@ -23,23 +22,6 @@ function routes(app) {
   app.use("/api/payments", paymentRoutes);
   app.use("/api/reviews", reviewRoutes);
   app.use("/api/uploads", uploadRoutes);
-
-  // Backward-compatible paths for current frontend
-  app.use("/v1/api/users", authRoutes);
-  app.use("/v1/api/users", userRoutes);
-  app.use("/v1/api/categories", categoryRoutes);
-  app.use("/v1/api/brands", brandRoutes);
-  app.use("/v1/api/products", productRoutes);
-  app.use("/v1/api/cart", cartRoutes);
-  app.use("/v1/api/coupons", couponRoutes);
-  app.use("/v1/api/orders", orderRoutes);
-  app.use("/v1/api/orders", orderRoutes);
-
-  // Payment routes
-  app.use("/v1/api/payments", paymentRoutes);
-
-  app.use("/v1/api/reviews", reviewRoutes);
-  app.use("/v1/api/uploads", uploadRoutes);
 }
 
 module.exports = routes;
