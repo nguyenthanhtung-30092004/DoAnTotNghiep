@@ -207,8 +207,9 @@ class ProductService {
     };
 
     if (search) {
-      filter.$text = {
-        $search: String(search).trim(),
+      filter.name = {
+        $regex: String(search).trim(),
+        $options: "i",
       };
     }
 

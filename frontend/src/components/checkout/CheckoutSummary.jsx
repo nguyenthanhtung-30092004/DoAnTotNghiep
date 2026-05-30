@@ -101,11 +101,7 @@ const CheckoutSummary = ({
                   disabled={applyingCoupon}
                   className="inline-flex h-10 items-center justify-center rounded-xl border px-4 text-sm font-semibold hover:bg-accent disabled:opacity-60"
                 >
-                  {applyingCoupon ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    "Áp dụng"
-                  )}
+                  {applyingCoupon ? <Loader2 className="size-4 animate-spin" /> : "Áp dụng"}
                 </button>
               </div>
             )}
@@ -113,12 +109,8 @@ const CheckoutSummary = ({
 
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">
-                Tạm tính ({totalQuantity})
-              </span>
-              <span className="font-medium tabular-nums">
-                {formatPrice(subtotal)}
-              </span>
+              <span className="text-muted-foreground">Tạm tính ({totalQuantity})</span>
+              <span className="font-medium tabular-nums">{formatPrice(subtotal)}</span>
             </div>
 
             {productDiscount > 0 && (
@@ -151,9 +143,7 @@ const CheckoutSummary = ({
             <div className="mt-2 border-t border-border pt-3">
               <div className="flex justify-between">
                 <span className="font-bold">Tổng cộng</span>
-                <span className="text-lg font-bold tabular-nums">
-                  {formatPrice(finalPrice)}
-                </span>
+                <span className="text-lg font-bold tabular-nums">{formatPrice(finalPrice)}</span>
               </div>
             </div>
 
@@ -166,16 +156,12 @@ const CheckoutSummary = ({
         <div className="space-y-3 rounded-2xl bg-card p-5 shadow-card">
           <div className="flex items-center gap-3">
             <Shield className="size-4 text-primary" />
-            <span className="text-xs text-muted-foreground">
-              Bảo vệ người mua
-            </span>
+            <span className="text-xs text-muted-foreground">Bảo vệ người mua</span>
           </div>
 
           <div className="flex items-center gap-3">
             <RotateCcw className="size-4 text-primary" />
-            <span className="text-xs text-muted-foreground">
-              Đổi trả trong 30 ngày
-            </span>
+            <span className="text-xs text-muted-foreground">Đổi trả trong 30 ngày</span>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   ChevronRight,
   PackageSearch,
@@ -28,7 +28,8 @@ const getResponseData = (res) =>
 ══════════════════════════════════════════════════════════ */
 const Shop = () => {
   const { categorySlug } = useParams();
-
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
   const [products, setProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -64,9 +65,10 @@ const Shop = () => {
     );
   }, [categories, categorySlug]);
 
-  const currentCategoryTitle =
-    currentCategory?.name ||
-    (categorySlug ? "Danh mục sản phẩm" : "Tất cả sản phẩm");
+  const currentCategoryTitle = search
+    ? `Kết quả tìm kiếm cho "${search}"`
+    : currentCategory?.name ||
+      (categorySlug ? "Danh mục sản phẩm" : "Tất cả sản phẩm");
 
   const hasActiveFilter = filters.brand || filters.activePrice;
 
@@ -85,6 +87,7 @@ const Shop = () => {
       if (filters.brand) params.brand = filters.brand;
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (search) params.search = search;
 
       let res;
 
@@ -185,16 +188,16 @@ const Shop = () => {
     filters.sort,
     filters.page,
     currentCategory?._id,
+    search,
   ]);
 
-  /* ── Render ── */
   return (
     <div className="min-h-screen bg-background">
       {/* Page header + breadcrumb */}
-      <div className="bg-white border-b border-border">
+      <div className="bg-background border-b border-border">
         <div className="container py-6">
           {/* Breadcrumb */}
-          <nav className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <nav className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
             <Link to="/" className="hover:text-primary transition-colors">
               Trang chủ
             </Link>
@@ -280,7 +283,7 @@ const Shop = () => {
         <div className="flex gap-8">
           {/* ── Desktop Sidebar ── */}
           <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
-            <div className="sticky top-24 rounded-2xl border border-border bg-white p-5 shadow-soft">
+            <div className="sticky top-24 rounded-2xl border border-border bg-card p-5 shadow-sm">
               <ShopFilterSidebar
                 brands={brands}
                 activeBrand={filters.brand}
@@ -304,9 +307,9 @@ const Shop = () => {
               />
 
               {/* Drawer panel */}
-              <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[88vw] bg-white overflow-y-auto shadow-2xl animate-slide-in-left">
+              <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[88vw] bg-background overflow-y-auto shadow-2xl animate-slide-in-left">
                 {/* Drawer header */}
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-white px-5 py-4">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-5 py-4">
                   <div className="flex items-center gap-2">
                     <SlidersHorizontal className="h-4 w-4 text-primary" />
                     <h2 className="font-bold text-foreground">
@@ -344,11 +347,11 @@ const Shop = () => {
                 </div>
 
                 {/* Apply button */}
-                <div className="sticky bottom-0 border-t border-border bg-white p-4">
+                <div className="sticky bottom-0 border-t border-border bg-background p-4">
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full h-11 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-colors"
+                    className="w-full h-11 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors"
                   >
                     Áp dụng
                   </button>
@@ -385,11 +388,11 @@ const Shop = () => {
               </div>
             ) : products.length === 0 ? (
               /* ── Empty state ── */
-              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-border bg-white text-center px-6 py-16">
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-background">
+              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-border bg-card text-center px-6 py-16">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
                   <PackageSearch className="h-10 w-10 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-bold text-muted-foreground">
+                <h3 className="text-lg font-bold text-foreground">
                   Không tìm thấy sản phẩm
                 </h3>
                 <p className="mt-2 max-w-xs text-sm text-muted-foreground leading-6">

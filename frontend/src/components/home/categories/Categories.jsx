@@ -33,8 +33,7 @@ const getList = (data) => {
 const getCategoryName = (cat) =>
   cat.name || cat.nameCategory || cat.categoryName || cat.title || "Danh mục";
 
-const getCategorySlug = (cat) =>
-  cat.slug || cat.slugCategory || cat._id;
+const getCategorySlug = (cat) => cat.slug || cat.slugCategory || cat._id;
 
 const getCategoryImage = (cat, index) =>
   cat.image?.url ||
@@ -48,7 +47,13 @@ const getCategoryImage = (cat, index) =>
   fallbackImages[index % fallbackImages.length];
 
 const isParentCategory = (cat) =>
-  !(cat.parent || cat.parentId || cat.parentCategory || cat.parentCategoryId || cat.parent?._id);
+  !(
+    cat.parent ||
+    cat.parentId ||
+    cat.parentCategory ||
+    cat.parentCategoryId ||
+    cat.parent?._id
+  );
 
 /* ── Component chính ── */
 const Categories = () => {
@@ -80,15 +85,18 @@ const Categories = () => {
   /* Loading skeleton */
   if (loading) {
     return (
-      <section className="bg-white py-20">
+      <section className="bg-background py-20">
         <div className="container">
           <div className="mb-12 text-center">
-            <div className="mx-auto mb-3 h-3 w-24 rounded-full bg-slate-100" />
-            <div className="mx-auto h-9 w-72 rounded-xl bg-slate-100" />
+            <div className="mx-auto mb-3 h-3 w-24 rounded-full bg-muted" />
+            <div className="mx-auto h-9 w-72 rounded-xl bg-muted" />
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-52 rounded-3xl bg-slate-100 animate-pulse" />
+              <div
+                key={i}
+                className="h-52 rounded-3xl bg-muted animate-pulse"
+              />
             ))}
           </div>
         </div>
@@ -102,24 +110,25 @@ const Categories = () => {
   const [heroCategory, ...restCategories] = parentCategories.slice(0, 7);
 
   return (
-    <section className="bg-white py-16">
+    <section className="bg-background py-20">
       <div className="container">
         {/* Section header */}
-        <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-indigo-500">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-primary">
               Danh mục
             </p>
-            <h2 className="text-3xl font-black text-slate-900 md:text-4xl">
+            <h2 className="text-3xl font-black text-foreground md:text-4xl tracking-tight">
               Khám phá theo phong cách
             </h2>
-            <p className="mt-2 text-sm text-slate-500 max-w-sm">
-              Từ đường nhựa đến địa hình hiểm trở — chọn đúng trang bị cho mỗi chuyến chạy.
+            <p className="mt-3 text-sm text-muted-foreground max-w-sm leading-relaxed">
+              Từ đường nhựa đến địa hình hiểm trở — chọn đúng trang bị cho mỗi
+              chuyến chạy.
             </p>
           </div>
           <Link
             to="/shop"
-            className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+            className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
           >
             Tất cả danh mục
             <ArrowRight className="h-4 w-4" />
@@ -162,7 +171,8 @@ const CategoryTile = ({ category, index, large = false, className = "" }) => {
   const slug = getCategorySlug(category);
   const image = getCategoryImage(category, index);
   const description =
-    category.description || fallbackDescriptions[index % fallbackDescriptions.length];
+    category.description ||
+    fallbackDescriptions[index % fallbackDescriptions.length];
 
   return (
     <Link
@@ -173,12 +183,12 @@ const CategoryTile = ({ category, index, large = false, className = "" }) => {
       <img
         src={image}
         alt={name}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
       />
 
       {/* Overlay gradient — rõ hơn để chữ dễ đọc */}
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
-      <div className="absolute inset-0 bg-slate-900/15 transition-colors duration-500 group-hover:bg-slate-900/5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/20 to-transparent" />
+      <div className="absolute inset-0 bg-zinc-950/10 transition-colors duration-500 group-hover:bg-zinc-950/0" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col justify-end p-5 md:p-6">
@@ -196,8 +206,8 @@ const CategoryTile = ({ category, index, large = false, className = "" }) => {
           </p>
         )}
 
-        <div className="mt-4 inline-flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-white/90 transition-colors group-hover:text-white">
-          <span className="border-b border-indigo-400 pb-0.5">Xem ngay</span>
+        <div className="mt-4 inline-flex w-fit items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/90 transition-colors group-hover:text-primary">
+          <span className="border-b border-primary/50 pb-0.5 group-hover:border-primary">Xem ngay</span>
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
         </div>
       </div>

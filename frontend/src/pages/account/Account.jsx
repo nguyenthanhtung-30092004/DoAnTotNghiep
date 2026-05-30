@@ -30,7 +30,7 @@ const Account = () => {
   const { user } = useSelector((state) => state.auth);
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "profile";
-  
+
   const setActiveTab = (tab) => {
     setSearchParams({ tab });
   };
@@ -62,7 +62,7 @@ const Account = () => {
 
         <div className="flex flex-col md:flex-row gap-8">
           <aside className="w-full md:sticky md:top-24 md:w-64 shrink-0 self-start">
-            <div className="rounded-2xl border border-border bg-card p-2">
+            <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
               {/* User */}
               <div className="flex items-center gap-3 p-3 mb-1">
                 <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -86,7 +86,7 @@ const Account = () => {
                 <button
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors whitespace-normal w-full ${
                     activeTab === "profile"
-                      ? "text-white bg-primary"
+                      ? "text-primary-foreground bg-primary shadow-sm"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                   onClick={() => setActiveTab("profile")}
@@ -99,7 +99,7 @@ const Account = () => {
                   onClick={() => setActiveTab("orders")}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors whitespace-normal w-full ${
                     activeTab === "orders"
-                      ? "text-white bg-primary"
+                      ? "text-primary-foreground bg-primary shadow-sm"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 >
@@ -111,7 +111,7 @@ const Account = () => {
                   onClick={() => setActiveTab("addresses")}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors whitespace-normal w-full ${
                     activeTab === "addresses"
-                      ? "text-white bg-primary"
+                      ? "text-primary-foreground bg-primary shadow-sm"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 >

@@ -25,16 +25,16 @@ const ShopToolbar = ({
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition-all"
+          className="lg:hidden inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all shadow-sm"
         >
           <SlidersHorizontal className="h-4 w-4" />
           Bộ lọc
         </button>
 
-        <p className="text-sm text-slate-500 hidden sm:block">
-          <span className="font-semibold text-slate-800">{showingProduct}</span>
+        <p className="text-sm font-medium text-muted-foreground hidden sm:block">
+          <span className="font-bold text-foreground">{showingProduct}</span>
           {" / "}
-          <span className="font-semibold text-slate-800">{totalProduct}</span>
+          <span className="font-bold text-foreground">{totalProduct}</span>
           {" sản phẩm"}
         </p>
       </div>
@@ -45,9 +45,9 @@ const ShopToolbar = ({
         <select
           value={sort}
           onChange={(e) => onSortChange(e.target.value)}
-          className="h-10 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all appearance-none cursor-pointer"
+          className="h-10 rounded-xl border border-border bg-card px-3 pr-8 text-sm font-semibold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer shadow-sm hover:border-primary/50"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "right 10px center",
           }}
@@ -61,14 +61,14 @@ const ShopToolbar = ({
 
         {/* Grid view toggle — optional */}
         {onGridViewChange && (
-          <div className="hidden sm:flex items-center rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div className="hidden sm:flex items-center rounded-xl border border-border bg-card overflow-hidden shadow-sm">
             <button
               type="button"
               onClick={() => onGridViewChange("grid")}
               className={`flex items-center justify-center h-10 w-10 transition-colors ${
                 gridView === "grid"
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-500 hover:bg-slate-50"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
               aria-label="Dạng lưới"
             >
@@ -79,8 +79,8 @@ const ShopToolbar = ({
               onClick={() => onGridViewChange("list")}
               className={`flex items-center justify-center h-10 w-10 transition-colors ${
                 gridView === "list"
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-500 hover:bg-slate-50"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
               aria-label="Dạng danh sách"
             >

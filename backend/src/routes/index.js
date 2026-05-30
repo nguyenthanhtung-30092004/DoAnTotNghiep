@@ -8,7 +8,6 @@ const couponRoutes = require("../modules/coupons/coupon.route");
 const orderRoutes = require("../modules/orders/order.route");
 const paymentRoutes = require("../modules/payments/payment.route");
 const reviewRoutes = require("../modules/reviews/review.route");
-const uploadRoutes = require("../modules/uploads/upload.route");
 
 function routes(app) {
   app.use("/api/auth", authRoutes);
@@ -21,7 +20,6 @@ function routes(app) {
   app.use("/api/orders", orderRoutes);
   app.use("/api/payments", paymentRoutes);
   app.use("/api/reviews", reviewRoutes);
-  app.use("/api/uploads", uploadRoutes);
 }
 
 module.exports = routes;

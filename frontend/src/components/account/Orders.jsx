@@ -34,7 +34,7 @@ const statusMap = {
   PENDING: {
     label: ORDER_STATUS_LABELS.PENDING,
     icon: Clock,
-    className: "bg-amber-50 text-amber-600",
+    className: "bg-amber-500/10 text-amber-600",
   },
   CONFIRMED: {
     label: ORDER_STATUS_LABELS.CONFIRMED,
@@ -44,27 +44,27 @@ const statusMap = {
   PROCESSING: {
     label: ORDER_STATUS_LABELS.PROCESSING,
     icon: Clock,
-    className: "bg-amber-50 text-amber-600",
+    className: "bg-amber-500/10 text-amber-600",
   },
   SHIPPING: {
     label: ORDER_STATUS_LABELS.SHIPPING,
     icon: Truck,
-    className: "bg-blue-50 text-blue-600",
+    className: "bg-blue-500/10 text-blue-600",
   },
   DELIVERED: {
     label: ORDER_STATUS_LABELS.DELIVERED,
     icon: CircleCheck,
-    className: "bg-green-50 text-green-600",
+    className: "bg-emerald-500/10 text-emerald-600",
   },
   CANCELLED: {
     label: ORDER_STATUS_LABELS.CANCELLED,
     icon: XCircle,
-    className: "bg-red-50 text-red-600",
+    className: "bg-destructive/10 text-destructive",
   },
   RETURNED: {
     label: ORDER_STATUS_LABELS.RETURNED,
     icon: XCircle,
-    className: "bg-red-50 text-red-600",
+    className: "bg-destructive/10 text-destructive",
   },
 };
 

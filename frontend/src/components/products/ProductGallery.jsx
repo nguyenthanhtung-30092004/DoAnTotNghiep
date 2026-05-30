@@ -10,7 +10,7 @@ const ProductGallery = ({
 }) => {
   return (
     <div className="lg:sticky lg:top-24 self-start">
-      <div className="relative rounded-3xl border bg-white overflow-hidden">
+      <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
         <div className="flex items-center justify-center h-[450px]">
           <img
             src={selectedImage || "/placeholder-product.png"}
@@ -24,7 +24,7 @@ const ProductGallery = ({
             <button
               type="button"
               onClick={handlePrevImage}
-              className="absolute left-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow hover:bg-green-600 hover:text-white"
+              className="absolute left-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground transition-colors"
               aria-label="Ảnh trước"
             >
               <ChevronLeft className="size-5" />
@@ -33,7 +33,7 @@ const ProductGallery = ({
             <button
               type="button"
               onClick={handleNextImage}
-              className="absolute right-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow hover:bg-green-600 hover:text-white"
+              className="absolute right-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground transition-colors"
               aria-label="Ảnh tiếp theo"
             >
               <ChevronRightIcon className="size-5" />
@@ -49,10 +49,10 @@ const ProductGallery = ({
               key={`${image}-${index}`}
               type="button"
               onClick={() => setSelectedImage(image)}
-              className={`aspect-square rounded-2xl border overflow-hidden bg-gray-50 transition ${
+              className={`aspect-square rounded-xl border overflow-hidden bg-card transition-all ${
                 selectedImage === image
-                  ? "border-green-500 ring-2 ring-green-100"
-                  : "border-gray-200 hover:border-gray-400"
+                  ? "border-primary ring-2 ring-primary/20 shadow-sm"
+                  : "border-border hover:border-primary/50 opacity-80 hover:opacity-100"
               }`}
             >
               <img

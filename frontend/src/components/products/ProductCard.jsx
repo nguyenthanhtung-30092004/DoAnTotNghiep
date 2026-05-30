@@ -17,9 +17,7 @@ const getBrandName = (brand) => {
 };
 
 const getProductImage = (product) =>
-  product?.thumbnail?.url ||
-  product?.variants?.[0]?.images?.[0]?.url ||
-  "";
+  product?.thumbnail?.url || product?.variants?.[0]?.images?.[0]?.url || "";
 
 const getSalePrice = (product) => {
   const firstSize = product?.variants?.[0]?.sizes?.[0];
@@ -57,107 +55,109 @@ const ProductCard = ({ product }) => {
   return (
     <Link
       to={`/product/${product.slug || product._id}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover hover:border-slate-200"
+      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card transition-all duration-300 hover:-translate-y-1"
     >
       {/* ── Image ── */}
-      <div className="relative aspect-square overflow-hidden bg-slate-50">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-secondary/30 flex items-center justify-center p-6 sm:p-8">
         {image ? (
           <img
             src={image}
             alt={product.name}
-            className="h-full w-full object-contain p-3 transition-transform duration-500 ease-out group-hover:scale-105"
+            className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-110 mix-blend-multiply"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <ShoppingBag className="h-10 w-10 text-slate-200" />
+            <ShoppingBag className="h-10 w-10 text-zinc-300" />
           </div>
         )}
 
         {/* Badges top-left */}
-        <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5">
+        <div className="absolute left-3 top-3 flex flex-col gap-1.5 z-10">
           {isDraft && (
-            <span className="rounded-lg bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded bg-zinc-900 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
               Nháp
             </span>
           )}
           {isOnSale && discountPct > 0 && (
-            <span className="rounded-lg bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded bg-destructive px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive-foreground">
               -{discountPct}%
             </span>
           )}
           {!isOnSale && !isDraft && (
-            <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 px-2 py-0.5 text-[10px] font-bold text-slate-700 shadow-sm backdrop-blur">
-              <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+            <span className="rounded bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-900">
               Mới
             </span>
           )}
         </div>
 
         {/* Hover CTA overlay */}
-        <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-center bg-slate-900/85 py-3 transition-transform duration-300 group-hover:translate-y-0">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-white">
-            Xem chi tiết →
+        <div className="absolute inset-x-0 bottom-4 flex justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10">
+          <span className="rounded-full bg-zinc-900/95 backdrop-blur px-5 py-2.5 text-xs font-semibold tracking-wide text-white shadow-lg">
+            Xem chi tiết
           </span>
         </div>
       </div>
 
       {/* ── Info ── */}
-      <div className="flex flex-1 flex-col p-3.5">
+      <div className="flex flex-1 flex-col pt-4 pb-2">
         {/* Brand */}
         {brandName && (
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
             {brandName}
           </p>
         )}
 
         {/* Name */}
-        <h3 className="flex-1 text-sm font-semibold leading-snug text-slate-800 line-clamp-2 min-h-[40px]">
+        <h3 className="text-[15px] font-semibold leading-relaxed text-foreground line-clamp-2">
           {product.name}
         </h3>
 
+        {/* Price & Rating Row */}
+        <div className="mt-2.5 flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className={`text-base font-bold tracking-tight ${isOnSale ? "text-destructive" : "text-foreground"}`}>
+                {formatPrice(price)}
+              </span>
+              {originalPrice && (
+                <span className="text-[13px] text-muted-foreground line-through">
+                  {formatPrice(originalPrice)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {(product.rating > 0 || product.reviewCount > 0) && (
+            <div className="flex items-center gap-1 mb-0.5 shrink-0">
+              <Star className="h-3.5 w-3.5 fill-zinc-900 text-zinc-900" />
+              <span className="text-[13px] font-semibold text-foreground">
+                {product.rating?.toFixed(1) || "5.0"}
+              </span>
+              <span className="text-[13px] text-muted-foreground">
+                ({product.reviewCount || 0})
+              </span>
+            </div>
+          )}
+        </div>
+
         {/* Color swatches */}
         {variants.length > 0 && (
-          <div className="mt-2 flex items-center gap-1.5">
-            {variants.slice(0, 6).map((v, i) => (
+          <div className="mt-3.5 flex items-center gap-1.5">
+            {variants.slice(0, 5).map((v, i) => (
               <span
                 key={v._id || i}
                 title={v.color}
-                className="h-3.5 w-3.5 rounded-full border border-slate-200 shadow-sm"
+                className="h-3.5 w-3.5 rounded-full border border-border shadow-sm"
                 style={{ backgroundColor: v.colorCode || "#e2e8f0" }}
               />
             ))}
-            {variants.length > 6 && (
-              <span className="text-[10px] font-semibold text-slate-400">
-                +{variants.length - 6}
+            {variants.length > 5 && (
+              <span className="text-xs font-medium text-muted-foreground ml-1">
+                +{variants.length - 5} màu
               </span>
             )}
           </div>
         )}
-
-        {/* Rating row */}
-        {(product.rating > 0 || product.reviewCount > 0) && (
-          <div className="mt-2 flex items-center gap-1">
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-            <span className="text-xs font-semibold text-slate-700">
-              {product.rating?.toFixed(1) || "5.0"}
-            </span>
-            <span className="text-xs text-slate-400">
-              ({product.reviewCount || 0})
-            </span>
-          </div>
-        )}
-
-        {/* Price */}
-        <div className="mt-2.5 flex items-center gap-2">
-          <span className={`text-base font-black ${isOnSale ? "text-red-500" : "text-indigo-600"}`}>
-            {formatPrice(price)}
-          </span>
-          {originalPrice && (
-            <span className="text-xs text-slate-400 line-through">
-              {formatPrice(originalPrice)}
-            </span>
-          )}
-        </div>
       </div>
     </Link>
   );

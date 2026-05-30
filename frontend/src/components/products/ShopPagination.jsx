@@ -28,14 +28,14 @@ const ShopPagination = ({ page, totalPages, onPageChange }) => {
   return (
     <nav
       aria-label="Phân trang"
-      className="flex items-center justify-center gap-1.5 mt-12 pt-8 border-t border-slate-100"
+      className="flex items-center justify-center gap-1.5 mt-12 pt-8 border-t border-border"
     >
       {/* Previous */}
       <button
         type="button"
         disabled={page === 1}
         onClick={() => onPageChange(page - 1)}
-        className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition-all hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-40"
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary disabled:pointer-events-none disabled:opacity-40"
         aria-label="Trang trước"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -46,7 +46,7 @@ const ShopPagination = ({ page, totalPages, onPageChange }) => {
         p === "..." ? (
           <span
             key={`ellipsis-${i}`}
-            className="flex h-9 w-9 items-center justify-center text-sm text-slate-400"
+            className="flex h-9 w-9 items-center justify-center text-sm font-medium text-muted-foreground"
           >
             …
           </span>
@@ -58,8 +58,8 @@ const ShopPagination = ({ page, totalPages, onPageChange }) => {
             aria-current={p === page ? "page" : undefined}
             className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-semibold transition-all ${
               p === page
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                : "border border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
+                ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/20"
+                : "border border-border text-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
             }`}
           >
             {p}
@@ -72,14 +72,14 @@ const ShopPagination = ({ page, totalPages, onPageChange }) => {
         type="button"
         disabled={page === totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition-all hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 disabled:pointer-events-none disabled:opacity-40"
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary disabled:pointer-events-none disabled:opacity-40"
         aria-label="Trang sau"
       >
         <ChevronRight className="h-4 w-4" />
       </button>
 
       {/* Page info */}
-      <span className="ml-3 text-xs text-slate-400 hidden sm:block">
+      <span className="ml-3 text-xs font-medium text-muted-foreground hidden sm:block">
         Trang {page} / {totalPages}
       </span>
     </nav>

@@ -485,9 +485,9 @@ const ProductDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center text-gray-500">
-          <Loader2 className="h-9 w-9 animate-spin mb-3" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center text-muted-foreground">
+          <Loader2 className="h-9 w-9 animate-spin mb-3 text-primary" />
           <p>Đang tải chi tiết sản phẩm...</p>
         </div>
       </div>
@@ -496,15 +496,15 @@ const ProductDetail = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-foreground">
             Không tìm thấy sản phẩm
           </h2>
 
           <Link
             to="/shop"
-            className="inline-block mt-4 text-green-600 font-semibold hover:underline"
+            className="inline-block mt-4 text-primary font-semibold hover:underline"
           >
             Quay lại cửa hàng
           </Link>
@@ -514,31 +514,31 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 lg:pb-0">
+    <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <main>
         <section>
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <nav className="flex items-center gap-1 text-sm text-gray-500">
-              <Link to="/" className="hover:text-black transition-colors">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <nav className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <Link to="/" className="hover:text-primary transition-colors">
                 Trang chủ
               </Link>
 
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3 w-3" />
 
-              <Link to="/shop" className="hover:text-black transition-colors">
+              <Link to="/shop" className="hover:text-primary transition-colors">
                 Cửa hàng
               </Link>
 
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3 w-3" />
 
-              <span className="text-black font-medium line-clamp-1">
+              <span className="text-foreground capitalize line-clamp-1">
                 {product.name}
               </span>
             </nav>
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 py-1">
+        <section className="max-w-7xl mx-auto px-4 pb-12 pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             <ProductGallery
               activeImages={activeImages}
@@ -550,86 +550,86 @@ const ProductDetail = () => {
             />
 
             <div>
-              <div className="mb-5">
-                <p className="text-sm font-semibold uppercase tracking-wider text-green-600">
+              <div className="mb-6">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-2">
                   {getBrandName(product.brand)}
                 </p>
 
-                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mt-2 leading-tight">
+                <h1 className="text-3xl lg:text-4xl font-black text-foreground mt-2 leading-[1.1] tracking-tight">
                   {product.name}
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
                   <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold text-gray-900">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <span className="font-bold text-foreground">
                       {ratingAverage > 0 ? ratingAverage.toFixed(1) : "0.0"}
                     </span>
-                    <span className="text-gray-500">
+                    <span className="text-muted-foreground">
                       ({ratingCount} đánh giá)
                     </span>
                   </div>
 
-                  <span className="h-1 w-1 rounded-full bg-gray-300" />
+                  <span className="h-1 w-1 rounded-full bg-border" />
 
-                  <span className="text-gray-500">
+                  <span className="text-muted-foreground">
                     Danh mục:{" "}
-                    <span className="font-medium text-gray-800">
+                    <span className="font-semibold text-foreground">
                       {getCategoryName(product.category)}
                     </span>
                   </span>
                 </div>
               </div>
 
-              <div className="rounded-3xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex items-end gap-3">
-                  <p className="text-3xl font-bold text-red-500">
+                  <p className="text-3xl font-black text-foreground tracking-tight">
                     {formatPrice(displayPrice)}
                   </p>
 
                   {originalPrice && (
-                    <p className="text-lg text-gray-400 line-through mb-1">
+                    <p className="text-lg text-muted-foreground line-through mb-1 font-medium">
                       {formatPrice(originalPrice)}
                     </p>
                   )}
                 </div>
 
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   Tồn kho:{" "}
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-foreground">
                     {totalStock}
                   </span>
                 </p>
 
-                <div className="mt-6">
+                <div className="mt-8">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900">Màu sắc</h3>
+                    <h3 className="font-bold text-foreground">Màu sắc</h3>
 
                     <button
                       type="button"
                       onClick={() => setSizeChartOpen(true)}
                     >
-                      <span className="text-sm underline font-bold text-green-500">
+                      <span className="text-[11px] uppercase tracking-wider underline font-bold text-primary hover:text-primary/80 transition-colors">
                         Size chart
                       </span>
                     </button>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 mt-3">
+                  <div className="flex flex-wrap gap-2.5 mt-4">
                     {variants.map((variant, index) => (
                       <button
                         key={variant._id || index}
                         type="button"
                         onMouseEnter={() => handlePreviewVariant(index)}
                         onClick={() => handleChangeVariant(index)}
-                        className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition ${
+                        className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                           selectedVariantIndex === index
-                            ? "border-green-500 bg-green-50 text-green-700"
-                            : "border-gray-200 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                            ? "border-primary bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
+                            : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
                         }`}
                       >
                         <span
-                          className="h-5 w-5 rounded-full border border-gray-300"
+                          className="h-4 w-4 rounded-full border border-border shadow-sm"
                           style={{
                             backgroundColor: variant.colorCode || "#d1d5db",
                           }}
@@ -640,10 +640,10 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900">Size</h3>
+                <div className="mt-8">
+                  <h3 className="font-bold text-foreground">Kích cỡ</h3>
 
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mt-3">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2.5 mt-4">
                     {selectedVariant?.sizes?.map((item) => {
                       const isOutOfStock = Number(item.stock || 0) <= 0;
 
@@ -656,13 +656,13 @@ const ProductDetail = () => {
                             setSelectedSizeId(item._id);
                             setQuantity(1);
                           }}
-                          className={`h-11 rounded-xl border text-sm font-semibold transition ${
+                          className={`h-12 rounded-xl border text-sm font-semibold transition-all ${
                             selectedSizeId === item._id
-                              ? "border-green-500 bg-green-500 text-white"
-                              : "border-gray-200 bg-white text-gray-800 hover:border-green-500"
+                              ? "border-primary bg-primary text-primary-foreground shadow-md"
+                              : "border-border bg-background text-foreground hover:border-primary hover:text-primary"
                           } ${
                             isOutOfStock
-                              ? "opacity-40 cursor-not-allowed line-through"
+                              ? "opacity-40 cursor-not-allowed line-through hover:border-border hover:text-foreground"
                               : ""
                           }`}
                         >
@@ -673,27 +673,27 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900">Số lượng</h3>
+                <div className="mt-8">
+                  <h3 className="font-bold text-foreground">Số lượng</h3>
 
-                  <div className="mt-3 flex items-center gap-3">
-                    <div className="h-11 inline-flex items-center rounded-xl border overflow-hidden">
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="h-12 inline-flex items-center rounded-xl border border-border bg-card overflow-hidden">
                       <button
                         type="button"
                         onClick={handleDecreaseQuantity}
-                        className="h-full w-11 flex items-center justify-center hover:bg-gray-50"
+                        className="h-full w-12 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
                       >
                         <Minus className="h-4 w-4" />
                       </button>
 
-                      <span className="w-12 text-center font-semibold">
+                      <span className="w-12 text-center font-semibold text-foreground">
                         {quantity}
                       </span>
 
                       <button
                         type="button"
                         onClick={handleIncreaseQuantity}
-                        className="h-full w-11 flex items-center justify-center hover:bg-gray-50"
+                        className="h-full w-12 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
@@ -703,7 +703,7 @@ const ProductDetail = () => {
                       type="button"
                       onClick={handleAddToCart}
                       disabled={addingToCart}
-                      className="h-11 px-4 rounded-xl bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold flex items-center gap-2"
+                      className="h-12 px-6 rounded-xl bg-primary disabled:opacity-60 disabled:cursor-not-allowed text-primary-foreground font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm"
                     >
                       {addingToCart ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -715,7 +715,7 @@ const ProductDetail = () => {
 
                     <button
                       type="button"
-                      className="h-11 w-11 rounded-xl border flex items-center justify-center hover:bg-gray-50"
+                      className="h-12 w-12 rounded-xl border border-border bg-card flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
                     >
                       <Heart className="h-5 w-5" />
                     </button>
@@ -726,41 +726,41 @@ const ProductDetail = () => {
           </div>
         </section>
 
-        <section className="bg-white">
+        <section className="bg-background">
           <div className="max-w-7xl mx-auto px-4 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <ProductDescription description={product.description} />
 
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-foreground tracking-tight">
                   Thông tin nhanh
                 </h2>
 
-                <div className="mt-4 rounded-3xl border bg-gray-50 p-6 space-y-4">
+                <div className="mt-6 rounded-2xl border border-border bg-card p-6 space-y-5">
                   <div>
-                    <p className="text-sm text-gray-500">Thương hiệu</p>
-                    <p className="font-semibold text-gray-900">
+                    <p className="text-sm text-muted-foreground mb-1">Thương hiệu</p>
+                    <p className="font-semibold text-foreground">
                       {getBrandName(product.brand)}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-500">Danh mục</p>
-                    <p className="font-semibold text-gray-900">
+                    <p className="text-sm text-muted-foreground mb-1">Danh mục</p>
+                    <p className="font-semibold text-foreground">
                       {getCategoryName(product.category)}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-500">Số biến thể</p>
-                    <p className="font-semibold text-gray-900">
+                    <p className="text-sm text-muted-foreground mb-1">Số biến thể</p>
+                    <p className="font-semibold text-foreground">
                       {variants.length} màu / phiên bản
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-500">Trạng thái</p>
-                    <p className="font-semibold text-gray-900">
+                    <p className="text-sm text-muted-foreground mb-1">Trạng thái</p>
+                    <p className="font-semibold text-foreground">
                       {product.isPublished ? "Đang bán" : "Tạm ẩn"}
                     </p>
                   </div>
@@ -768,29 +768,29 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <div className="mt-12 rounded-3xl border bg-gray-50 p-6 lg:p-8">
+            <div className="mt-12 rounded-3xl border border-border bg-card p-6 lg:p-8">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold text-foreground tracking-tight">
                     Đánh giá sản phẩm
                   </h2>
 
-                  <p className="text-gray-500 mt-2">
+                  <p className="text-muted-foreground mt-2">
                     Xem nhận xét thật từ khách hàng đã mua sản phẩm.
                   </p>
 
-                  <div className="mt-5 flex items-center gap-3">
+                  <div className="mt-6 flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      <Star className="h-7 w-7 fill-yellow-400 text-yellow-400" />
-                      <span className="text-4xl font-bold text-gray-900">
+                      <Star className="h-8 w-8 fill-amber-400 text-amber-400" />
+                      <span className="text-5xl font-black text-foreground tracking-tight">
                         {ratingAverage > 0 ? ratingAverage.toFixed(1) : "0.0"}
                       </span>
                     </div>
 
                     <div>
                       <RatingStars value={Math.round(ratingAverage)} />
-                      <p className="text-sm text-gray-500 mt-1">
-                        {ratingCount} đánh giá
+                      <p className="text-sm font-medium text-muted-foreground mt-1">
+                        Dựa trên {ratingCount} đánh giá
                       </p>
                     </div>
                   </div>
@@ -798,21 +798,21 @@ const ProductDetail = () => {
 
                 <form
                   onSubmit={handleCreateReview}
-                  className="w-full lg:max-w-md rounded-2xl bg-white border p-5"
+                  className="w-full lg:max-w-md rounded-2xl bg-card border border-border p-6 shadow-sm"
                 >
-                  <h3 className="font-bold text-gray-900 mb-4">
+                  <h3 className="font-bold text-foreground mb-4">
                     Viết đánh giá của bạn
                   </h3>
 
                   {!user && (
-                    <div className="mb-4 rounded-xl bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-700">
+                    <div className="mb-4 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-sm text-amber-600 font-medium">
                       Bạn cần đăng nhập để gửi đánh giá.
                     </div>
                   )}
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-semibold text-foreground mb-2">
                         Số sao
                       </label>
 
@@ -823,13 +823,13 @@ const ProductDetail = () => {
                       />
                     </div>
 
-                    <div className="rounded-xl bg-green-50 border border-green-100 px-4 py-3 text-sm text-green-700">
+                    <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 text-sm text-primary font-medium">
                       Bạn chỉ có thể đánh giá sản phẩm đã mua và đơn hàng đã
                       giao.
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-semibold text-foreground mb-2">
                         Nội dung đánh giá
                       </label>
 
@@ -839,14 +839,14 @@ const ProductDetail = () => {
                         placeholder="Sản phẩm có tốt không? Size có vừa không?"
                         rows={4}
                         maxLength={1000}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none resize-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                        className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none resize-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={submittingReview || !user}
-                      className="w-full h-11 rounded-xl bg-green-600 text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-green-700"
+                      className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
                     >
                       {submittingReview ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -860,53 +860,53 @@ const ProductDetail = () => {
                 </form>
               </div>
 
-              <div className="mt-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-900">
+              <div className="mt-10">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-bold text-foreground">
                     Bình luận mới nhất
                   </h3>
 
                   {reviewPagination && (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm font-medium text-muted-foreground">
                       {reviewPagination.totalReview || 0} đánh giá
                     </span>
                   )}
                 </div>
 
                 {loadingReviews ? (
-                  <div className="flex items-center justify-center py-10 text-gray-500">
-                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                  <div className="flex items-center justify-center py-10 text-muted-foreground">
+                    <Loader2 className="h-6 w-6 animate-spin mr-2 text-primary" />
                     Đang tải đánh giá...
                   </div>
                 ) : reviews.length === 0 ? (
-                  <div className="rounded-2xl bg-white border p-8 text-center text-gray-500">
+                  <div className="rounded-2xl bg-background border border-border p-8 text-center text-muted-foreground">
                     Sản phẩm chưa có đánh giá nào.
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {reviews.map((review) => (
                       <div
                         key={review._id}
-                        className="rounded-2xl bg-white border p-5"
+                        className="rounded-2xl bg-background border border-border p-6 shadow-sm"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                           <div>
-                            <p className="font-bold text-gray-900">
+                            <p className="font-bold text-foreground">
                               {review.user?.name ||
                                 review.user?.email ||
                                 "Khách hàng"}
                             </p>
 
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-1.5">
                               <RatingStars value={review.rating} />
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs font-medium text-muted-foreground">
                                 {formatDate(review.createdAt)}
                               </span>
                             </div>
                           </div>
                         </div>
 
-                        <p className="text-sm text-gray-700 mt-3 leading-6">
+                        <p className="text-sm text-foreground mt-4 leading-relaxed">
                           {review.content ||
                             "Khách hàng không để lại nội dung."}
                         </p>
@@ -920,11 +920,11 @@ const ProductDetail = () => {
         </section>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur lg:hidden">
         <div className="px-4 py-3 flex items-center gap-3">
           <div className="flex-1">
-            <p className="text-xs text-gray-500 line-clamp-1">{product.name}</p>
-            <p className="font-bold text-red-500">
+            <p className="text-xs font-medium text-muted-foreground line-clamp-1">{product.name}</p>
+            <p className="font-black text-foreground tracking-tight">
               {formatPrice(displayPrice)}
             </p>
           </div>
@@ -932,7 +932,7 @@ const ProductDetail = () => {
           <button
             type="button"
             onClick={handleAddToCart}
-            className="h-11 px-4 rounded-xl bg-green-600 text-white font-semibold flex items-center gap-2"
+            className="h-11 px-5 rounded-full bg-primary text-primary-foreground font-semibold flex items-center gap-2 shadow-sm hover:bg-primary/90 transition-colors"
           >
             <ShoppingCart className="h-4 w-4" />
             Thêm

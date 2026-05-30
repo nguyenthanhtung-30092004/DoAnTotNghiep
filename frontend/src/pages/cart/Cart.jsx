@@ -107,9 +107,7 @@ const Cart = () => {
       localStorage.removeItem("appliedCoupon");
     } catch (error) {
       console.log(error);
-      toast.error(
-        error.response?.data?.message || "Cập nhật số lượng thất bại",
-      );
+      toast.error(error.response?.data?.message || "Cập nhật số lượng thất bại");
     } finally {
       setUpdatingItemId("");
     }
@@ -250,9 +248,7 @@ const Cart = () => {
                             {item.productName || item.product?.name}
                           </Link>
 
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Size: {item.size}
-                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Size: {item.size}</p>
 
                           {!item.isAvailable && (
                             <p className="text-xs text-red-500 font-medium mt-1">
@@ -267,9 +263,7 @@ const Cart = () => {
                           <button
                             type="button"
                             disabled={isUpdating || item.quantity <= 1}
-                            onClick={() =>
-                              handleUpdateQuantity(item, item.quantity - 1)
-                            }
+                            onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                             className="size-7 flex items-center justify-center hover:bg-muted rounded-l-xl transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Minus className="size-4" />
@@ -286,13 +280,9 @@ const Cart = () => {
                           <button
                             type="button"
                             disabled={
-                              isUpdating ||
-                              (item.maxQuantity &&
-                                item.quantity >= item.maxQuantity)
+                              isUpdating || (item.maxQuantity && item.quantity >= item.maxQuantity)
                             }
-                            onClick={() =>
-                              handleUpdateQuantity(item, item.quantity + 1)
-                            }
+                            onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                             className="size-7 flex items-center justify-center hover:bg-muted rounded-r-xl transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Plus className="size-4" />
@@ -308,10 +298,7 @@ const Cart = () => {
                         {Number(item.salePrice || 0) > 0 &&
                           Number(item.salePrice) < Number(item.price) && (
                             <p className="text-xs text-muted-foreground line-through">
-                              {formatPrice(
-                                Number(item.price || 0) *
-                                  Number(item.quantity || 0),
-                              )}
+                              {formatPrice(Number(item.price || 0) * Number(item.quantity || 0))}
                             </p>
                           )}
                       </div>
@@ -351,16 +338,12 @@ const Cart = () => {
                     <span className="text-muted-foreground">
                       Tạm tính ({totalQuantity} sản phẩm)
                     </span>
-                    <span className="font-medium tabular-nums">
-                      {formatPrice(subtotal)}
-                    </span>
+                    <span className="font-medium tabular-nums">{formatPrice(subtotal)}</span>
                   </div>
 
                   {productDiscount > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Giảm giá sản phẩm
-                      </span>
+                      <span className="text-muted-foreground">Giảm giá sản phẩm</span>
                       <span className="font-medium text-red-500 tabular-nums">
                         -{formatPrice(productDiscount)}
                       </span>
@@ -368,22 +351,16 @@ const Cart = () => {
                   )}
 
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Phí vận chuyển
-                    </span>
+                    <span className="text-muted-foreground">Phí vận chuyển</span>
                     <span className="font-medium text-primary">
-                      {shippingFee === 0
-                        ? "Miễn phí"
-                        : formatPrice(shippingFee)}
+                      {shippingFee === 0 ? "Miễn phí" : formatPrice(shippingFee)}
                     </span>
                   </div>
 
                   <div className="border-t border-border pt-3 mt-3">
                     <div className="flex justify-between font-bold">
                       <span>Tổng cộng</span>
-                      <span className="tabular-nums">
-                        {formatPrice(finalPrice)}
-                      </span>
+                      <span className="tabular-nums">{formatPrice(finalPrice)}</span>
                     </div>
                   </div>
                 </div>

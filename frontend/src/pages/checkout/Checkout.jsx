@@ -1,4 +1,4 @@
-﻿import {
+import {
   Banknote,
   Check,
   ChevronRight,
@@ -23,10 +23,7 @@ import couponService from "../../services/coupon.service";
 import addressService from "../../services/address.service";
 import CheckoutAddress from "../../components/checkout/CheckoutAddress";
 import CheckoutSummary from "../../components/checkout/CheckoutSummary";
-import {
-  PAYMENT_METHOD_LABELS,
-  PAYMENT_METHODS,
-} from "../../constants/payment.constants";
+import { PAYMENT_METHOD_LABELS, PAYMENT_METHODS } from "../../constants/payment.constants";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -415,13 +412,9 @@ const Checkout = () => {
             <ShoppingCart className="size-9 text-primary" />
           </div>
 
-          <h1 className="text-2xl font-bold">
-            Không có sản phẩm để thanh toán
-          </h1>
+          <h1 className="text-2xl font-bold">Không có sản phẩm để thanh toán</h1>
 
-          <p className="mt-2 text-muted-foreground">
-            Vui lòng thêm sản phẩm vào giỏ hàng trước.
-          </p>
+          <p className="mt-2 text-muted-foreground">Vui lòng thêm sản phẩm vào giỏ hàng trước.</p>
 
           <Link
             to="/cart"
@@ -461,9 +454,7 @@ const Checkout = () => {
               {status > 1 ? <Check className="size-4" /> : 1}
             </div>
 
-            <span className="hidden text-sm font-medium text-foreground sm:block">
-              Giao hàng
-            </span>
+            <span className="hidden text-sm font-medium text-foreground sm:block">Giao hàng</span>
           </div>
 
           <div
@@ -580,9 +571,7 @@ const Checkout = () => {
 
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold">
-                            {method.title}
-                          </p>
+                          <p className="text-sm font-semibold">{method.title}</p>
 
                           {method.disabled && (
                             <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
@@ -591,9 +580,7 @@ const Checkout = () => {
                           )}
                         </div>
 
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {method.description}
-                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{method.description}</p>
                       </div>
 
                       <div
@@ -601,9 +588,7 @@ const Checkout = () => {
                           isSelected ? "border-primary" : "border-border"
                         }`}
                       >
-                        {isSelected && (
-                          <div className="size-2.5 rounded-full bg-primary" />
-                        )}
+                        {isSelected && <div className="size-2.5 rounded-full bg-primary" />}
                       </div>
                     </button>
                   );
@@ -638,12 +623,8 @@ const Checkout = () => {
                     <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Giao tới
                     </p>
-                    <p className="text-sm font-medium">
-                      {shippingAddress.fullName}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {shippingAddress.phone}
-                    </p>
+                    <p className="text-sm font-medium">{shippingAddress.fullName}</p>
+                    <p className="text-sm text-muted-foreground">{shippingAddress.phone}</p>
                     <p className="text-sm text-muted-foreground">
                       {shippingAddress.detailAddress}, {shippingAddress.ward},{" "}
                       {shippingAddress.district}, {shippingAddress.province}
@@ -664,9 +645,7 @@ const Checkout = () => {
                     <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Thanh toán
                     </p>
-                    <p className="text-sm font-medium">
-                      {PAYMENT_METHOD_LABELS[paymentMethod]}
-                    </p>
+                    <p className="text-sm font-medium">{PAYMENT_METHOD_LABELS[paymentMethod]}</p>
                   </div>
 
                   <button
@@ -732,9 +711,7 @@ const Checkout = () => {
                 ) : (
                   <LockKeyhole className="size-5" />
                 )}
-                {paymentMethod === PAYMENT_METHODS.COD
-                  ? "Đặt hàng COD"
-                  : "Thanh toán VNPAY"}
+                {paymentMethod === PAYMENT_METHODS.COD ? "Đặt hàng COD" : "Thanh toán VNPAY"}
               </button>
             </div>
           ) : null}

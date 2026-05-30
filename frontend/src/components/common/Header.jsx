@@ -8,7 +8,13 @@ import { Dropdown } from "antd";
 import { toast } from "react-toastify";
 import authService from "../../services/auth.service";
 import categoryService from "../../services/category.service";
-import { LogoutOutlined, SettingOutlined, DashboardOutlined, UserOutlined } from "@ant-design/icons";
+import productService from "../../services/product.service";
+import {
+  LogoutOutlined,
+  SettingOutlined,
+  DashboardOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 
 const getResponseData = (res) => {
   return res?.data?.metadata || res?.data?.data || res?.data || [];
@@ -23,8 +29,7 @@ const getParentId = (category) => {
 
   if (typeof category.parent === "string") return category.parent;
   if (typeof category.parentId === "string") return category.parentId;
-  if (typeof category.parentCategory === "string")
-    return category.parentCategory;
+  if (typeof category.parentCategory === "string") return category.parentCategory;
 
   if (category.parent?._id) return category.parent._id;
   if (category.parent?.id) return category.parent.id;
@@ -85,10 +90,13 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categoryTree, setCategoryTree] = useState([]);
 
   const searchRef = useRef(null);
+  const searchContainerRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -106,7 +114,7 @@ const Header = () => {
       { label: "Giới thiệu", to: "#" },
       { label: "Liên hệ", to: "#" },
     ],
-    [categoryTree],
+    [categoryTree]
   );
 
   useEffect(() => {
@@ -130,8 +138,7 @@ const Header = () => {
           const subs = children.filter((child) => {
             const cParent =
               typeof child.parentId === "object"
-                ? child.parentId?._id?.toString?.() ||
-                  child.parentId?.toString?.()
+                ? child.parentId?._id?.toString?.() || child.parentId?.toString?.()
                 : child.parentId?.toString?.();
             return cParent === parentId;
           });
@@ -173,8 +180,47 @@ const Header = () => {
   useEffect(() => {
     if (searchOpen) {
       searchRef.current?.focus();
+    } else {
+      setSearchResults([]);
     }
   }, [searchOpen]);
+
+  // Debounced Search Effect
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await productService.getAllProducts({
+          search: searchQuery,
+          limit: 5,
+        });
+        const data = getResponseData(res);
+        setSearchResults(Array.isArray(data) ? data : data?.products || data?.items || []);
+      } catch (error) {
+        console.error("Lỗi tìm kiếm:", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (mobileOpen) {
@@ -246,19 +292,16 @@ const Header = () => {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         scrolled
-          ? "bg-white/95 backdrop-blur-xl shadow-soft border-b border-slate-100"
-          : "bg-white border-b border-slate-100"
+          ? "bg-background/90 backdrop-blur-xl shadow-sm border-b border-border"
+          : "bg-background border-b border-transparent"
       }`}
     >
       <div className="container h-16 flex items-center justify-between gap-4">
-        <Link
-          to="/"
-          className="flex items-center gap-2 font-bold text-xl shrink-0 group"
-        >
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white group-hover:bg-secondary transition-colors duration-200">
+        <Link to="/" className="flex items-center gap-2 font-bold text-xl shrink-0 group">
+          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-foreground text-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200">
             <Footprints className="h-4 w-4" />
           </div>
-          <span className="text-slate-900 tracking-tight">RunVault</span>
+          <span className="text-foreground tracking-tight">RunVault</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
@@ -267,21 +310,35 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <div className="hidden sm:flex items-center">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:flex items-center relative" ref={searchContainerRef}>
             {searchOpen ? (
               <form
                 onSubmit={handleSearchSubmit}
-                className="flex items-center animate-fade-in"
+                className="flex items-center animate-in fade-in slide-in-from-right-4 duration-300"
               >
-                <input
-                  ref={searchRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="w-52 h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-primary focus:bg-white transition-all"
-                />
+                <div className="relative">
+                  <input
+                    ref={searchRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Tìm kiếm sản phẩm..."
+                    className="w-64 h-10 rounded-full border border-border bg-muted/30 px-4 pr-10 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-muted-foreground"
+                  />
+                  {isSearching && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {!isSearching && searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
 
                 <button
                   type="button"
@@ -289,17 +346,70 @@ const Header = () => {
                     setSearchOpen(false);
                     setSearchQuery("");
                   }}
-                  className="ml-1 p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+                  className="ml-2 p-2 rounded-full text-muted-foreground hover:bg-muted transition-colors"
                   aria-label="Đóng tìm kiếm"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
+
+                {/* Auto-complete Dropdown */}
+                {searchQuery && searchResults.length > 0 && (
+                  <div className="absolute top-full right-10 mt-2 w-80 bg-popover border border-border rounded-xl shadow-lg shadow-black/5 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                    <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/50 border-b border-border">
+                      Sản phẩm gợi ý
+                    </div>
+                    <ul className="max-h-80 overflow-y-auto">
+                      {searchResults.map((product) => (
+                        <li key={product._id} className="border-b border-border last:border-0">
+                          <Link
+                            to={`/product/${product.slug}`}
+                            onClick={() => {
+                              setSearchOpen(false);
+                              setSearchQuery("");
+                            }}
+                            className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors"
+                          >
+                            <img
+                              src={product.thumbnail?.url || product.thumbnail}
+                              alt={product.name}
+                              className="size-10 rounded-lg object-cover bg-muted"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {product.name}
+                              </p>
+                              <p className="text-xs font-semibold text-primary">
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.minPrice || 0)}
+                              </p>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      onClick={handleSearchSubmit}
+                      className="w-full p-3 text-sm font-semibold text-primary text-center hover:bg-muted/50 transition-colors border-t border-border"
+                    >
+                      Xem tất cả kết quả
+                    </button>
+                  </div>
+                )}
+
+                {searchQuery && searchResults.length === 0 && !isSearching && (
+                  <div className="absolute top-full right-10 mt-2 w-80 bg-popover border border-border rounded-xl shadow-lg p-6 text-center z-50">
+                    <p className="text-sm text-muted-foreground">Không tìm thấy "{searchQuery}"</p>
+                  </div>
+                )}
               </form>
             ) : (
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                className="p-2.5 rounded-full text-foreground hover:bg-muted transition-colors"
                 aria-label="Tìm kiếm"
               >
                 <Search className="h-5 w-5" />
@@ -311,13 +421,13 @@ const Header = () => {
             type="button"
             id="header-cart-btn"
             onClick={() => dispatch(openCartDrawer())}
-            className="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            className="relative p-2.5 rounded-full text-foreground hover:bg-muted transition-colors"
             aria-label="Giỏ hàng"
           >
             <ShoppingCart className="h-5 w-5" />
 
             {totalQuantity > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-primary px-1 text-[10px] font-bold text-white leading-none">
+              <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground leading-none">
                 {totalQuantity > 99 ? "99+" : totalQuantity}
               </span>
             )}
@@ -328,14 +438,14 @@ const Header = () => {
               <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
                 <button
                   type="button"
-                  className="flex items-center gap-2 p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                  className="flex items-center gap-2 p-1.5 pl-2 pr-3 rounded-full border border-border hover:border-foreground/20 hover:bg-muted transition-colors"
                   aria-label="Tài khoản"
                 >
-                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-3.5 w-3.5 text-primary" />
+                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                    <User className="h-3 w-3 text-primary-foreground" />
                   </div>
 
-                  <span className="hidden md:block text-sm font-medium text-slate-700 max-w-[80px] truncate">
+                  <span className="hidden md:block text-sm font-semibold text-foreground max-w-[80px] truncate">
                     {user.fullName?.split(" ").slice(-1)[0] || "Tài khoản"}
                   </span>
                 </button>
@@ -343,9 +453,8 @@ const Header = () => {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-4 h-9 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-secondary transition-colors"
+                className="flex items-center gap-2 px-5 h-9 rounded-full bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors ml-1"
               >
-                <User className="h-4 w-4" />
                 <span className="hidden sm:block">Đăng nhập</span>
               </Link>
             )}
@@ -353,15 +462,11 @@ const Header = () => {
 
           <button
             type="button"
-            className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2.5 rounded-full text-foreground hover:bg-muted transition-colors ml-1"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Menu"
           >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
@@ -443,13 +548,13 @@ const NavItem = ({ item }) => {
         ? "grid-cols-2 w-[480px]"
         : item.children.length === 3
           ? "grid-cols-3 w-[600px]"
-          : "grid-cols-4 w-[760px]";
+          : "grid-cols-7 w-max min-w-[760px] pr-4";
 
   return (
     <div className="group relative flex h-16 items-center">
       <Link
         to={item.to}
-        className="relative flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-700 rounded-lg hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150"
+        className="relative flex items-center gap-1 px-4 py-2 text-sm font-semibold text-muted-foreground rounded-full hover:text-foreground hover:bg-muted/50 transition-colors duration-200"
       >
         {item.label}
 
@@ -461,11 +566,7 @@ const NavItem = ({ item }) => {
             stroke="currentColor"
             strokeWidth={2.5}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 9l-7 7-7-7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         )}
       </Link>
@@ -478,7 +579,7 @@ const NavItem = ({ item }) => {
           <div className="h-3 w-full" />
 
           <div
-            className={`max-w-[calc(100vw-32px)] rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-200/60 p-6 ${hasCategories ? colClass : "w-[340px]"}`}
+            className={`max-w-[calc(100vw-32px)] rounded-2xl border border-border bg-popover shadow-xl p-8 ${hasCategories ? colClass : "w-[340px]"}`}
           >
             {hasCategories ? (
               <div className={`grid gap-x-6 gap-y-2 ${colClass}`}>
@@ -503,21 +604,15 @@ const NavItem = ({ item }) => {
                     />
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-slate-700">
-                  Đang tải danh mục...
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                  Vui lòng chờ trong giây lát.
-                </p>
+                <p className="text-sm font-semibold text-slate-700">Đang tải danh mục...</p>
+                <p className="mt-1 text-xs text-slate-400">Vui lòng chờ trong giây lát.</p>
               </div>
             )}
 
             {/* Footer */}
             <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-400">
-                {hasCategories
-                  ? `${item.children.length} danh mục`
-                  : "Cửa hàng RunVault"}
+                {hasCategories ? `${item.children.length} danh mục` : "Cửa hàng RunVault"}
               </span>
               <Link
                 to="/shop"
@@ -553,11 +648,8 @@ const CategoryColumn = ({ category }) => {
   return (
     <div className="min-w-0">
       {/* Parent category — header in hoa, có thể click */}
-      <Link
-        to={category.to}
-        className="group/parent flex items-center gap-1.5 mb-3"
-      >
-        <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 group-hover/parent:text-primary transition-colors leading-none">
+      <Link to={category.to} className="group/parent flex items-center gap-1.5 mb-3">
+        <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 group-hover/parent:text-primary transition-colors leading-none whitespace-nowrap">
           {category.label}
         </span>
         <svg
@@ -582,7 +674,7 @@ const CategoryColumn = ({ category }) => {
             <li key={child._categoryId}>
               <Link
                 to={child.to}
-                className="block text-sm text-slate-600 hover:text-primary hover:translate-x-0.5 transition-all duration-150 leading-snug"
+                className="block text-sm text-slate-600 hover:text-primary hover:translate-x-0.5 transition-all duration-150 leading-snug whitespace-nowrap"
               >
                 {child.label}
               </Link>
@@ -631,22 +723,14 @@ const MobileNavSection = ({ link, onClose }) => {
           stroke="currentColor"
           strokeWidth={2}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19 9l-7 7-7-7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {open && (
         <div className="mt-1 pl-3 border-l-2 border-slate-100 ml-3 space-y-0.5 mb-2">
           {link.children.map((category) => (
-            <MobileCategoryItem
-              key={category._categoryId}
-              category={category}
-              onClose={onClose}
-            />
+            <MobileCategoryItem key={category._categoryId} category={category} onClose={onClose} />
           ))}
         </div>
       )}
@@ -689,11 +773,7 @@ const MobileCategoryItem = ({ category, onClose, level = 0 }) => {
               stroke="currentColor"
               strokeWidth={2}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
         )}

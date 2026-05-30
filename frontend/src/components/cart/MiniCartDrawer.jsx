@@ -39,10 +39,7 @@ const MiniCartDrawer = () => {
   const [updatingId, setUpdatingId] = useState("");
 
   const subtotal = useMemo(() => {
-    return items.reduce(
-      (sum, item) => sum + getItemPrice(item) * Number(item.quantity || 0),
-      0,
-    );
+    return items.reduce((sum, item) => sum + getItemPrice(item) * Number(item.quantity || 0), 0);
   }, [items]);
 
   const totalQty = useMemo(() => {
@@ -156,7 +153,9 @@ const MiniCartDrawer = () => {
                 <ShoppingBag className="h-9 w-9 text-slate-300" />
               </div>
               <p className="font-semibold text-slate-700 text-base">Giỏ hàng đang trống</p>
-              <p className="text-sm text-slate-400 mt-1 mb-6">Thêm sản phẩm yêu thích vào giỏ nhé</p>
+              <p className="text-sm text-slate-400 mt-1 mb-6">
+                Thêm sản phẩm yêu thích vào giỏ nhé
+              </p>
               <Link
                 to="/shop"
                 onClick={handleClose}

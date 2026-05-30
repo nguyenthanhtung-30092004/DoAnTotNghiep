@@ -7,48 +7,90 @@
 /* ================= BASE ================= */
 @layer base {
   :root {
-    /* Backgrounds */
-    --background: 0 0% 100%;
-    --background-soft: 220 14% 97%;
+    /* Off-white background */
+    --background: 0 0% 98%; 
+    --background-soft: 0 0% 96%;
 
-    /* Foreground */
-    --foreground: 222 47% 7%;
+    /* Off-black text */
+    --foreground: 240 10% 3.9%; 
 
-    /* Card */
+    /* Cards */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 7%;
+    --card-foreground: 240 10% 3.9%;
 
-    /* Popover */
+    /* Popovers */
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 7%;
+    --popover-foreground: 240 10% 3.9%;
 
-    /* Primary — Indigo 500 */
-    --primary: 239 84% 67%;
+    /* Primary: Emerald 600 */
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary — Darker Indigo */
-    --secondary: 239 84% 55%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary: Zinc 100 */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    /* Muted — Slate tones */
-    --muted: 220 14% 95%;
-    --muted-foreground: 220 9% 46%;
+    /* Muted (Zinc 100/Zinc 500) */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    /* Accent — Very light indigo */
-    --accent: 226 100% 97%;
-    --accent-foreground: 239 84% 50%;
+    /* Accent (Zinc 100) */
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-    /* Destructive */
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive (Red 500) */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
     /* Border & Input */
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-    --ring: 239 84% 67%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 160 84% 39%;
 
     /* Radius */
-    --radius: 0.75rem;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Soft dark mode: Zinc 950 */
+    --background: 240 10% 3.9%;
+    --background-soft: 240 10% 6%;
+
+    /* Foreground */
+    --foreground: 0 0% 98%;
+
+    /* Card: Zinc 900 */
+    --card: 240 3.7% 15.9%;
+    --card-foreground: 0 0% 98%;
+
+    /* Popover */
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary: Emerald 500 */
+    --primary: 152 76% 40%;
+    --primary-foreground: 240 5.9% 10%;
+
+    /* Secondary: Zinc 800 */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    /* Muted */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    /* Accent */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Destructive */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Border & Input */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 152 76% 40%;
   }
 
   * {
@@ -57,7 +99,8 @@
 
   body {
     @apply bg-background text-foreground antialiased tracking-tight;
-    font-family: "Inter", Arial, sans-serif;
+    font-family: "DM Sans", "Inter", sans-serif;
+    line-height: 1.6;
   }
 
   h1,
@@ -66,14 +109,15 @@
   h4,
   h5,
   h6 {
-    @apply tracking-tight;
+    @apply tracking-tight font-bold text-foreground;
+    line-height: 1.1;
   }
 }
 
 /* ================= COMPONENTS ================= */
 @layer components {
   .container {
-    @apply max-w-[1480px] px-4 sm:px-8 xl:px-12 mx-auto w-full;
+    @apply max-w-[1440px] px-4 sm:px-6 xl:px-8 mx-auto w-full;
   }
 }
 
