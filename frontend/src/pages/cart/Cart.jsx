@@ -75,7 +75,7 @@ const Cart = () => {
 
       const res = await CartService.getCart();
       const data = getResponseData(res);
-      console.log(data);
+      console.log(data, "datadatad");
 
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));
@@ -225,9 +225,9 @@ const Cart = () => {
                           to={productLink}
                           className="shrink-0 w-[128px] h-[80px] rounded-xl bg-accent flex items-center justify-center overflow-hidden hover:shadow-card-hover transition-shadow"
                         >
-                          {item.thumbnail ? (
+                          {item.image ? (
                             <img
-                              src={item.thumbnail}
+                              src={item.image}
                               alt={item.productName}
                               className="h-full w-full object-cover"
                             />

@@ -37,9 +37,9 @@ const CheckoutSummary = ({
                     to={getProductLink(item)}
                     className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent"
                   >
-                    {item.thumbnail ? (
+                    {item.image ? (
                       <img
-                        src={item.thumbnail}
+                        src={item.image}
                         alt={item.productName}
                         className="h-full w-full object-cover"
                       />
