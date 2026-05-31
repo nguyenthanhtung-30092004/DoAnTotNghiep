@@ -4,6 +4,7 @@ const productModel = require("../../models/product.model");
 const couponService = require("../../services/coupon.service");
 const { getFinalPrice } = require("./order.helper");
 const { getIO } = require("../../socket/socket");
+const sendOrderStatusEmail = require("../../utils/sendOrderStatusEmail");
 
 const phoneRegex = /^(0|\+84)\d{9,10}$/;
 
@@ -36,9 +37,10 @@ class OrderService {
     let totalDiscount = 0;
 
     for (const cartItem of cart.items) {
+      const productId = cartItem.product || cartItem.productId;
       const product = await productModel
         .findOne({
-          _id: cartItem.product,
+          _id: productId,
           isDeleted: false,
           isPublished: true,
         });
@@ -322,6 +324,10 @@ class OrderService {
 
     await order.save();
 
+    if (order.shippingAddress?.email) {
+      sendOrderStatusEmail(order.shippingAddress.email, order, "CANCELLED");
+    }
+
     return order;
   }
 
@@ -369,14 +375,20 @@ class OrderService {
 
     const io = getIO();
 
-    io.to(`user:${order.user.toString()}`).emit("order:updated", {
-      orderId: order._id,
-      orderCode: order.orderCode,
-      orderStatus: order.orderStatus,
-      paymentStatus: order.paymentStatus,
-      deliveredAt: order.deliveredAt,
-      updatedAt: order.updatedAt,
-    });
+    if (order.user) {
+      io.to(`user:${order.user.toString()}`).emit("order:updated", {
+        orderId: order._id,
+        orderCode: order.orderCode,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.paymentStatus,
+        deliveredAt: order.deliveredAt,
+        updatedAt: order.updatedAt,
+      });
+    }
+
+    if (order.shippingAddress?.email) {
+      sendOrderStatusEmail(order.shippingAddress.email, order, orderStatus);
+    }
 
     io.to("admin:order").emit("admin:order-updated", {
       orderId: order._id,
@@ -408,7 +420,7 @@ class OrderService {
     order.cancelledBy = "ADMIN";
     order.cancelledAt = new Date();
 
-    if (order.coupon?.couponId) {
+    if (order.coupon?.couponId && order.user) {
       await couponService.decreaseUsage({
         couponId: order.coupon.couponId,
         userId: order.user,
@@ -419,16 +431,22 @@ class OrderService {
 
     const io = getIO();
 
-    io.to(`user:${order.user.toString()}`).emit("order:updated", {
-      orderId: order._id,
-      orderCode: order.orderCode,
-      orderStatus: order.orderStatus,
-      paymentStatus: order.paymentStatus,
-      cancelReason: order.cancelReason,
-      cancelledBy: order.cancelledBy,
-      cancelledAt: order.cancelledAt,
-      updatedAt: order.updatedAt,
-    });
+    if (order.user) {
+      io.to(`user:${order.user.toString()}`).emit("order:updated", {
+        orderId: order._id,
+        orderCode: order.orderCode,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.paymentStatus,
+        cancelReason: order.cancelReason,
+        cancelledBy: order.cancelledBy,
+        cancelledAt: order.cancelledAt,
+        updatedAt: order.updatedAt,
+      });
+    }
+
+    if (order.shippingAddress?.email) {
+      sendOrderStatusEmail(order.shippingAddress.email, order, "CANCELLED");
+    }
 
     io.to("admin:order").emit("admin:order-updated", {
       orderId: order._id,

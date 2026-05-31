@@ -5,10 +5,12 @@ const paymentService = require("../payments/payment.service");
 const { PAYMENT_METHODS } = require("../payments/payment.constants");
 const orderService = require("./order.service");
 const { calculateShippingFee } = require("./order.helper");
+const sendOrderStatusEmail = require("../../utils/sendOrderStatusEmail");
 
 class CheckoutService {
   async checkout({
     userId,
+    items, // THÊM items VÀO THAM SỐ
     shippingAddress,
     paymentMethod = PAYMENT_METHODS.COD,
     couponCode = "",
@@ -16,26 +18,30 @@ class CheckoutService {
     ipAddr = "127.0.0.1",
   }) {
     const selectedPaymentMethod = this.normalizePaymentMethod(paymentMethod);
-
     this.validatePaymentMethod(selectedPaymentMethod);
-
     orderService.validateShippingAddress(shippingAddress);
 
-    const cart = await cartService.getCartDocument({ userId });
+    let orderSummary;
 
-    if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) {
-      throw new BadRequestError("Giỏ hàng trống");
+    if (!userId) {
+      // Dành cho Guest Checkout
+      if (!Array.isArray(items) || items.length === 0) {
+        throw new BadRequestError("Giỏ hàng trống");
+      }
+      // Tính toán giá trị đơn hàng trực tiếp từ mảng items của Frontend gửi lên
+      orderSummary = await orderService.buildOrderItemsFromCart({ cart: { items } });
+    } else {
+      // Dành cho User (Đã đăng nhập)
+      const cart = await cartService.getCartDocument({ userId });
+      if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) {
+        throw new BadRequestError("Giỏ hàng trống");
+      }
+      orderSummary = await orderService.buildOrderItemsFromCart({ cart });
     }
 
-    const orderSummary = await orderService.buildOrderItemsFromCart({ cart });
+    const { orderItems, totalQuantity, totalPrice, totalDiscount } = orderSummary;
 
-    const { orderItems, totalQuantity, totalPrice, totalDiscount } =
-      orderSummary;
-
-    const subtotalAfterProductDiscount = Math.max(
-      totalPrice - totalDiscount,
-      0,
-    );
+    const subtotalAfterProductDiscount = Math.max(totalPrice - totalDiscount, 0);
 
     const couponResult = await this.applyCouponIfNeeded({
       userId,
@@ -48,26 +54,23 @@ class CheckoutService {
 
     const finalPrice = Math.max(
       subtotalAfterProductDiscount + shippingFee - couponResult.couponDiscount,
-      0,
+      0
     );
 
     const order = await orderService.createOrder({
       orderData: {
-        user: userId,
+        user: userId || undefined, // Nếu là null thì gán undefined để Mongoose bỏ qua
         items: orderItems,
         shippingAddress,
         paymentMethod: selectedPaymentMethod,
         paymentStatus: "PENDING",
         orderStatus: "PENDING",
-
         totalQuantity,
         totalPrice,
         totalDiscount,
-
         shippingFee,
         couponDiscount: couponResult.couponDiscount,
         coupon: couponResult.couponData,
-
         finalPrice,
         note,
       },
@@ -101,12 +104,7 @@ class CheckoutService {
     }
   }
 
-  async applyCouponIfNeeded({
-    userId,
-    couponCode,
-    orderItems,
-    subtotalAfterProductDiscount,
-  }) {
+  async applyCouponIfNeeded({ userId, couponCode, orderItems, subtotalAfterProductDiscount }) {
     const defaultCouponData = {
       code: "",
       couponId: null,
@@ -141,7 +139,6 @@ class CheckoutService {
 
   async handleCodCheckout({ userId, order, couponId }) {
     await orderService.deductStockForOrder({ order });
-
     order.stockDeducted = true;
 
     if (couponId) {
@@ -151,11 +148,17 @@ class CheckoutService {
       });
     }
 
-    await cartService.clearCartByUser({ userId });
+    // CHÈN THÊM DÒNG if (userId) NÀY:
+    if (userId) {
+      await cartService.clearCartByUser({ userId });
+    }
 
     order.cartCleared = true;
-
     await order.save();
+
+    if (order.shippingAddress?.email) {
+      sendOrderStatusEmail(order.shippingAddress.email, order, "PENDING");
+    }
 
     return {
       order,
@@ -175,6 +178,10 @@ class CheckoutService {
     order.paymentUrl = payment.paymentUrl || "";
 
     await order.save();
+
+    if (order.shippingAddress?.email) {
+      sendOrderStatusEmail(order.shippingAddress.email, order, "PENDING");
+    }
 
     return {
       order,

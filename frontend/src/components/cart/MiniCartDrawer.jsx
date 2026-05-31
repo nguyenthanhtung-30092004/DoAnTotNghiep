@@ -97,7 +97,7 @@ const MiniCartDrawer = () => {
 
   const handleCheckout = () => {
     handleClose();
-    navigate(user ? "/checkout" : "/login?redirect=/checkout");
+    navigate("/checkout");
   };
 
   useEffect(() => {

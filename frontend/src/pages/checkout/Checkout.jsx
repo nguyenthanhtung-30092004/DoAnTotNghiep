@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import CartService from "../../services/cart.service";
 
@@ -86,6 +86,7 @@ const Checkout = () => {
   const [shippingAddress, setShippingAddress] = useState({
     fullName: "",
     phone: "",
+    email: "",
     province: "",
     district: "",
     ward: "",
@@ -94,6 +95,9 @@ const Checkout = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.auth);
+  const cartRedux = useSelector((state) => state.cart);
 
   const items = Array.isArray(cart?.items) ? cart.items : [];
 
@@ -119,6 +123,11 @@ const Checkout = () => {
   const finalPrice = Math.max(subtotal - couponDiscount + shippingFee, 0);
 
   const fetchCart = async () => {
+    if (!user) {
+      setCart({ items: cartRedux.items });
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
 
@@ -159,6 +168,12 @@ const Checkout = () => {
 
     if (!shippingAddress.fullName.trim()) {
       errors.fullName = "Vui lòng nhập họ và tên";
+    }
+
+    if (!shippingAddress.email?.trim()) {
+      errors.email = "Vui lòng nhập email để nhận thông báo";
+    } else if (!/\S+@\S+\.\S+/.test(shippingAddress.email)) {
+      errors.email = "Email không hợp lệ";
     }
 
     if (!shippingAddress.phone.trim()) {
@@ -203,7 +218,7 @@ const Checkout = () => {
 
     try {
       setApplyingCoupon(true);
-      const res = await couponService.validateCoupon(code);
+      const res = await couponService.validateCoupon({ code, items });
       const data = getResponseData(res);
 
       setAppliedCoupon(data);
@@ -329,6 +344,7 @@ const Checkout = () => {
         paymentMethod,
         couponCode: appliedCoupon?.code || "",
         note: "",
+        items: !user ? cartRedux.items : undefined,
       };
 
       const res = await orderService.checkout(payload);
@@ -344,16 +360,25 @@ const Checkout = () => {
       localStorage.removeItem("appliedCoupon");
       setAppliedCoupon(null);
 
-      await fetchCart();
+      if (!user) {
+        dispatch({ type: "cart/clearCartRedux" });
+        localStorage.removeItem("guest_cart");
+      } else {
+        await fetchCart();
+      }
 
       const order = data?.order || data;
 
-      navigate("/account", {
-        state: {
-          order,
-          orderSuccess: true,
-        },
-      });
+      if (user) {
+        navigate("/account", {
+          state: {
+            order,
+            orderSuccess: true,
+          },
+        });
+      } else {
+        navigate(`/payment-result?status=success&method=${paymentMethod}&orderId=${order._id || order.orderCode || ""}`);
+      }
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Đặt hàng thất bại");
@@ -392,6 +417,12 @@ const Checkout = () => {
 
     fetchProvinces();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setCart({ items: cartRedux.items });
+    }
+  }, [cartRedux.items, user]);
 
   if (loading) {
     return (

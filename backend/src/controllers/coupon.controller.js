@@ -44,8 +44,9 @@ class CouponController {
     new OK({
       message: "Áp mã giảm giá thành công",
       metadata: await couponService.validateCouponForCart({
-        userId: req.user._id,
+        userId: req.user ? req.user._id : null,
         code: req.body.code,
+        items: req.body.items,
       }),
     }).send(res);
   };

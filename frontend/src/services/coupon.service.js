@@ -21,8 +21,8 @@ const deleteCoupon = (id) => {
   return axiosClient.delete(`${API_ADMIN_COUPON}/${id}`);
 };
 
-const validateCoupon = (code) => {
-  return axiosClient.post(`${API_COUPON}/coupons/validate`, { code });
+const validateCoupon = (data) => {
+  return axiosClient.post(`${API_COUPON}/coupons/validate`, data);
 };
 
 const couponService = {

@@ -32,16 +32,31 @@ const CheckoutAddress = ({
           }`}
         />
         {addressErrors.fullName && (
-          <p className="mt-1 text-xs font-medium text-red-500">
-            {addressErrors.fullName}
-          </p>
+          <p className="mt-1 text-xs font-medium text-red-500">{addressErrors.fullName}</p>
         )}
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-semibold">
-          Số điện thoại
-        </label>
+        <label className="mb-1.5 block text-xs font-semibold">Email</label>
+        <input
+          type="email"
+          name="email"
+          value={shippingAddress.email}
+          onChange={handleChangeShipping}
+          placeholder="Ví dụ: email@gmail.com"
+          className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 ${
+            addressErrors.email
+              ? "border-red-500 focus:ring-red-100"
+              : "border-border focus:ring-primary"
+          }`}
+        />
+        {addressErrors.email && (
+          <p className="mt-1 text-xs font-medium text-red-500">{addressErrors.email}</p>
+        )}
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-xs font-semibold">Số điện thoại</label>
         <input
           type="tel"
           name="phone"
@@ -55,23 +70,15 @@ const CheckoutAddress = ({
           }`}
         />
         {addressErrors.phone && (
-          <p className="mt-1 text-xs font-medium text-red-500">
-            {addressErrors.phone}
-          </p>
+          <p className="mt-1 text-xs font-medium text-red-500">{addressErrors.phone}</p>
         )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className="mb-1.5 block text-xs font-semibold">
-            Tỉnh/Thành phố
-          </label>
+          <label className="mb-1.5 block text-xs font-semibold">Tỉnh/Thành phố</label>
           <select
-            value={
-              provinces.find(
-                (item) => item.name === shippingAddress.province,
-              )?.code || ""
-            }
+            value={provinces.find((item) => item.name === shippingAddress.province)?.code || ""}
             onChange={selectProvince}
             className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 ${
               addressErrors.province
@@ -87,22 +94,14 @@ const CheckoutAddress = ({
             ))}
           </select>
           {addressErrors.province && (
-            <p className="mt-1 text-xs font-medium text-red-500">
-              {addressErrors.province}
-            </p>
+            <p className="mt-1 text-xs font-medium text-red-500">{addressErrors.province}</p>
           )}
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-semibold">
-            Quận/Huyện
-          </label>
+          <label className="mb-1.5 block text-xs font-semibold">Quận/Huyện</label>
           <select
-            value={
-              districts.find(
-                (item) => item.name === shippingAddress.district,
-              )?.code || ""
-            }
+            value={districts.find((item) => item.name === shippingAddress.district)?.code || ""}
             onChange={selectDistrict}
             disabled={!shippingAddress.province || addressLoading}
             className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 disabled:opacity-60 ${
@@ -119,21 +118,14 @@ const CheckoutAddress = ({
             ))}
           </select>
           {addressErrors.district && (
-            <p className="mt-1 text-xs font-medium text-red-500">
-              {addressErrors.district}
-            </p>
+            <p className="mt-1 text-xs font-medium text-red-500">{addressErrors.district}</p>
           )}
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-semibold">
-            Phường/Xã
-          </label>
+          <label className="mb-1.5 block text-xs font-semibold">Phường/Xã</label>
           <select
-            value={
-              wards.find((item) => item.name === shippingAddress.ward)
-                ?.code || ""
-            }
+            value={wards.find((item) => item.name === shippingAddress.ward)?.code || ""}
             onChange={selectWard}
             disabled={!shippingAddress.district || addressLoading}
             className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 disabled:opacity-60 ${
@@ -150,17 +142,13 @@ const CheckoutAddress = ({
             ))}
           </select>
           {addressErrors.ward && (
-            <p className="mt-1 text-xs font-medium text-red-500">
-              {addressErrors.ward}
-            </p>
+            <p className="mt-1 text-xs font-medium text-red-500">{addressErrors.ward}</p>
           )}
         </div>
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-semibold">
-          Địa chỉ chi tiết
-        </label>
+        <label className="mb-1.5 block text-xs font-semibold">Địa chỉ chi tiết</label>
         <input
           type="text"
           name="detailAddress"
@@ -174,9 +162,7 @@ const CheckoutAddress = ({
           }`}
         />
         {addressErrors.detailAddress && (
-          <p className="mt-1 text-xs font-medium text-red-500">
-            {addressErrors.detailAddress}
-          </p>
+          <p className="mt-1 text-xs font-medium text-red-500">{addressErrors.detailAddress}</p>
         )}
       </div>
 

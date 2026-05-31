@@ -11,10 +11,11 @@ import {
   Truck,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCart as setCartRedux } from "../../redux/slices/cartSlice";
 
 import CartService from "../../services/cart.service";
+import useSelection from "antd/es/table/hooks/useSelection";
 
 const getResponseData = (res) => {
   return res.data?.metadata || res.data?.data || res.data;
@@ -44,6 +45,10 @@ const Cart = () => {
   });
   const dispatch = useDispatch();
 
+  // lấy user và cart từ local
+  const { user } = useSelector((state) => state.auth);
+  const cartRedux = useSelector((state) => state.cart);
+
   const [loading, setLoading] = useState(false);
   const [updatingItemId, setUpdatingItemId] = useState("");
 
@@ -70,6 +75,13 @@ const Cart = () => {
   const finalPrice = Math.max(subtotal + shippingFee, 0);
 
   const fetchCart = async () => {
+    if (!user) {
+      // nếu user là guest
+      setCart({ items: cartRedux.items });
+      return;
+    }
+
+    // nếu đã đăng nhập: gọi API như cũ
     try {
       setLoading(true);
 
@@ -95,6 +107,15 @@ const Cart = () => {
       return;
     }
 
+    if (!user) {
+      if (newQuantity > item.quantity) {
+        dispatch({ type: "cart/increaseQuantity", payload: item.localId });
+      } else {
+        dispatch({ type: "cart/decreaseQuantity", payload: item.localId });
+      }
+      return;
+    }
+
     try {
       setUpdatingItemId(item._id);
 
@@ -113,11 +134,16 @@ const Cart = () => {
     }
   };
 
-  const handleRemoveItem = async (itemId) => {
+  const handleRemoveItem = async (item) => {
+    if (!user) {
+      dispatch({ type: "cart/removeCartItem", payload: item.localId });
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+      return;
+    }
     try {
-      setUpdatingItemId(itemId);
+      setUpdatingItemId(item._id);
 
-      const res = await CartService.removeFromCart(itemId);
+      const res = await CartService.removeFromCart(item._id);
       const data = getResponseData(res);
 
       setCart(data || { items: [] });
@@ -135,6 +161,7 @@ const Cart = () => {
   };
 
   const handleSyncCart = async () => {
+    if (!user) return;
     try {
       const res = await CartService.syncCart();
       const data = getResponseData(res);
@@ -152,6 +179,13 @@ const Cart = () => {
     fetchCart();
     handleSyncCart();
   }, []);
+
+  // Thay đổi khi tăng giảm số lượng cho guest
+  useEffect(() => {
+    if (!user) {
+      setCart({ items: cartRedux.items });
+    }
+  }, [cartRedux.items, user]);
 
   if (loading) {
     return (
@@ -208,14 +242,14 @@ const Cart = () => {
                 {items.map((item) => {
                   const itemPrice = getItemPrice(item);
                   const itemTotal = itemPrice * Number(item.quantity || 0);
-                  const isUpdating = updatingItemId === item._id;
+                  const isUpdating = updatingItemId === (item._id || item.localId);
                   const productLink = item.productSlug
                     ? `/product/${item.productSlug}`
                     : `/product/${item.product?._id || item.product}`;
 
                   return (
                     <div
-                      key={item._id}
+                      key={item._id || item.localId}
                       className={`grid grid-cols-1 sm:grid-cols-[1fr_auto_auto_auto] gap-4 py-5 items-center ${
                         !item.isAvailable ? "opacity-60" : ""
                       }`}
@@ -307,7 +341,7 @@ const Cart = () => {
                         <button
                           type="button"
                           disabled={isUpdating}
-                          onClick={() => handleRemoveItem(item._id)}
+                          onClick={() => handleRemoveItem(item)}
                           className="size-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Trash2 className="size-5 hover:text-red-600" />

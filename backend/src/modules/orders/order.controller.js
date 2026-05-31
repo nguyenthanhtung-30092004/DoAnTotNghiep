@@ -10,6 +10,7 @@ class OrderController {
       message: "Tạo đơn hàng thành công",
       metadata: await checkoutService.checkout({
         userId: getUserId(req),
+        items: req.body.items,
         shippingAddress: req.body.shippingAddress,
         paymentMethod: req.body.paymentMethod,
         couponCode: req.body.couponCode,

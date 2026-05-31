@@ -35,7 +35,7 @@ function AuthBootstrap() {
       } catch {
         dispatch(clearUser());
 
-        const privatePrefixes = ["/account", "/cart", "/checkout", "/orders", "/admin"];
+        const privatePrefixes = ["/account", "/orders", "/admin"];
         const isPrivatePath = privatePrefixes.some((path) =>
           window.location.pathname.startsWith(path),
         );

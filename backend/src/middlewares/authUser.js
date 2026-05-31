@@ -29,6 +29,34 @@ const authUser = async (req, res, next) => {
   }
 };
 
+const optionalAuth = async (req, res, next) => {
+  try {
+    const accessToken = req.cookies.accessToken;
+    if (!accessToken) {
+      req.user = null;
+      return next();
+    }
+    let decoded;
+    try {
+      decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+    } catch (error) {
+      req.user = null;
+      return next();
+    }
+    const user = await userModel.findById(decoded.id);
+    if (!user) {
+      req.user = null;
+      return next();
+    }
+    req.user = user;
+    req.user.userId = user._id;
+    return next();
+  } catch (error) {
+    req.user = null;
+    next(error);
+  }
+};
+
 const authAdmin = async (req, res, next) => {
   try {
     // 1. Lấy Token từ cookie
@@ -63,4 +91,4 @@ const authAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { authAdmin, authUser };
+module.exports = { authAdmin, authUser, optionalAuth };

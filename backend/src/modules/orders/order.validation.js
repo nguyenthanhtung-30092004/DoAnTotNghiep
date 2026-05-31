@@ -52,6 +52,7 @@ const normalizeOrderId = (params = {}) => {
 const normalizeShippingAddress = (shippingAddress) => {
   const requiredFields = [
     "fullName",
+    "email",
     "phone",
     "province",
     "district",
@@ -104,7 +105,9 @@ const checkout = createSchema(({ body }) => {
         ...body,
         shippingAddress: shippingAddressResult.value,
         paymentMethod,
-        couponCode: String(body.couponCode || "").trim().toUpperCase(),
+        couponCode: String(body.couponCode || "")
+          .trim()
+          .toUpperCase(),
         note: String(body.note || "").trim(),
       },
     },
@@ -138,7 +141,9 @@ const cancelOrder = createSchema(({ body, params }) => {
 
 const updateOrderStatus = createSchema(({ body, params }) => {
   const paramsResult = normalizeOrderId(params);
-  const orderStatus = String(body.orderStatus || "").trim().toUpperCase();
+  const orderStatus = String(body.orderStatus || "")
+    .trim()
+    .toUpperCase();
 
   if (paramsResult.error) return paramsResult;
 

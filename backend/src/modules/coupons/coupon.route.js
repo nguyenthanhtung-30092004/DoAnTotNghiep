@@ -2,20 +2,20 @@ const express = require("express");
 const couponController = require("./coupon.controller");
 const couponValidation = require("./coupon.validation");
 const asyncHandler = require("../../middlewares/asyncHandler");
-const { authUser, authAdmin } = require("../../middlewares/authentication");
+const { authUser, authAdmin, optionalAuth } = require("../../middlewares/authentication");
 const validate = require("../../middlewares/validate");
 
 const router = express.Router();
 
-router.use(authUser);
-
 router.post(
   "/coupons/validate",
+  optionalAuth,
   validate(couponValidation.validateCouponForCart),
   asyncHandler(couponController.validateCouponForCart),
 );
 router.post(
   "/validate",
+  optionalAuth,
   validate(couponValidation.validateCouponForCart),
   asyncHandler(couponController.validateCouponForCart),
 );

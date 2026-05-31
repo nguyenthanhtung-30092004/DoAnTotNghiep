@@ -9,7 +9,7 @@
   // ===== Font =====
   "editor.fontFamily": "JetBrains Mono, Geist Mono, Fira Code, Cascadia Code, Consolas, monospace",
   "editor.fontLigatures": true,
-  "editor.fontSize": 15,
+  "editor.fontSize": 13,
   "editor.lineHeight": 27,
   "editor.fontWeight": "500",
   "editor.letterSpacing": 0.15,

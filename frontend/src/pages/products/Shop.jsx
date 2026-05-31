@@ -1,11 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import {
-  ChevronRight,
-  PackageSearch,
-  SlidersHorizontal,
-  X,
-} from "lucide-react";
+import { ChevronRight, PackageSearch, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "react-toastify";
 
 import ProductService from "../../services/product.service";
@@ -18,14 +13,8 @@ import ShopFilterSidebar from "../../components/products/ShopFilterSidebar";
 import ShopToolbar from "../../components/products/ShopToolbar";
 import ShopPagination from "../../components/products/ShopPagination";
 
-/* ── Helper ── */
-const getResponseData = (res) =>
-  res.data?.metadata || res.data?.data || res.data;
+const getResponseData = (res) => res.data?.metadata || res.data?.data || res.data;
 
-/* ══════════════════════════════════════════════════════════
-   Shop page — giữ nguyên toàn bộ logic fetch/filter/sort
-   Chỉ redesign UI wrapper và import skeleton
-══════════════════════════════════════════════════════════ */
 const Shop = () => {
   const { categorySlug } = useParams();
   const [searchParams] = useSearchParams();
@@ -36,6 +25,8 @@ const Shop = () => {
   const [loading, setLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [gridView, setGridView] = useState("grid"); // "grid" | "list"
+
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -54,71 +45,18 @@ const Shop = () => {
     limit: 12,
   });
 
-  /* ── Derived state ── */
   const currentCategory = useMemo(() => {
     if (!categorySlug) return null;
     return categories.find(
-      (c) =>
-        c.slug === categorySlug ||
-        c.nameSlug === categorySlug ||
-        c._id === categorySlug,
+      (c) => c.slug === categorySlug || c.nameSlug === categorySlug || c._id === categorySlug
     );
   }, [categories, categorySlug]);
 
   const currentCategoryTitle = search
     ? `Kết quả tìm kiếm cho "${search}"`
-    : currentCategory?.name ||
-      (categorySlug ? "Danh mục sản phẩm" : "Tất cả sản phẩm");
+    : currentCategory?.name || (categorySlug ? "Danh mục sản phẩm" : "Tất cả sản phẩm");
 
   const hasActiveFilter = filters.brand || filters.activePrice;
-
-  /* ── Fetchers (không đổi) ── */
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-
-      const params = {
-        page: filters.page,
-        limit: filters.limit,
-        sort: filters.sort,
-        isPublished: true,
-      };
-
-      if (filters.brand) params.brand = filters.brand;
-      if (filters.minPrice) params.minPrice = filters.minPrice;
-      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
-      if (search) params.search = search;
-
-      let res;
-
-      if (currentCategory?._id) {
-        res = await ProductService.getProductByCategory(
-          currentCategory._id,
-          params,
-        );
-      } else {
-        res = await ProductService.getAllProducts(params);
-      }
-
-      const data = getResponseData(res);
-
-      setProducts(data.products || []);
-
-      setPagination(
-        data.pagination || {
-          currentPage: filters.page,
-          totalPage: 1,
-          totalProduct: 0,
-          limit: filters.limit,
-        },
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Lấy sản phẩm thất bại");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchBrands = async () => {
     try {
@@ -134,18 +72,18 @@ const Shop = () => {
     try {
       const res = await categoryService.getAllCategories({
         page: 1,
-        limit: 100,
+        limit: 200,
       });
       const data = getResponseData(res);
-      const list =
-        data?.categories || data?.category || data?.data || data || [];
+      const list = data?.categories || data?.category || data?.data || data || [];
       setCategories(Array.isArray(list) ? list : []);
     } catch {
       setCategories([]);
+    } finally {
+      setCategoriesLoaded(true);
     }
   };
 
-  /* ── Handlers (không đổi tên/logic) ── */
   const handleChangeBrand = (brandId) =>
     setFilters((prev) => ({ ...prev, brand: brandId, page: 1 }));
 
@@ -168,19 +106,74 @@ const Shop = () => {
       page: 1,
     }));
 
-  const handleSortChange = (sort) =>
-    setFilters((prev) => ({ ...prev, sort, page: 1 }));
+  const handleSortChange = (sort) => setFilters((prev) => ({ ...prev, sort, page: 1 }));
 
   const handlePageChange = (page) => setFilters((prev) => ({ ...prev, page }));
 
-  /* ── Effects ── */
   useEffect(() => {
     fetchBrands();
     fetchCategories();
   }, []);
 
   useEffect(() => {
+    if (categorySlug && !categoriesLoaded) return;
+
+    let isActive = true;
+
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+
+        const params = {
+          page: filters.page,
+          limit: filters.limit,
+          sort: filters.sort,
+          isPublished: true,
+        };
+
+        if (filters.brand) params.brand = filters.brand;
+        if (filters.minPrice) params.minPrice = filters.minPrice;
+        if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+        if (search) params.search = search;
+
+        let res;
+
+        if (currentCategory?._id) {
+          res = await ProductService.getProductByCategory(currentCategory._id, params);
+        } else {
+          res = await ProductService.getAllProducts(params);
+        }
+
+        if (!isActive) return;
+
+        const data = getResponseData(res);
+
+        setProducts(data.products || []);
+
+        setPagination(
+          data.pagination || {
+            currentPage: filters.page,
+            totalPage: 1,
+            totalProduct: 0,
+            limit: filters.limit,
+          }
+        );
+      } catch (error) {
+        if (!isActive) return;
+        console.error(error);
+        toast.error(error.response?.data?.message || "Lấy sản phẩm thất bại");
+      } finally {
+        if (isActive) {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchProducts();
+
+    return () => {
+      isActive = false;
+    };
   }, [
     filters.brand,
     filters.minPrice,
@@ -189,6 +182,8 @@ const Shop = () => {
     filters.page,
     currentCategory?._id,
     search,
+    categorySlug,
+    categoriesLoaded,
   ]);
 
   return (
@@ -202,10 +197,7 @@ const Shop = () => {
               Trang chủ
             </Link>
             <ChevronRight className="h-3 w-3" />
-            <Link
-              to="/shop"
-              className="hover:text-primary transition-colors"
-            >
+            <Link to="/shop" className="hover:text-primary transition-colors">
               Cửa hàng
             </Link>
             {categorySlug && (
@@ -254,8 +246,7 @@ const Shop = () => {
                 )}
                 {filters.brand && (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    {brands.find((b) => b._id === filters.brand)?.nameBrand ||
-                      "Thương hiệu"}
+                    {brands.find((b) => b._id === filters.brand)?.nameBrand || "Thương hiệu"}
                     <button
                       type="button"
                       onClick={() => handleChangeBrand("")}
@@ -312,9 +303,7 @@ const Shop = () => {
                 <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-5 py-4">
                   <div className="flex items-center gap-2">
                     <SlidersHorizontal className="h-4 w-4 text-primary" />
-                    <h2 className="font-bold text-foreground">
-                      Bộ lọc sản phẩm
-                    </h2>
+                    <h2 className="font-bold text-foreground">Bộ lọc sản phẩm</h2>
                   </div>
                   <button
                     type="button"
@@ -377,9 +366,7 @@ const Shop = () => {
             {loading ? (
               <div
                 className={`grid gap-3 md:gap-4 ${
-                  gridView === "list"
-                    ? "grid-cols-1"
-                    : "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+                  gridView === "list" ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
                 }`}
               >
                 {Array.from({ length: 12 }).map((_, i) => (
@@ -392,9 +379,7 @@ const Shop = () => {
                 <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
                   <PackageSearch className="h-10 w-10 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground">
-                  Không tìm thấy sản phẩm
-                </h3>
+                <h3 className="text-lg font-bold text-foreground">Không tìm thấy sản phẩm</h3>
                 <p className="mt-2 max-w-xs text-sm text-muted-foreground leading-6">
                   Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.
                 </p>
@@ -409,12 +394,9 @@ const Shop = () => {
                 )}
               </div>
             ) : (
-              /* ── Product grid ── */
               <div
                 className={`grid gap-3 md:gap-4 ${
-                  gridView === "list"
-                    ? "grid-cols-1"
-                    : "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+                  gridView === "list" ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
                 }`}
               >
                 {products.map((product) => (

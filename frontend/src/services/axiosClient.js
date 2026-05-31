@@ -20,6 +20,8 @@ axiosClient.interceptors.response.use(
       if (
         typeof window !== "undefined" &&
         window.location.pathname !== "/login" &&
+        !window.location.pathname.startsWith("/cart") &&
+        !window.location.pathname.startsWith("/checkout") &&
         !isRedirectingToLogin
       ) {
         isRedirectingToLogin = true;

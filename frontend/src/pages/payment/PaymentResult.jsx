@@ -1,9 +1,11 @@
 import { CheckCircle, XCircle } from "lucide-react";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const PaymentResult = () => {
   const [searchParams] = useSearchParams();
+  const { user } = useSelector((state) => state.auth);
 
   const status = searchParams.get("status");
   const method = searchParams.get("method");
@@ -42,12 +44,14 @@ const PaymentResult = () => {
         )}
 
         <div className="mt-6 flex flex-col gap-3">
-          <Link
-            to="/account?tab=orders"
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
-          >
-            Xem đơn hàng
-          </Link>
+          {user && (
+            <Link
+              to="/account?tab=orders"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
+            >
+              Xem đơn hàng
+            </Link>
+          )}
 
           <Link
             to="/"

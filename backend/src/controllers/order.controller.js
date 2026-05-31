@@ -7,7 +7,9 @@ class OrderController {
     new OK({
       message: "Tạo đơn hàng thành công",
       metadata: await orderService.createOrderFromCart({
-        userId: req.user._id || req.user.userId,
+        // nếu có user thì lấy userid còn không thì truyển null
+        userId: req.user ? req.user._id || req.user.userId : null,
+        items: req.body.items,
         shippingAddress: req.body.shippingAddress,
         paymentMethod: req.body.paymentMethod,
         note: req.body.note,

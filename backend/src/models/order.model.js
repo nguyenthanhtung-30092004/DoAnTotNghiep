@@ -74,7 +74,7 @@ const orderItemSchema = new Schema(
   },
   {
     _id: false,
-  },
+  }
 );
 
 // Shipping address snapshot
@@ -85,6 +85,11 @@ const shippingAddressSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+    },
+
+    email: {
+      type: String,
+      required: true
     },
 
     phone: {
@@ -119,7 +124,7 @@ const shippingAddressSchema = new Schema(
   },
   {
     _id: false,
-  },
+  }
 );
 
 // Odder Schema
@@ -128,7 +133,7 @@ const orderSchema = new Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
       index: true,
     },
 
@@ -290,7 +295,7 @@ const orderSchema = new Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 // generate order code

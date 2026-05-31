@@ -15,9 +15,11 @@ const clampQuantity = (quantity, maxQuantity) => {
   return value;
 };
 
+const savedGuestCart = JSON.parse(localStorage.getItem("guest_cart")) || [];
+
 const initialState = {
-  items: [],
-  totalQuantity: 0,
+  items: savedGuestCart,
+  totalQuantity: getCartCount(savedGuestCart),
   isDrawerOpen: false,
 };
 
@@ -40,13 +42,13 @@ const cartSlice = createSlice({
         (item) =>
           item.productId === payload.productId &&
           item.variantId === payload.variantId &&
-          item.sizeId === payload.sizeId,
+          item.sizeId === payload.sizeId
       );
 
       if (existingItem) {
         existingItem.quantity = clampQuantity(
           Number(existingItem.quantity || 0) + Number(payload.quantity || 1),
-          existingItem.maxQuantity || payload.maxQuantity,
+          existingItem.maxQuantity || payload.maxQuantity
         );
       } else {
         state.items.push({
@@ -56,6 +58,8 @@ const cartSlice = createSlice({
       }
 
       state.totalQuantity = getCartCount(state.items);
+
+      localStorage.setItem("guest_cart", JSON.stringify(state.items));
     },
 
     clearCartRedux: (state) => {
@@ -75,13 +79,12 @@ const cartSlice = createSlice({
       const item = state.items.find((item) => item.localId === action.payload);
 
       if (item) {
-        item.quantity = clampQuantity(
-          Number(item.quantity || 0) + 1,
-          item.maxQuantity,
-        );
+        item.quantity = clampQuantity(Number(item.quantity || 0) + 1, item.maxQuantity);
       }
 
       state.totalQuantity = getCartCount(state.items);
+
+      localStorage.setItem("guest_cart", JSON.stringify(state.items));
     },
 
     decreaseQuantity: (state, action) => {
@@ -92,14 +95,16 @@ const cartSlice = createSlice({
       }
 
       state.totalQuantity = getCartCount(state.items);
+
+      localStorage.setItem("guest_cart", JSON.stringify(state.items));
     },
 
     removeCartItem: (state, action) => {
-      state.items = state.items.filter(
-        (item) => item.localId !== action.payload,
-      );
+      state.items = state.items.filter((item) => item.localId !== action.payload);
 
       state.totalQuantity = getCartCount(state.items);
+
+      localStorage.setItem("guest_cart", JSON.stringify(state.items));
     },
   },
 });

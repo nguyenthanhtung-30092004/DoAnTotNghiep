@@ -424,18 +424,26 @@ class CouponService {
     };
   }
 
-  async validateCouponForCart({ userId, code }) {
-    const cart = await cartModel.findOne({
-      user: userId,
-    });
+  async validateCouponForCart({ userId, code, items }) {
+    let cartItems = items;
 
-    if (!cart || cart.items.length === 0) {
+    if (userId && (!items || items.length === 0)) {
+      const cart = await cartModel.findOne({
+        user: userId,
+      });
+
+      if (cart && cart.items.length > 0) {
+        cartItems = cart.items;
+      }
+    }
+
+    if (!cartItems || cartItems.length === 0) {
       throw new BadRequestError("Giỏ hàng trống");
     }
 
     let subtotal = 0;
 
-    for (const item of cart.items) {
+    for (const item of cartItems) {
       const finalItemPrice =
         item.salePrice > 0 && item.salePrice < item.price
           ? item.salePrice
@@ -447,7 +455,7 @@ class CouponService {
     const result = await this.validateCouponForItems({
       userId,
       code,
-      items: cart.items,
+      items: cartItems,
       subtotal,
     });
 
