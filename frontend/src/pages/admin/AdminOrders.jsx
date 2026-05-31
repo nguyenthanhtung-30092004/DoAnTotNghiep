@@ -49,6 +49,14 @@ const getOrderList = (data) => {
   return data?.orders || data?.items || data?.data || [];
 };
 
+const removeAccents = (str) => {
+  if (!str) return "";
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+};
+
 const getPagination = (data) => {
   const pagination = data?.pagination || data;
 
@@ -261,15 +269,20 @@ const AdminOrders = () => {
   }, []);
 
   const filteredOrders = useMemo(() => {
-    const searchText = keyword.trim().toLowerCase();
+    const searchText = removeAccents(keyword.trim());
 
     return orders.filter((order) => {
+      const orderCode = removeAccents(order.orderCode);
+      const name = removeAccents(getCustomerName(order));
+      const email = removeAccents(getCustomerEmail(order));
+      const phone = removeAccents(getCustomerPhone(order));
+
       const matchedKeyword =
         !searchText ||
-        order.orderCode?.toLowerCase().includes(searchText) ||
-        getCustomerName(order).toLowerCase().includes(searchText) ||
-        getCustomerEmail(order).toLowerCase().includes(searchText) ||
-        getCustomerPhone(order).toLowerCase().includes(searchText);
+        orderCode.includes(searchText) ||
+        name.includes(searchText) ||
+        email.includes(searchText) ||
+        phone.includes(searchText);
 
       const matchedOrderStatus =
         !orderStatus || order.orderStatus === orderStatus;

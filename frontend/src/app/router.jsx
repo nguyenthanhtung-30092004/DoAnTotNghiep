@@ -20,6 +20,7 @@ import AdminBrands from "../pages/admin/AdminBrands";
 import AdminOrders from "../pages/admin/AdminOrders";
 import AdminOrderDetail from "../pages/admin/AdminOrderDetail";
 import AdminUsers from "../pages/admin/AdminUsers";
+import AdminCustomers from "../pages/admin/AdminCustomers";
 import AdminCoupons from "../pages/admin/AdminCoupons";
 import AdminReviews from "../pages/admin/AdminReviews";
 import AdminRoute from "./routes/AdminRoute";
@@ -129,6 +130,10 @@ const router = createBrowserRouter([
       {
         path: "users",
         element: <AdminUsers />,
+      },
+      {
+        path: "customers",
+        element: <AdminCustomers />,
       },
       {
         path: "coupons",

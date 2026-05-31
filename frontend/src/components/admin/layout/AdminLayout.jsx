@@ -12,16 +12,31 @@ import {
   Tags,
   Ticket,
   Users,
+  Contact,
   X,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate, NavLink } from "react-router-dom";
 import { clearUser, setAuthLoading } from "../../../redux/slices/authSlice";
 import { toast } from "react-toastify";
 import authService from "../../../services/auth.service";
 
+const NAV_ITEMS = [
+  { path: "/admin", icon: LayoutDashboard, label: "Thống kê", end: true },
+  { path: "/admin/products", icon: Package, label: "Quản lý sản phẩm" },
+  { path: "/admin/categories", icon: FolderTree, label: "Quản lý danh mục" },
+  { path: "/admin/brands", icon: Tags, label: "Quản lý thương hiệu" },
+  { path: "/admin/orders", icon: ShoppingCart, label: "Quản lý đơn hàng" },
+  { path: "/admin/users", icon: Users, label: "Quản lý người dùng" },
+  { path: "/admin/customers", icon: Contact, label: "Quản lý khách hàng" },
+  { path: "/admin/coupons", icon: Ticket, label: "Quản lý mã giảm giá" },
+  { path: "/admin/posts", icon: FileText, label: "Quản lý bài viết" },
+  { path: "/admin/reviews", icon: Star, label: "Quản lý đánh giá" },
+];
+
 const AdminLayout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = async () => {
@@ -40,8 +55,16 @@ const AdminLayout = () => {
   };
   return (
     <div className="min-h-screen bg-slate-50 flex">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0">
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
@@ -52,91 +75,30 @@ const AdminLayout = () => {
               ADMIN
             </span>
           </div>
-          <button className="lg:hidden text-slate-500">
+          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-slate-500">
             <X className="size-5" />
           </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {/* Thống kê */}
-          <a
-            href="/admin"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-indigo-50 text-indigo-700"
-          >
-            <LayoutDashboard className="size-4 shrink-0" />
-            <span>Thống kê</span>
-          </a>
-
-          {/* Quản lý sản phẩm */}
-          <a
-            href="/admin/products"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <Package className="size-4 shrink-0" />
-            <span>Quản lý sản phẩm</span>
-          </a>
-
-          {/* Quản lý danh mục */}
-          <a
-            href="/admin/categories"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <FolderTree className="size-4 shrink-0" />
-            <span>Quản lý danh mục</span>
-          </a>
-          {/* Quản lý thương hiệu */}
-          <a
-            href="/admin/brands"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <Tags className="size-4 shrink-0" />
-            <span>Quản lý thương hiệu</span>
-          </a>
-
-          {/* Quản lý đơn hàng */}
-          <a
-            href="/admin/orders"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <ShoppingCart className="size-4 shrink-0" />
-            <span>Quản lý đơn hàng</span>
-          </a>
-
-          {/* Quản lý người dùng */}
-          <a
-            href="/admin/users"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <Users className="size-4 shrink-0" />
-            <span>Quản lý người dùng</span>
-          </a>
-
-          {/* Quản lý mã giảm giá */}
-          <a
-            href="/admin/coupons"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <Ticket className="size-4 shrink-0" />
-            <span>Quản lý mã giảm giá</span>
-          </a>
-
-          {/* Quản lý bài viết */}
-          <a
-            href="/admin/posts"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <FileText className="size-4 shrink-0" />
-            <span>Quản lý bài viết</span>
-          </a>
-
-          {/* Quản lý đánh giá */}
-          <a
-            href="/admin/reviews"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <Star className="size-4 shrink-0" />
-            <span>Quản lý đánh giá</span>
-          </a>
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.end}
+              onClick={() => setIsSidebarOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`
+              }
+            >
+              <item.icon className="size-4 shrink-0" />
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
         </nav>
 
         <div className="p-3 border-t border-slate-200">
@@ -155,7 +117,7 @@ const AdminLayout = () => {
         {/* Header */}
         <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
           <div className="flex items-center gap-3 flex-1">
-            <button className="lg:hidden text-slate-600">
+            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-slate-600">
               <Menu className="size-5" />
             </button>
 

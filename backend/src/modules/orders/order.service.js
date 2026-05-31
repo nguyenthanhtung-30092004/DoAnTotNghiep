@@ -3,6 +3,7 @@ const orderModel = require("../../models/order.model");
 const productModel = require("../../models/product.model");
 const couponService = require("../../services/coupon.service");
 const { getFinalPrice } = require("./order.helper");
+const { createAccentRegex } = require("../../utils/format");
 const { getIO } = require("../../socket/socket");
 const sendOrderStatusEmail = require("../../utils/sendOrderStatusEmail");
 
@@ -243,10 +244,12 @@ class OrderService {
     if (paymentMethod) filter.paymentMethod = paymentMethod;
 
     if (selectedKeyword) {
+      const regexPattern = createAccentRegex(selectedKeyword);
       filter.$or = [
-        { orderCode: { $regex: selectedKeyword, $options: "i" } },
-        { "shippingAddress.fullName": { $regex: selectedKeyword, $options: "i" } },
-        { "shippingAddress.phone": { $regex: selectedKeyword, $options: "i" } },
+        { orderCode: { $regex: regexPattern, $options: "i" } },
+        { "shippingAddress.fullName": { $regex: regexPattern, $options: "i" } },
+        { "shippingAddress.phone": { $regex: regexPattern, $options: "i" } },
+        { "shippingAddress.email": { $regex: regexPattern, $options: "i" } },
       ];
     }
 

@@ -9,6 +9,7 @@ const { createAccessToken, createRefreshToken } = require("../auth/checkAuth");
 const SendMailForgotPassword = require("../utils/mailForgotPassword");
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
+const { createAccentRegex } = require("../utils/format");
 const otpModel = require("../models/otp.model");
 
 class UsersService {
@@ -282,9 +283,10 @@ class UsersService {
 
     if (keyword && keyword.trim()) {
       const searchText = keyword.trim();
+      const regexPattern = createAccentRegex(searchText);
       query.$or = [
-        { fullName: { $regex: searchText, $options: "i" } },
-        { email: { $regex: searchText, $options: "i" } },
+        { fullName: { $regex: regexPattern, $options: "i" } },
+        { email: { $regex: regexPattern, $options: "i" } },
       ];
     }
 
