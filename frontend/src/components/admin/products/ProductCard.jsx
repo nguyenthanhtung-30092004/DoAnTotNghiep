@@ -88,14 +88,16 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         <div className="absolute right-3 top-3 flex gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition">
           <button
             onClick={() => onEdit(product)}
-            className="size-9 rounded-full bg-white shadow flex items-center justify-center text-slate-600 hover:text-indigo-600"
+            className="flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+            title="Sửa sản phẩm"
           >
             <Edit className="size-4" />
           </button>
 
           <button
             onClick={() => onDelete(product)}
-            className="size-9 rounded-full bg-white shadow flex items-center justify-center text-slate-600 hover:text-red-600"
+            className="flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+            title="Xóa sản phẩm"
           >
             <Trash2 className="size-4" />
           </button>

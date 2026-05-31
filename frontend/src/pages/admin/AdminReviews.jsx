@@ -415,11 +415,11 @@ const AdminReviews = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-2">
                     {!review.isApproved && (
                       <button
                         onClick={() => handleApprove(review._id, true)}
-                        className="h-8 w-8 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center"
+                        className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600"
                         title="Duyệt"
                       >
                         <Check className="size-4" />
@@ -429,7 +429,7 @@ const AdminReviews = () => {
                     {review.isApproved && (
                       <button
                         onClick={() => handleApprove(review._id, false)}
-                        className="h-8 w-8 rounded-md bg-slate-50 text-slate-600 hover:bg-slate-100 flex items-center justify-center"
+                        className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-100 hover:text-slate-700"
                         title="Từ chối"
                       >
                         <X className="size-4" />
@@ -438,7 +438,7 @@ const AdminReviews = () => {
 
                     <button
                       onClick={() => handleDelete(review._id)}
-                      className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-500"
+                      className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                       title="Xóa"
                     >
                       <Trash2 className="size-4" />

@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderTree, ImageOff, Pencil, Trash2 } from "lucide-react";
+import { FolderTree, ImageOff, Edit, Trash2 } from "lucide-react";
 import Pagination from "./CategoryPagination";
 
 const CategoryTable = ({
@@ -114,20 +114,20 @@ const CategoryRow = ({ category, onEdit, onDelete }) => {
       </td>
 
       <td className="px-5 py-3">
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={() => onEdit(category)}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-600 transition hover:bg-slate-200"
+            className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
             title="Sửa danh mục"
           >
-            <Pencil className="size-4" />
+            <Edit className="size-4" />
           </button>
 
           <button
             type="button"
             onClick={() => onDelete(category)}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-slate-600 transition hover:bg-red-50 hover:text-red-600"
+            className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
             title="Xóa danh mục"
           >
             <Trash2 className="size-4" />

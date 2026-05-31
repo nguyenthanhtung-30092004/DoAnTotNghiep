@@ -142,17 +142,19 @@ const ProductTable = ({ products, loading, onEdit, onDelete }) => {
                 </td>
 
                 <td className="px-5 py-3">
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => onEdit(product)}
-                      className="size-8 rounded-md hover:bg-slate-200 flex items-center justify-center text-slate-600"
+                      className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                      title="Sửa sản phẩm"
                     >
                       <Edit className="size-4" />
                     </button>
 
                     <button
                       onClick={() => onDelete(product)}
-                      className="size-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600"
+                      className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      title="Xóa sản phẩm"
                     >
                       <Trash2 className="size-4" />
                     </button>

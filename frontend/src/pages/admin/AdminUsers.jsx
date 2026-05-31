@@ -1,5 +1,6 @@
 import {
   Loader2,
+  Edit,
   Search,
   Shield,
   ShieldOff,
@@ -440,21 +441,21 @@ const AdminUsers = () => {
 
                       {/* Actions */}
                       <td className="px-5 py-3">
-                        <div className="flex items-center justify-end gap-1">
+                        <div className="flex items-center justify-end gap-2">
                           {/* View Detail */}
                           <button
                             onClick={() => setSelectedUser(user)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+                            className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
                             title="Xem chi tiết & phân quyền"
                           >
-                            <Shield className="size-4" />
+                            <Edit className="size-4" />
                           </button>
 
                           {/* Delete */}
                           {!isCurrentUser && !isAdmin && (
                             <button
                               onClick={() => setDeleteTarget(user)}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                               title="Xóa người dùng"
                             >
                               <Trash2 className="size-4" />

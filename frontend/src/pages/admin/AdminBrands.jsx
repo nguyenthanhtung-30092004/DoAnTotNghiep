@@ -1,4 +1,4 @@
-import { Pencil, Plus, Search, Star, Trash } from "lucide-react";
+import { Edit, Plus, Search, Star, Trash2 } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -196,21 +196,21 @@ const AdminBrands = () => {
                     : "Chưa có ngày tạo"}
                 </span>
 
-                <div className="flex gap-1">
+                <div className="flex gap-2">
                   <button
                     onClick={() => handleOpenEdit(brand)}
-                    className="h-8 w-8 rounded-md hover:bg-slate-100 flex items-center justify-center text-slate-600"
+                    className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
                     title="Sửa thương hiệu"
                   >
-                    <Pencil className="size-4" />
+                    <Edit className="size-4" />
                   </button>
 
                   <button
                     onClick={() => handleOpenDelete(brand)}
-                    className="h-8 w-8 rounded-md hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-600"
+                    className="flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                     title="Xóa thương hiệu"
                   >
-                    <Trash className="size-4" />
+                    <Trash2 className="size-4" />
                   </button>
                 </div>
               </div>
