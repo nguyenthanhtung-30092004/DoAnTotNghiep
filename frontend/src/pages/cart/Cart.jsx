@@ -117,6 +117,7 @@ const Cart = () => {
 
       const res = await CartService.updateQuantity(item._id, newQuantity);
       const data = res;
+      console.log(data, "data");
 
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));

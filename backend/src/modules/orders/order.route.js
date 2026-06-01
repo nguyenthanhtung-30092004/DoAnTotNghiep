@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const orderController = require("./order.controller");
 const orderValidation = require("./order.validation");
 const asyncHandler = require("../../middlewares/asyncHandler");
@@ -11,7 +11,7 @@ router.post(
   "/checkout",
   optionalAuth, // dùng optionalAuth để có thể checkout khi chưa đăng nhập
   validate(orderValidation.checkout),
-  asyncHandler(orderController.checkout)
+  asyncHandler(orderController.createOrderFromCart)
 );
 
 // lịch sử đơn hàng bắt buộc đăng nhập
