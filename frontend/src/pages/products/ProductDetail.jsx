@@ -532,7 +532,7 @@ const ProductDetail = () => {
                   })}
                 </div>
 
-                <div className="relative flex items-center h-[500px] justify-center overflow-hidden bg-white p-12a border rounded-[30px]">
+                <div className="relative flex items-center h-[560px] justify-center overflow-hidden bg-white p-12a border rounded-[30px]">
                   {selectedImage ? (
                     <img
                       src={selectedImage}
