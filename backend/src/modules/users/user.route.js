@@ -1,5 +1,5 @@
 const express = require("express");
-const userController = require("./user.controller");
+const userController = require("./users.controller");
 const asyncHandler = require("../../middlewares/asyncHandler");
 const { authAdmin } = require("../../middlewares/authentication");
 

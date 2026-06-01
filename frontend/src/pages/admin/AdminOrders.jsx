@@ -28,10 +28,6 @@ import {
 import orderService from "../../services/order.service";
 import socket from "../../socket/socket";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -202,7 +198,7 @@ const AdminOrders = () => {
       }
 
       const res = await orderService.getAllOrders(params);
-      const data = getResponseData(res);
+      const data = res;
 
       const list = getOrderList(data);
       setOrders(list);

@@ -36,11 +36,7 @@ const AdminCoupons = () => {
     limit: 8,
   });
 
-  const getResponseData = (res) => {
-    return res.data?.metadata || res.data?.data || res.data;
-  };
-
-  const fetchCoupons = async () => {
+const fetchCoupons = async () => {
     try {
       setLoading(true);
 
@@ -55,7 +51,7 @@ const AdminCoupons = () => {
       if (filters.discountType) params.discountType = filters.discountType;
 
       const res = await couponService.getCoupons(params);
-      const data = getResponseData(res);
+      const data = res;
 
       setCoupons(data.coupons || []);
 

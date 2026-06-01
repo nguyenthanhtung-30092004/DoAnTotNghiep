@@ -45,11 +45,7 @@ const AdminProducts = () => {
     limit: 8,
   });
 
-  const getResponseData = (res) => {
-    return res.data?.metadata || res.data?.data || res.data;
-  };
-
-  const fetchProducts = async () => {
+const fetchProducts = async () => {
     try {
       setLoading(true);
 
@@ -66,7 +62,7 @@ const AdminProducts = () => {
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
 
       const res = await ProductService.getAllProducts(params);
-      const data = getResponseData(res);
+      const data = res;
 
       setProducts(data.products || []);
 
@@ -89,7 +85,7 @@ const AdminProducts = () => {
   const fetchBrands = async () => {
     try {
       const res = await brandService.getAllBrands();
-      const brands = res.data.metadata || [];
+      const brands = Array.isArray(res) ? res : res?.metadata || res?.data || [];
 
       setBrands(Array.isArray(brands) ? brands : []);
     } catch (error) {
@@ -105,7 +101,7 @@ const AdminProducts = () => {
         limit: 100,
       });
 
-      const data = getResponseData(res);
+      const data = res;
       const categoryList =
         data?.categories || data?.category || data?.data || [];
 

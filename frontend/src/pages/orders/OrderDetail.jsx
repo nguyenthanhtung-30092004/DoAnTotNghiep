@@ -26,10 +26,6 @@ import {
 } from "../../constants/payment.constants";
 import orderService from "../../services/order.service";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -90,7 +86,7 @@ const OrderDetail = () => {
       setLoading(true);
 
       const res = await orderService.getMyOrderDetail(orderId);
-      const data = getResponseData(res);
+      const data = res;
 
       setOrder(data?.order || data);
     } catch (error) {

@@ -86,10 +86,7 @@ const Footer = () => {
               Cập nhật sản phẩm mới, mẹo chạy bộ và khuyến mãi hấp dẫn.
             </p>
           </div>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex gap-2 w-full md:w-auto"
-          >
+          <form onSubmit={(e) => e.preventDefault()} className="flex gap-2 w-full md:w-auto">
             <div className="relative flex-1 md:w-80">
               <input
                 type="email"
@@ -120,8 +117,8 @@ const Footer = () => {
           </Link>
 
           <p className="text-sm text-zinc-400 leading-relaxed mb-8 max-w-sm">
-            Đồng hành cùng runner Việt Nam trên mọi cung đường. Chạy xa hơn, bứt
-            tốc mạnh hơn với những trang bị thể thao đỉnh cao.
+            Đồng hành cùng runner Việt Nam trên mọi cung đường. Chạy xa hơn, bứt tốc mạnh hơn với
+            những trang bị thể thao đỉnh cao.
           </p>
 
           <div className="space-y-4 text-sm">

@@ -12,10 +12,6 @@ import { toast } from "react-toastify";
 import reviewService from "../../services/review.service";
 import socket from "../../socket/socket";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatDate = (date) => {
   if (!date) return "";
   return new Date(date).toLocaleDateString("vi-VN");
@@ -70,7 +66,7 @@ const AdminReviews = () => {
       }
 
       const res = await reviewService.adminGetReviews(params);
-      const data = getResponseData(res);
+      const data = res;
 
       setReviews(data.reviews || []);
       setPagination(data.pagination || null);

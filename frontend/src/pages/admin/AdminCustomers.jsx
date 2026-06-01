@@ -6,7 +6,6 @@ import orderService from "../../services/order.service";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const getResponseData = (res) => res.data?.metadata || res.data?.data || res.data;
 
 const formatDate = (date) => {
   if (!date) return "–";
@@ -94,7 +93,7 @@ const AdminCustomers = () => {
       }
 
       const res = await orderService.getAllOrders(params);
-      const data = getResponseData(res);
+      const data = res;
 
       const list = Array.isArray(data) ? data : data?.orders || data?.items || data?.data || [];
 

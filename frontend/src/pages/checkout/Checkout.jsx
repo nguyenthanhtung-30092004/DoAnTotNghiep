@@ -25,10 +25,6 @@ import CheckoutAddress from "../../components/checkout/CheckoutAddress";
 import CheckoutSummary from "../../components/checkout/CheckoutSummary";
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHODS } from "../../constants/payment.constants";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -132,7 +128,7 @@ const Checkout = () => {
       setLoading(true);
 
       const res = await CartService.getCart();
-      const data = getResponseData(res);
+      const data = res;
 
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));
@@ -219,7 +215,7 @@ const Checkout = () => {
     try {
       setApplyingCoupon(true);
       const res = await couponService.validateCoupon({ code, items });
-      const data = getResponseData(res);
+      const data = res;
 
       setAppliedCoupon(data);
       setCouponCode(data.code || code);
@@ -348,7 +344,7 @@ const Checkout = () => {
       };
 
       const res = await orderService.checkout(payload);
-      const data = getResponseData(res);
+      const data = res;
 
       if (data?.paymentUrl) {
         window.location.href = data.paymentUrl;

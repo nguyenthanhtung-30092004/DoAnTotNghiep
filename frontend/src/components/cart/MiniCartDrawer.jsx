@@ -13,10 +13,6 @@ import {
   setCart,
 } from "../../redux/slices/cartSlice";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -51,7 +47,7 @@ const MiniCartDrawer = () => {
     try {
       setLoading(true);
       const res = await CartService.getCart();
-      dispatch(setCart(getResponseData(res) || { items: [] }));
+      dispatch(setCart(res || { items: [] }));
     } catch (error) {
       console.log(error);
     } finally {
@@ -71,7 +67,7 @@ const MiniCartDrawer = () => {
     try {
       setUpdatingId(item._id);
       const res = await CartService.updateQuantity(item._id, nextQuantity);
-      dispatch(setCart(getResponseData(res) || { items: [] }));
+      dispatch(setCart(res || { items: [] }));
     } catch (error) {
       toast.error(error.response?.data?.message || "Cập nhật giỏ hàng thất bại");
     } finally {
@@ -87,7 +83,7 @@ const MiniCartDrawer = () => {
     try {
       setUpdatingId(item._id);
       const res = await CartService.removeFromCart(item._id);
-      dispatch(setCart(getResponseData(res) || { items: [] }));
+      dispatch(setCart(res || { items: [] }));
     } catch (error) {
       toast.error(error.response?.data?.message || "Xóa sản phẩm thất bại");
     } finally {

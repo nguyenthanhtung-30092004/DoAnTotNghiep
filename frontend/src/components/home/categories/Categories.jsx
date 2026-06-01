@@ -22,9 +22,6 @@ const fallbackDescriptions = [
   "Năng lượng. Phục hồi.",
 ];
 
-const getResponseData = (res) =>
-  res.data?.metadata || res.data?.data || res.data;
-
 const getList = (data) => {
   if (Array.isArray(data)) return data;
   return data?.categories || data?.items || data?.data || [];
@@ -65,7 +62,7 @@ const Categories = () => {
       try {
         setLoading(true);
         const res = await CategoryService.getAllCategories({ limit: 100 });
-        const data = getResponseData(res);
+        const data = res;
         setCategories(getList(data));
       } catch (err) {
         console.error(err);

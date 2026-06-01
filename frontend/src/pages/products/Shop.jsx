@@ -13,7 +13,6 @@ import ShopFilterSidebar from "../../components/products/ShopFilterSidebar";
 import ShopToolbar from "../../components/products/ShopToolbar";
 import ShopPagination from "../../components/products/ShopPagination";
 
-const getResponseData = (res) => res.data?.metadata || res.data?.data || res.data;
 
 const Shop = () => {
   const { categorySlug } = useParams();
@@ -61,7 +60,7 @@ const Shop = () => {
   const fetchBrands = async () => {
     try {
       const res = await brandService.getAllBrands();
-      const data = getResponseData(res);
+      const data = res;
       setBrands(Array.isArray(data) ? data : []);
     } catch {
       setBrands([]);
@@ -74,7 +73,7 @@ const Shop = () => {
         page: 1,
         limit: 200,
       });
-      const data = getResponseData(res);
+      const data = res;
       const list = data?.categories || data?.category || data?.data || data || [];
       setCategories(Array.isArray(list) ? list : []);
     } catch {
@@ -146,7 +145,7 @@ const Shop = () => {
 
         if (!isActive) return;
 
-        const data = getResponseData(res);
+        const data = res;
 
         setProducts(data.products || []);
 

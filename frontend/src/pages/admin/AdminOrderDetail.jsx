@@ -6,10 +6,6 @@ import { toast } from "react-toastify";
 import orderService from "../../services/order.service";
 import socket from "../../socket/socket";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -31,7 +27,7 @@ const AdminOrderDetail = () => {
     try {
       setLoading(true);
       const res = await orderService.getOrderDetail(orderId);
-      const data = getResponseData(res);
+      const data = res;
       setOrder(data?.order || data);
     } catch (error) {
       toast.error(

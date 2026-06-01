@@ -14,10 +14,6 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { ORDER_STATUS_LABELS } from "../../constants/order.constants";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -78,7 +74,7 @@ const Orders = () => {
       setLoading(true);
 
       const res = await orderService.getMyOrders();
-      const data = getResponseData(res);
+      const data = res;
 
       const list = Array.isArray(data)
         ? data

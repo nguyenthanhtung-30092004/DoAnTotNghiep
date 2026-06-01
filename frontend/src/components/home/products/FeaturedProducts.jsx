@@ -5,9 +5,6 @@ import productService from "../../../services/product.service";
 import ProductCard from "../../products/ProductCard";
 
 /* ── Helpers ── */
-const getResponseData = (res) =>
-  res.data?.metadata || res.data?.data || res.data;
-
 const getList = (data) => {
   if (Array.isArray(data)) return data;
   return data?.products || data?.items || data?.data || [];
@@ -27,7 +24,7 @@ const FeaturedProducts = () => {
           sort: "-createdAt",
           isPublished: true,
         });
-        const data = getResponseData(res);
+        const data = res;
         setProducts(getList(data));
       } catch (err) {
         console.error(err);

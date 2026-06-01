@@ -1,53 +1,52 @@
-const { OK } = require("../../core/success.response");
-const checkoutService = require("./checkout.service");
-const orderService = require("./order.service");
-
-const getUserId = (req) => req.user?._id || req.user?.userId;
+const { Created, OK } = require("../../core/success.response");
+const orderService = require("../../services/order.service");
 
 class OrderController {
-  checkout = async (req, res) => {
+  // user create order
+  createOrderFromCart = async (req, res) => {
     new OK({
       message: "Tạo đơn hàng thành công",
-      metadata: await checkoutService.checkout({
-        userId: getUserId(req),
+      metadata: await orderService.createOrderFromCart({
+        // nếu có user thì lấy userid còn không thì truyển null
+        userId: req.user ? req.user._id || req.user.userId : null,
         items: req.body.items,
         shippingAddress: req.body.shippingAddress,
         paymentMethod: req.body.paymentMethod,
-        couponCode: req.body.couponCode,
         note: req.body.note,
-        ipAddr:
-          req.headers["x-forwarded-for"] ||
-          req.socket.remoteAddress ||
-          "127.0.0.1",
+        couponCode: req.body.couponCode,
       }),
     }).send(res);
   };
+
+  // user get my orders
 
   getMyOrders = async (req, res) => {
     new OK({
       message: "Lấy danh sách đơn hàng thành công",
       metadata: await orderService.getMyOrders({
-        userId: getUserId(req),
+        userId: req.user.userId,
         ...req.query,
       }),
     }).send(res);
   };
 
+  // user get detail
   getMyOrderDetail = async (req, res) => {
     new OK({
       message: "Lấy chi tiết đơn hàng thành công",
       metadata: await orderService.getMyOrderDetail({
-        userId: getUserId(req),
+        userId: req.user.userId,
         orderId: req.params.orderId,
       }),
     }).send(res);
   };
 
+  // user cancel order
   cancelMyOrder = async (req, res) => {
     new OK({
       message: "Hủy đơn hàng thành công",
-      metadata: await orderService.cancelOrderByUser({
-        userId: getUserId(req),
+      metadata: await orderService.cancelMyOrder({
+        userId: req.user.userId,
         orderId: req.params.orderId,
         reason: req.body.reason,
       }),
@@ -57,7 +56,7 @@ class OrderController {
   getAllOrders = async (req, res) => {
     new OK({
       message: "Lấy danh sách đơn hàng thành công",
-      metadata: await orderService.adminGetOrders(req.query),
+      metadata: await orderService.getAllOrders(req.query),
     }).send(res);
   };
 
@@ -71,7 +70,7 @@ class OrderController {
   updateOrderStatus = async (req, res) => {
     new OK({
       message: "Cập nhật trạng thái đơn hàng thành công",
-      metadata: await orderService.adminUpdateOrderStatus({
+      metadata: await orderService.updateOrderStatus({
         orderId: req.params.orderId,
         orderStatus: req.body.orderStatus,
       }),
@@ -90,3 +89,4 @@ class OrderController {
 }
 
 module.exports = new OrderController();
+

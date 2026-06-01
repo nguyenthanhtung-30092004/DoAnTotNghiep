@@ -9,10 +9,6 @@ import { ToastContainer, Slide } from "react-toastify";
 import authService from "./services/auth.service";
 import { clearUser, setUser } from "./redux/slices/authSlice";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 function AuthBootstrap() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
@@ -23,7 +19,7 @@ function AuthBootstrap() {
 
       try {
         const res = await authService.me();
-        const currentUser = getResponseData(res);
+        const currentUser = res;
 
         if (currentUser) {
           dispatch(setUser(currentUser));

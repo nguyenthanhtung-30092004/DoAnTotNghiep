@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Footprints, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Footprints, ArrowRight } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Label } from "../../components/ui/Label";
 import { Input } from "../../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthLoading, setUser } from "../../redux/slices/authSlice";
 import { toast } from "react-toastify";
-import google_icon from "../../assets/icon-google.png";
 import { setCart } from "../../redux/slices/cartSlice";
 import cartService from "../../services/cart.service";
 import authService from "../../services/auth.service";
+import loginBg from "../../assets/login-bg.png";
 
 const emailRegex = /^\S+@\S+\.\S+$/;
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -36,7 +35,7 @@ const Login = () => {
       }
 
       const res = await cartService.getCart();
-      const data = res.data?.metadata || res.data?.data || res.data;
+      const data = res;
 
       dispatch(setCart(data));
     } catch (error) {
@@ -62,7 +61,7 @@ const Login = () => {
       dispatch(setAuthLoading(true));
 
       const res = await authService.login({ email: email.trim(), password });
-      const userData = res.data?.metadata || res.data?.data || res.data;
+      const userData = res;
 
       dispatch(setUser(userData));
       toast.success("Đăng nhập thành công");
@@ -83,124 +82,97 @@ const Login = () => {
   };
 
   return (
-    <div className="max-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[450px] h-[450px] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-[450px] h-[450px] rounded-full bg-primary/10 blur-3xl" />
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      {/* Left side - Image */}
+      <div className="hidden lg:block relative w-full h-full bg-zinc-950">
+        <img
+          src={loginBg}
+          alt="Athlete running at dawn"
+          className="absolute inset-0 w-full h-full object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+        <div className="absolute bottom-12 left-12 max-w-md">
+          <h2 className="text-4xl text-white font-medium tracking-tight mb-4">
+            Bứt phá giới hạn.
+          </h2>
+          <p className="text-zinc-400 text-lg">
+            Tham gia cộng đồng các vận động viên tin dùng đồ chạy bộ cao cấp từ RunVault.
+          </p>
+        </div>
       </div>
 
-      <div className="w-full max-w-xl relative z-10">
-        <Link to="/" className="flex items-center justify-center gap-2 mb-10">
-          <Footprints className="h-9 w-9 text-primary" />
-          <span className="text-3xl font-semibold tracking-tight">
-            RunVault
-          </span>
-        </Link>
-
-        <div className="rounded-3xl border bg-card p-10 shadow-xl">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-semibold">Chào mừng trở lại</h1>
-            <p className="text-sm text-muted-foreground mt-2">
-              Đăng nhập vào tài khoản của bạn để tiếp tục
+      {/* Right side - Form */}
+      <div className="w-full flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-12">
+        <div className="w-full max-w-[400px] mx-auto">
+          {/* Header */}
+          <div className="mb-12">
+            <Link to="/" className="inline-flex items-center gap-2 mb-8 text-foreground hover:opacity-80 transition-opacity">
+              <Footprints className="h-6 w-6" />
+              <span className="text-xl font-semibold tracking-tight">RunVault</span>
+            </Link>
+            <h1 className="text-3xl font-semibold tracking-tight mb-3">Đăng nhập</h1>
+            <p className="text-muted-foreground text-sm">
+              Nhập email và mật khẩu của bạn để truy cập tài khoản.
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <Button
-              variant="outline"
-              className="h-12 w-full rounded-xl text-sm font-medium"
-            >
-              <div className="size-[30px] flex items-center justify-center overflow-hidden">
-                <img
-                  src={google_icon}
-                  alt="Google"
-                  className="block w-[70px] h-[70px] object-cover"
-                />
-              </div>
-              Google
-            </Button>
-          </div>
-
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-3 text-muted-foreground">
-                Hoặc tiếp tục với email
-              </span>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label>Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="email"
-                  placeholder="vidu@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus-visible:ring-2 focus-visible:ring-primary"
-                />
-              </div>
+              <Label htmlFor="email" className="text-sm font-medium">Địa chỉ email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="vidu@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none"
+              />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Mật khẩu</Label>
+                <Label htmlFor="password" className="text-sm font-medium">Mật khẩu</Label>
                 <Link
                   to="/forgot-password"
-                  className="text-xs text-primary hover:underline"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Quên mật khẩu?
                 </Link>
               </div>
-
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-0 focus-visible:ring-2 focus-visible:ring-primary"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none"
+              />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-full text-sm font-semibold mt-2 gap-2"
+              className="w-full h-12 rounded-none bg-foreground text-background hover:bg-foreground/90 font-medium tracking-wide mt-4"
             >
               {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
-              {!isLoading && <ArrowRight className="h-4 w-4" />}
+              {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
           </form>
-        </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Bạn chưa có tài khoản?{" "}
-          <Link
-            to="/signup"
-            className="font-semibold text-primary hover:underline"
-          >
-            Tạo tài khoản mới
-          </Link>
-        </p>
+          {/* Footer */}
+          <div className="mt-10 pt-6 border-t border-zinc-100 dark:border-zinc-800 text-center">
+            <p className="text-sm text-muted-foreground">
+              Bạn chưa có tài khoản?{" "}
+              <Link
+                to="/signup"
+                className="font-medium text-foreground hover:underline underline-offset-4"
+              >
+                Tạo tài khoản mới
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

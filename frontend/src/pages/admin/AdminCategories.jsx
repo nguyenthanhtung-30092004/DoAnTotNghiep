@@ -50,8 +50,8 @@ const AdminCategories = () => {
 
       const res = await categoryService.getAllCategories(params);
 
-      setCategories(getCategoryList(res.data));
-      setPagination(getPagination(res.data));
+      setCategories(getCategoryList(res));
+      setPagination(getPagination(res));
     } catch (error) {
       console.log(error);
       toast.error(
@@ -69,7 +69,7 @@ const AdminCategories = () => {
         limit: 1000,
       });
 
-      setAllCategories(getCategoryList(res.data));
+      setAllCategories(getCategoryList(res));
     } catch (error) {
       console.log(error);
     }
@@ -261,21 +261,22 @@ const AdminCategories = () => {
 };
 
 const getCategoryList = (resData) => {
-  const metadata = resData?.metadata;
+  if (Array.isArray(resData)) return resData;
+  if (Array.isArray(resData?.categories)) return resData.categories;
+  if (Array.isArray(resData?.category)) return resData.category;
+  if (Array.isArray(resData?.data)) return resData.data;
 
+  const metadata = resData?.metadata;
   if (Array.isArray(metadata?.data)) return metadata.data;
-  if (Array.isArray(metadata?.data?.data)) return metadata.data.data;
   if (Array.isArray(metadata)) return metadata;
 
   return [];
 };
 
 const getPagination = (resData) => {
-  const metadata = resData?.metadata;
-
   return (
-    metadata?.pagination ||
-    metadata?.data?.pagination || {
+    resData?.pagination ||
+    resData?.metadata?.pagination || {
       total: 0,
       page: 1,
       limit: 10,

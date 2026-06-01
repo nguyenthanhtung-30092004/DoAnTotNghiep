@@ -11,7 +11,10 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Tự động bóc tách metadata hoặc data từ response backend
+    return response.data?.metadata || response.data?.data || response.data || response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       store.dispatch(clearUser());

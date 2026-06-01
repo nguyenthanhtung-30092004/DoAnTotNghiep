@@ -1,6 +1,6 @@
-const { Created, OK } = require("../core/success.response");
-const usersService = require("../services/users.service");
-const setCookie = require("../utils/setCookie");
+const { Created, OK } = require("../../core/success.response");
+const usersService = require("../../services/users.service");
+const setCookie = require("../../utils/setCookie");
 
 class UsersController {
   async register(req, res) {
@@ -173,3 +173,4 @@ class UsersController {
 }
 
 module.exports = new UsersController();
+

@@ -16,8 +16,6 @@ import userService from "../../services/user.service";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const getResponseData = (res) =>
-  res.data?.metadata || res.data?.data || res.data;
 
 const formatDate = (date) => {
   if (!date) return "–";
@@ -100,7 +98,7 @@ const UserDetailModal = ({ user, currentUserId, onClose, onRoleUpdated }) => {
     try {
       setUpdating(true);
       const res = await userService.updateUserRole(user._id, newRole);
-      const updated = getResponseData(res);
+      const updated = res;
       toast.success(`Đã cập nhật quyền thành ${newRole === "admin" ? "Admin" : "Khách hàng"}`);
       onRoleUpdated(updated);
     } catch (err) {
@@ -226,7 +224,7 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       const res = await userService.getAllUsers({ page: p, limit: 10, keyword: kw, role: r });
-      const data = getResponseData(res);
+      const data = res;
       setUsers(data?.users || []);
       setPagination(
         data?.pagination || { total: 0, page: 1, limit: 10, totalPages: 1 }

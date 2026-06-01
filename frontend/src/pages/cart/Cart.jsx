@@ -17,10 +17,6 @@ import { setCart as setCartRedux } from "../../redux/slices/cartSlice";
 import CartService from "../../services/cart.service";
 import useSelection from "antd/es/table/hooks/useSelection";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -86,7 +82,7 @@ const Cart = () => {
       setLoading(true);
 
       const res = await CartService.getCart();
-      const data = getResponseData(res);
+      const data = res;
       console.log(data, "datadatad");
 
       setCart(data || { items: [] });
@@ -120,7 +116,7 @@ const Cart = () => {
       setUpdatingItemId(item._id);
 
       const res = await CartService.updateQuantity(item._id, newQuantity);
-      const data = getResponseData(res);
+      const data = res;
 
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));
@@ -144,7 +140,7 @@ const Cart = () => {
       setUpdatingItemId(item._id);
 
       const res = await CartService.removeFromCart(item._id);
-      const data = getResponseData(res);
+      const data = res;
 
       setCart(data || { items: [] });
       dispatch(setCartRedux(data || { items: [] }));
@@ -164,7 +160,7 @@ const Cart = () => {
     if (!user) return;
     try {
       const res = await CartService.syncCart();
-      const data = getResponseData(res);
+      const data = res;
 
       if (data) {
         setCart(data);

@@ -31,10 +31,6 @@ import {
   setCart,
 } from "../../redux/slices/cartSlice";
 
-const getResponseData = (res) => {
-  return res.data?.metadata || res.data?.data || res.data;
-};
-
 const formatPrice = (price) => {
   if (price === undefined || price === null) return "Liên hệ";
 
@@ -192,7 +188,7 @@ const ProductDetail = () => {
       setLoading(true);
 
       const res = await ProductService.getDetailProduct(currentId);
-      const data = getResponseData(res);
+      const data = res;
 
       setProduct(data);
 
@@ -223,7 +219,7 @@ const ProductDetail = () => {
         limit: 10,
       });
 
-      const data = getResponseData(res);
+      const data = res;
 
       setReviews(data.reviews || []);
       setReviewPagination(data.pagination || null);
@@ -367,7 +363,7 @@ const ProductDetail = () => {
 
       if (user) {
         const res = await CartService.addToCart(cartPayload);
-        const data = getResponseData(res);
+        const data = res;
 
         dispatch(setCart(data));
       } else {

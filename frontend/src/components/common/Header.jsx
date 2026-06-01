@@ -16,10 +16,6 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 
-const getResponseData = (res) => {
-  return res?.data?.metadata || res?.data?.data || res?.data || [];
-};
-
 const getCategoryId = (category) => {
   return category?._id || category?.id;
 };
@@ -121,7 +117,7 @@ const Header = () => {
     const fetchCategories = async () => {
       try {
         const res = await categoryService.getAllCategories({ limit: 200 });
-        const data = getResponseData(res);
+        const data = res;
 
         const flatList = Array.isArray(data)
           ? data
@@ -200,7 +196,7 @@ const Header = () => {
           search: searchQuery,
           limit: 5,
         });
-        const data = getResponseData(res);
+        const data = res;
         setSearchResults(Array.isArray(data) ? data : data?.products || data?.items || []);
       } catch (error) {
         console.error("Lỗi tìm kiếm:", error);

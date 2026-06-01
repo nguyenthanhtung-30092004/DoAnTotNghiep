@@ -21,9 +21,9 @@ const AdminBrands = () => {
       setLoading(true);
 
       const res = await brandService.getAllBrands();
-      console.log(res.data);
 
-      setBrands(res.data.metadata || []);
+      const brandsData = Array.isArray(res) ? res : res?.metadata || res?.data || [];
+      setBrands(Array.isArray(brandsData) ? brandsData : []);
     } catch (error) {
       console.log(error);
       toast.error(

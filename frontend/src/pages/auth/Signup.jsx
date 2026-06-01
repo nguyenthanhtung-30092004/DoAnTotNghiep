@@ -63,7 +63,7 @@ const Signup = () => {
         email: email.trim(),
         password,
       });
-      const userData = res.data?.metadata || res.data?.data || res.data;
+      const userData = res;
 
       dispatch(setUser(userData));
       toast.success("Đăng ký thành công");

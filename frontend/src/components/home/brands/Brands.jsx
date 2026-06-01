@@ -3,9 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import brandService from "../../../services/brand.service";
 
-const getResponseData = (res) =>
-  res.data?.metadata || res.data?.data || res.data;
-
 const getList = (data) => {
   if (Array.isArray(data)) return data;
   return data?.brands || data?.items || data?.data || [];
@@ -21,7 +18,7 @@ const Brands = () => {
     const fetchBrands = async () => {
       try {
         const res = await brandService.getAllBrands();
-        const data = getResponseData(res);
+        const data = res;
         const list = getList(data).filter((b) => !b.isDeleted);
         setBrands(list);
         setCurrentIndex(list.length);
