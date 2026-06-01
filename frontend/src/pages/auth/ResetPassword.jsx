@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Footprints, Lock, Eye, EyeOff, Hash, ArrowLeft } from "lucide-react";
+import { Footprints, Eye, EyeOff, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Label } from "../../components/ui/Label";
 import { Input } from "../../components/ui/Input";
@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthLoading } from "../../redux/slices/authSlice";
 import authService from "../../services/auth.service";
+import loginBg from "../../assets/login-bg.png";
 
 const otpRegex = /^\d{6}$/;
 
@@ -40,7 +41,7 @@ const ResetPassword = () => {
     }
 
     if (!otpRegex.test(otp.trim())) {
-      toast.error("OTP phải gồm 6 chữ số");
+      toast.error("Mã OTP phải gồm 6 chữ số");
       return;
     }
 
@@ -77,68 +78,81 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      {/* Left side - Image */}
+      <div className="hidden lg:block relative w-full h-full bg-zinc-950">
+        <img
+          src={loginBg}
+          alt="Athlete running at dawn"
+          className="absolute inset-0 w-full h-full object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+        <div className="absolute bottom-12 left-12 max-w-md">
+          <h2 className="text-4xl text-white font-medium tracking-tight mb-4">
+            Bảo mật hàng đầu.
+          </h2>
+          <p className="text-zinc-400 text-lg">
+            Khôi phục quyền truy cập vào tài khoản của bạn một cách nhanh chóng và an toàn.
+          </p>
+        </div>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <Footprints className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold text-foreground">RunVault</span>
-        </Link>
-
-        <div className="rounded-3xl border border-border bg-card p-8 shadow-lg">
-          <div className="text-center mb-8">
-            <div className="mx-auto mb-4 h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Lock className="h-6 w-6 text-primary" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Đặt lại mật khẩu
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Đang xác thực cho:{" "}
-              <span className="font-medium text-primary">{email}</span>
+      {/* Right side - Form */}
+      <div className="w-full flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-12">
+        <div className="w-full max-w-[400px] mx-auto">
+          {/* Header */}
+          <div className="mb-12">
+            <Link to="/" className="inline-flex items-center gap-2 mb-8 text-foreground hover:opacity-80 transition-opacity">
+              <Footprints className="h-6 w-6" />
+              <span className="text-xl font-semibold tracking-tight">RunVault</span>
+            </Link>
+            <h1 className="text-3xl font-semibold tracking-tight mb-3">Đặt lại mật khẩu</h1>
+            <p className="text-muted-foreground text-sm">
+              Đang xác thực cho: <span className="font-medium text-foreground">{email}</span>
             </p>
           </div>
 
-          <form className="space-y-5">
+          {/* Form */}
+          <form onSubmit={handleResetPassword} className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-muted-foreground">
-                Mã xác nhận (OTP)
-              </Label>
-              <div className="relative">
-                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Nhập mã OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="pl-10 rounded-xl h-11 bg-muted/50 border-0 focus-visible:ring-primary"
-                  required
-                />
-              </div>
+              <Label htmlFor="otp" className="text-sm font-medium">Mã xác nhận (OTP)</Label>
+              <Input
+                id="otp"
+                type="text"
+                placeholder="Nhập 6 số OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none tracking-widest"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-muted-foreground">
-                Mật khẩu mới
-              </Label>
+              <Label htmlFor="password" className="text-sm font-medium">Mật khẩu mới</Label>
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-sm font-medium">Xác nhận mật khẩu</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  id="confirmPassword"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 rounded-xl h-11 bg-muted/50 border-0 focus-visible:ring-primary"
-                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -149,41 +163,27 @@ const ResetPassword = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-muted-foreground">
-                Xác nhận mật khẩu
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-10 pr-10 rounded-xl h-11 bg-muted/50 border-0 focus-visible:ring-primary"
-                  required
-                />
-              </div>
-            </div>
-
             <Button
-              type="button"
-              onClick={handleResetPassword}
+              type="submit"
               disabled={isLoading}
-              className="w-full rounded-xl h-11 text-sm font-semibold mt-2"
+              className="w-full h-12 rounded-none bg-foreground text-background hover:bg-foreground/90 font-medium tracking-wide mt-4"
             >
               {isLoading ? "Đang xử lý..." : "Cập nhật mật khẩu"}
+              {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
           </form>
-        </div>
 
-        <Link
-          to="/login"
-          className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-6 hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Quay lại đăng nhập
-        </Link>
+          {/* Footer */}
+          <div className="mt-10 pt-6 border-t border-zinc-100 dark:border-zinc-800 text-center">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Quay lại đăng nhập
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
