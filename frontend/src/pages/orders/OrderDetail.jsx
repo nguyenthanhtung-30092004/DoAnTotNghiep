@@ -199,8 +199,8 @@ const OrderDetail = () => {
           Quay lại tài khoản
         </Link>
 
-        <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="mt-8 border border-zinc-200 bg-white p-12 text-center">
+          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
             Không tìm thấy đơn hàng.
           </p>
         </div>
@@ -219,7 +219,7 @@ const OrderDetail = () => {
         <div className="container max-w-4xl py-8 md:py-12">
           <Link
             to="/account"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="mb-8 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-950"
           >
             <ArrowLeft className="size-4" />
             Quay lại tài khoản
@@ -227,8 +227,8 @@ const OrderDetail = () => {
 
           <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <div className="mb-1 flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-foreground">
+              <div className="mb-2 flex items-center gap-3">
+                <h1 className="text-2xl font-black uppercase tracking-widest text-zinc-950">
                   Đơn hàng {order.orderCode}
                 </h1>
 
@@ -241,7 +241,7 @@ const OrderDetail = () => {
                 </button>
               </div>
 
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                 Đặt ngày {formatDate(order.createdAt)}
               </p>
             </div>
@@ -252,16 +252,16 @@ const OrderDetail = () => {
           </div>
 
           {!isCancelled && (
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="mb-6 text-sm font-semibold text-foreground">
+            <div className="border border-zinc-200 bg-white p-8">
+              <h2 className="mb-8 text-[11px] font-black uppercase tracking-[0.15em] text-zinc-950">
                 Tiến trình đơn hàng
               </h2>
 
               <div className="hidden items-start justify-between sm:flex relative">
-                <div className="absolute left-[calc(12.5%)] right-[calc(12.5%)] top-5 h-0.5 bg-border"></div>
+                <div className="absolute left-[calc(12.5%)] right-[calc(12.5%)] top-5 h-px bg-zinc-200"></div>
 
                 <div
-                  className="absolute left-[calc(12.5%)] top-5 h-0.5 bg-primary transition-all duration-500"
+                  className="absolute left-[calc(12.5%)] top-5 h-px bg-teal-600 transition-all duration-500"
                   style={{
                     width: `${(currentStep / (steps.length - 1)) * 75}%`,
                   }}
@@ -279,11 +279,11 @@ const OrderDetail = () => {
                       className="relative z-10 flex w-1/4 flex-col items-center"
                     >
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 ${
+                        className={`flex size-10 items-center justify-center transition-all duration-300 ${
                           isActive
-                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                            : "bg-muted text-muted-foreground"
-                        } ${isCurrent ? "ring-4 ring-primary/20" : ""}`}
+                            ? "bg-teal-600 text-white"
+                            : "bg-zinc-50 text-zinc-400"
+                        } ${isCurrent ? "ring-1 ring-teal-600 ring-offset-2" : ""}`}
                       >
                         {isDone ? (
                           <Check className="size-5" />
@@ -293,8 +293,8 @@ const OrderDetail = () => {
                       </div>
 
                       <p
-                        className={`mt-3 text-xs font-semibold ${
-                          isCurrent ? "text-primary" : "text-foreground"
+                        className={`mt-4 text-[10px] font-black uppercase tracking-widest ${
+                          isCurrent ? "text-teal-600" : "text-zinc-950"
                         }`}
                       >
                         {step.label}
@@ -315,11 +315,11 @@ const OrderDetail = () => {
                     <div key={step.key} className="flex gap-4">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all ${
+                          className={`flex size-10 shrink-0 items-center justify-center transition-all ${
                             isActive
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-muted-foreground"
-                          } ${isCurrent ? "ring-4 ring-primary/20" : ""}`}
+                              ? "bg-teal-600 text-white"
+                              : "bg-zinc-50 text-zinc-400"
+                          } ${isCurrent ? "ring-1 ring-teal-600 ring-offset-2" : ""}`}
                         >
                           {isDone ? (
                             <Check className="size-4" />
@@ -330,8 +330,8 @@ const OrderDetail = () => {
 
                         {index < steps.length - 1 && (
                           <div
-                            className={`min-h-[28px] w-0.5 flex-1 ${
-                              index < currentStep ? "bg-primary" : "bg-border"
+                            className={`min-h-[28px] w-px flex-1 ${
+                              index < currentStep ? "bg-teal-600" : "bg-zinc-200"
                             }`}
                           />
                         )}
@@ -339,12 +339,12 @@ const OrderDetail = () => {
 
                       <div className="pb-6">
                         <p
-                          className={`text-sm font-semibold ${
+                          className={`text-[10px] font-black uppercase tracking-widest mt-2 ${
                             isCurrent
-                              ? "text-primary"
+                              ? "text-teal-600"
                               : isActive
-                                ? "text-foreground"
-                                : "text-muted-foreground"
+                                ? "text-zinc-950"
+                                : "text-zinc-400"
                           }`}
                         >
                           {step.label}
@@ -359,8 +359,8 @@ const OrderDetail = () => {
 
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
-              <div className="rounded-2xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-sm font-semibold text-foreground">
+              <div className="border border-zinc-200 bg-white p-8">
+                <h2 className="mb-6 text-[11px] font-black uppercase tracking-[0.15em] text-zinc-950">
                   Sản phẩm ({items.length})
                 </h2>
 
@@ -370,12 +370,12 @@ const OrderDetail = () => {
                       key={`${item.product}-${item.sizeId}-${index}`}
                       className="flex items-center gap-4"
                     >
-                      <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted text-2xl">
+                      <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden border border-zinc-200 bg-zinc-50 text-2xl">
                         {item.productThumbnail ? (
                           <img
                             src={item.productThumbnail}
                             alt={item.productName}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover mix-blend-multiply"
                           />
                         ) : (
                           "👟"
@@ -383,19 +383,19 @@ const OrderDetail = () => {
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-foreground">
+                        <p className="truncate text-xs font-black uppercase tracking-widest text-zinc-950">
                           {item.productName}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">
                           Size: {item.size} | Màu: {item.color} | SL:{" "}
                           {item.quantity}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                           SKU: {item.sku}
                         </p>
                       </div>
 
-                      <p className="shrink-0 text-sm font-bold text-foreground">
+                      <p className="shrink-0 text-sm font-black text-teal-600">
                         {formatPrice(item.itemTotal)}
                       </p>
                     </div>
@@ -403,12 +403,12 @@ const OrderDetail = () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-sm font-semibold text-foreground">
+              <div className="border border-zinc-200 bg-white p-8">
+                <h2 className="mb-6 text-[11px] font-black uppercase tracking-[0.15em] text-zinc-950">
                   Thông tin giao hàng
                 </h2>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <InfoItem
                     label="Khách hàng"
                     value={shippingAddress.fullName}
@@ -453,12 +453,12 @@ const OrderDetail = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-2xl border border-border bg-card p-6">
-                <h2 className="mb-4 text-sm font-semibold text-foreground">
+              <div className="border border-zinc-200 bg-white p-8">
+                <h2 className="mb-6 text-[11px] font-black uppercase tracking-[0.15em] text-zinc-950">
                   Tóm tắt đơn hàng
                 </h2>
 
-                <div className="space-y-3 text-sm">
+                <div className="space-y-4 text-[10px] font-bold uppercase tracking-wider">
                   <SummaryRow
                     label="Tạm tính"
                     value={formatPrice(order.totalPrice)}
@@ -489,21 +489,21 @@ const OrderDetail = () => {
                     }
                   />
 
-                  <div className="my-1 h-px bg-border"></div>
+                  <div className="my-4 h-px bg-zinc-200"></div>
 
-                  <div className="flex justify-between text-base font-bold text-foreground">
-                    <span>Tổng cộng</span>
-                    <span>{formatPrice(order.finalPrice)}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Tổng cộng</span>
+                    <span className="text-xl font-black text-zinc-950">{formatPrice(order.finalPrice)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3 rounded-2xl border border-border bg-card p-6">
-                <h2 className="mb-1 text-sm font-semibold text-foreground">
+              <div className="space-y-4 border border-zinc-200 bg-white p-8">
+                <h2 className="mb-4 text-[11px] font-black uppercase tracking-[0.15em] text-zinc-950">
                   Thao tác
                 </h2>
 
-                <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-input bg-background px-5 py-2 text-sm font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
+                <button className="inline-flex h-12 w-full items-center justify-center gap-2 border border-zinc-200 bg-zinc-50 px-5 text-[10px] font-black uppercase tracking-[0.1em] text-zinc-950 transition-all duration-200 hover:bg-white hover:border-zinc-300">
                   <RotateCcw className="size-4" />
                   Đặt lại
                 </button>
@@ -512,14 +512,14 @@ const OrderDetail = () => {
                   <button
                     onClick={handleCancelOrder}
                     disabled={isCancelling}
-                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/5 px-5 py-2 text-sm font-semibold text-destructive transition-all duration-200 hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex h-12 w-full items-center justify-center gap-2 border border-red-200 bg-red-50 px-5 text-[10px] font-black uppercase tracking-[0.1em] text-red-600 transition-all duration-200 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <XCircle className="size-4" />
                     {isCancelling ? "Đang hủy..." : "Hủy đơn hàng"}
                   </button>
                 )}
 
-                <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
+                <button className="inline-flex h-12 w-full items-center justify-center gap-2 bg-zinc-950 px-5 text-[10px] font-black uppercase tracking-[0.1em] text-white transition-all duration-200 hover:bg-teal-600">
                   <MessageCircle className="size-4" />
                   Liên hệ hỗ trợ
                 </button>
@@ -535,9 +535,9 @@ const OrderDetail = () => {
 const InfoItem = ({ label, value }) => {
   return (
     <div>
-      <p className="mb-0.5 text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium text-foreground">
-        {value || "ChÆ°a cáº­p nháº­t"}
+      <p className="mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-950">
+        {value || "Chưa cập nhật"}
       </p>
     </div>
   );
@@ -545,9 +545,9 @@ const InfoItem = ({ label, value }) => {
 
 const SummaryRow = ({ label, value }) => {
   return (
-    <div className="flex justify-between text-muted-foreground">
+    <div className="flex justify-between text-zinc-500">
       <span>{label}</span>
-      <span>{value}</span>
+      <span className="text-zinc-950 tabular-nums">{value}</span>
     </div>
   );
 };

@@ -141,7 +141,7 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+      <div className="border border-zinc-200 bg-white p-8 text-center text-[10px] font-black uppercase tracking-widest text-zinc-500">
         Đang tải đơn hàng...
       </div>
     );
@@ -151,22 +151,22 @@ const Orders = () => {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-foreground">
+          <h2 className="text-xl font-black uppercase tracking-widest text-zinc-950">
             Lịch sử đơn hàng
           </h2>
-          <p className="text-sm text-muted-foreground">0 đơn hàng</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">0 đơn hàng</p>
         </div>
 
-        <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-accent">
-            <Package className="size-6 text-muted-foreground" />
+        <div className="border border-dashed border-zinc-200 bg-white p-12 text-center">
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center bg-zinc-50">
+            <Package className="size-6 text-zinc-400" />
           </div>
 
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-xs font-black uppercase tracking-widest text-zinc-950">
             Bạn chưa có đơn hàng nào
           </h3>
 
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
             Các đơn hàng sau khi mua sẽ hiển thị tại đây.
           </p>
         </div>
@@ -177,8 +177,8 @@ const Orders = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">Lịch sử đơn hàng</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-xl font-black uppercase tracking-widest text-zinc-950">Lịch sử đơn hàng</h2>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
           {orders.length} đơn hàng
         </p>
       </div>
@@ -196,78 +196,78 @@ const Orders = () => {
             <Link
               key={order._id}
               to={`/orders/${order._id}`}
-              className="block rounded-2xl border border-border bg-card p-5 hover:shadow-md transition-shadow cursor-pointer group"
+              className="block border border-zinc-200 bg-white p-6 hover:shadow-card-hover transition-shadow cursor-pointer group"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="size-9 rounded-xl bg-muted flex items-center justify-center">
-                    <Package className="size-4 text-muted-foreground" />
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="size-12 bg-zinc-50 flex items-center justify-center">
+                    <Package className="size-5 text-zinc-400" />
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-foreground">
+                    <p className="text-sm font-black uppercase tracking-widest text-zinc-950">
                       {order.orderCode}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">
                       {formatDate(order.createdAt)}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div
-                    className={`inline-flex items-center font-semibold rounded-full gap-1 text-xs px-2.5 py-1 ${status.className}`}
+                    className={`inline-flex items-center font-black uppercase tracking-widest gap-1.5 text-[8px] px-3 py-1 ${status.className}`}
                   >
                     <StatusIcon className="size-3" />
                     {status.label}
                   </div>
 
-                  <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <ChevronRight className="size-4 text-zinc-400 group-hover:text-zinc-950 transition-colors" />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-4">
                 {firstItems.map((item, index) => (
                   <div
                     key={`${item.product}-${item.sizeId}-${index}`}
-                    className="flex items-center justify-between gap-3 text-sm"
+                    className="flex items-center justify-between gap-4 text-sm"
                   >
-                    <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-4">
                       {item.productThumbnail ? (
                         <img
                           src={item.productThumbnail}
                           alt={item.productName}
-                          className="size-8 rounded-lg object-cover"
+                          className="size-10 border border-zinc-200 object-cover mix-blend-multiply"
                         />
                       ) : (
                         <span className="text-lg">👟</span>
                       )}
 
-                      <span className="truncate text-foreground">
+                      <span className="truncate text-xs font-black uppercase tracking-widest text-zinc-950">
                         {item.productName}
                       </span>
 
-                      <span className="shrink-0 text-muted-foreground">
+                      <span className="shrink-0 text-[10px] font-bold text-zinc-500">
                         x{item.quantity}
                       </span>
                     </div>
 
-                    <span className="shrink-0 font-medium text-foreground">
+                    <span className="shrink-0 text-sm font-black text-teal-600">
                       {formatPrice(item.itemTotal)}
                     </span>
                   </div>
                 ))}
 
                 {order.items?.length > 3 && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-2">
                     +{order.items.length - 3} sản phẩm khác
                   </p>
                 )}
               </div>
 
-              <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Tổng tiền</span>
-                <span className="text-base font-bold text-foreground">
+              <div className="mt-6 pt-4 border-t border-zinc-200 flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Tổng tiền</span>
+                <span className="text-lg font-black text-teal-600 tabular-nums">
                   {formatPrice(order.finalPrice)}
                 </span>
               </div>

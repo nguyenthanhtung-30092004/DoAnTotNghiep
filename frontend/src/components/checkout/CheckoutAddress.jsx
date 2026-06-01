@@ -14,21 +14,21 @@ const CheckoutAddress = ({
   handleNextToPayment,
 }) => {
   return (
-    <form className="space-y-5 rounded-2xl bg-card p-6 shadow-card">
-      <h2 className="text-lg font-bold">Thông tin giao hàng</h2>
+    <form className="space-y-6 border border-zinc-200 p-8 bg-white">
+      <h2 className="text-sm font-black uppercase tracking-widest text-zinc-950">Thông tin giao hàng</h2>
 
       <div>
-        <label className="mb-1.5 block text-xs font-semibold">Họ và tên</label>
+        <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Họ và tên</label>
         <input
           type="text"
           name="fullName"
           value={shippingAddress.fullName}
           onChange={handleChangeShipping}
           placeholder="Nhập họ và tên"
-          className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 ${
+          className={`h-12 w-full border bg-zinc-50 px-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-1 ${
             addressErrors.fullName
-              ? "border-red-500 focus:ring-red-100"
-              : "border-border focus:ring-primary"
+              ? "border-red-500 focus:ring-red-500"
+              : "border-zinc-200 focus:ring-teal-600 focus:border-teal-600"
           }`}
         />
         {addressErrors.fullName && (
@@ -37,17 +37,17 @@ const CheckoutAddress = ({
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-semibold">Email</label>
+        <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Email</label>
         <input
           type="email"
           name="email"
           value={shippingAddress.email}
           onChange={handleChangeShipping}
           placeholder="Ví dụ: email@gmail.com"
-          className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 ${
+          className={`h-12 w-full border bg-zinc-50 px-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-1 ${
             addressErrors.email
-              ? "border-red-500 focus:ring-red-100"
-              : "border-border focus:ring-primary"
+              ? "border-red-500 focus:ring-red-500"
+              : "border-zinc-200 focus:ring-teal-600 focus:border-teal-600"
           }`}
         />
         {addressErrors.email && (
@@ -56,17 +56,17 @@ const CheckoutAddress = ({
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-semibold">Số điện thoại</label>
+        <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Số điện thoại</label>
         <input
           type="tel"
           name="phone"
           value={shippingAddress.phone}
           onChange={handleChangeShipping}
           placeholder="Nhập số điện thoại"
-          className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 ${
+          className={`h-12 w-full border bg-zinc-50 px-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-1 ${
             addressErrors.phone
-              ? "border-red-500 focus:ring-red-100"
-              : "border-border focus:ring-primary"
+              ? "border-red-500 focus:ring-red-500"
+              : "border-zinc-200 focus:ring-teal-600 focus:border-teal-600"
           }`}
         />
         {addressErrors.phone && (
@@ -76,14 +76,14 @@ const CheckoutAddress = ({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className="mb-1.5 block text-xs font-semibold">Tỉnh/Thành phố</label>
+          <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Tỉnh/Thành phố</label>
           <select
             value={provinces.find((item) => item.name === shippingAddress.province)?.code || ""}
             onChange={selectProvince}
-            className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 ${
+            className={`h-12 w-full border bg-zinc-50 px-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-1 ${
               addressErrors.province
-                ? "border-red-500 focus:ring-red-100"
-                : "border-border focus:ring-primary"
+                ? "border-red-500 focus:ring-red-500"
+                : "border-zinc-200 focus:ring-teal-600 focus:border-teal-600"
             }`}
           >
             <option value="">Chọn tỉnh/thành phố</option>
@@ -99,15 +99,15 @@ const CheckoutAddress = ({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-semibold">Quận/Huyện</label>
+          <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Quận/Huyện</label>
           <select
             value={districts.find((item) => item.name === shippingAddress.district)?.code || ""}
             onChange={selectDistrict}
             disabled={!shippingAddress.province || addressLoading}
-            className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 disabled:opacity-60 ${
+            className={`h-12 w-full border bg-zinc-50 px-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-1 disabled:opacity-60 ${
               addressErrors.district
-                ? "border-red-500 focus:ring-red-100"
-                : "border-border focus:ring-primary"
+                ? "border-red-500 focus:ring-red-500"
+                : "border-zinc-200 focus:ring-teal-600 focus:border-teal-600"
             }`}
           >
             <option value="">Chọn quận/huyện</option>
@@ -123,15 +123,15 @@ const CheckoutAddress = ({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-semibold">Phường/Xã</label>
+          <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Phường/Xã</label>
           <select
             value={wards.find((item) => item.name === shippingAddress.ward)?.code || ""}
             onChange={selectWard}
             disabled={!shippingAddress.district || addressLoading}
-            className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 disabled:opacity-60 ${
+            className={`h-12 w-full border bg-zinc-50 px-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-1 disabled:opacity-60 ${
               addressErrors.ward
-                ? "border-red-500 focus:ring-red-100"
-                : "border-border focus:ring-primary"
+                ? "border-red-500 focus:ring-red-500"
+                : "border-zinc-200 focus:ring-teal-600 focus:border-teal-600"
             }`}
           >
             <option value="">Chọn phường/xã</option>
@@ -148,17 +148,17 @@ const CheckoutAddress = ({
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-semibold">Địa chỉ chi tiết</label>
+        <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Địa chỉ chi tiết</label>
         <input
           type="text"
           name="detailAddress"
           value={shippingAddress.detailAddress}
           onChange={handleChangeShipping}
           placeholder="Số nhà, tên đường..."
-          className={`h-11 w-full rounded-xl border bg-background px-4 text-sm outline-none transition-all duration-200 focus:ring-2 ${
+          className={`h-12 w-full border bg-zinc-50 px-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-1 ${
             addressErrors.detailAddress
-              ? "border-red-500 focus:ring-red-100"
-              : "border-border focus:ring-primary"
+              ? "border-red-500 focus:ring-red-500"
+              : "border-zinc-200 focus:ring-teal-600 focus:border-teal-600"
           }`}
         />
         {addressErrors.detailAddress && (
@@ -169,7 +169,7 @@ const CheckoutAddress = ({
       <button
         type="button"
         onClick={handleNextToPayment}
-        className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary px-10 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-secondary hover:shadow-xl"
+        className="inline-flex h-14 w-full items-center justify-center gap-2 bg-zinc-950 text-white font-black uppercase tracking-[0.1em] text-xs hover:bg-teal-600 transition-colors mt-4"
       >
         Tiếp tục thanh toán
       </button>

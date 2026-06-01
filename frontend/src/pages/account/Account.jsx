@@ -56,78 +56,78 @@ const Account = () => {
   return (
     <div>
       <div className="container py-8 md:py-12">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+        <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-zinc-950 mb-8">
           Tài khoản của tôi
         </h1>
 
         <div className="flex flex-col md:flex-row gap-8">
           <aside className="w-full md:sticky md:top-24 md:w-64 shrink-0 self-start">
-            <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
+            <div className="border border-zinc-200 bg-white p-6">
               {/* User */}
-              <div className="flex items-center gap-3 p-3 mb-1">
-                <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="size-4 text-primary" />
+              <div className="flex items-center gap-4 mb-6">
+                <div className="size-12 bg-zinc-50 border border-zinc-200 flex items-center justify-center shrink-0">
+                  <User className="size-5 text-zinc-400" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black uppercase tracking-widest text-zinc-950 truncate">
                     {user?.fullName || user?.name || "Người dùng"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 truncate mt-1">
                     {user?.email || "Chưa có email"}
                   </p>
                 </div>
               </div>
 
               {/* Gạch chân */}
-              <div className="h-px bg-border mx-2 mb-1"></div>
+              <div className="h-px bg-zinc-200 mb-6"></div>
 
               {/* Menu */}
-              <nav className="flex flex-grow md:flex-col gap-0.5 overflow-x-auto md:overflow-visible">
+              <nav className="flex flex-grow md:flex-col gap-2 overflow-x-auto md:overflow-visible">
                 <button
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors whitespace-normal w-full ${
+                  className={`flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-[0.15em] transition-colors whitespace-nowrap w-full ${
                     activeTab === "profile"
-                      ? "text-primary-foreground bg-primary shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-zinc-950 text-white"
+                      : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950 border border-transparent hover:border-zinc-200"
                   }`}
                   onClick={() => setActiveTab("profile")}
                 >
-                  <User className="size-4" />
+                  <User className="size-4 shrink-0" />
                   <span>Thông tin</span>
                 </button>
 
                 <button
                   onClick={() => setActiveTab("orders")}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors whitespace-normal w-full ${
+                  className={`flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-[0.15em] transition-colors whitespace-nowrap w-full ${
                     activeTab === "orders"
-                      ? "text-primary-foreground bg-primary shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-zinc-950 text-white"
+                      : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950 border border-transparent hover:border-zinc-200"
                   }`}
                 >
-                  <Package className="size-4" />
+                  <Package className="size-4 shrink-0" />
                   <span>Đơn hàng</span>
                 </button>
 
                 <button
                   onClick={() => setActiveTab("addresses")}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors whitespace-normal w-full ${
+                  className={`flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-[0.15em] transition-colors whitespace-nowrap w-full ${
                     activeTab === "addresses"
-                      ? "text-primary-foreground bg-primary shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-zinc-950 text-white"
+                      : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950 border border-transparent hover:border-zinc-200"
                   }`}
                 >
-                  <MapPin className="size-4" />
+                  <MapPin className="size-4 shrink-0" />
                   <span>Địa chỉ</span>
                 </button>
               </nav>
 
               {/* Gạch chân 2 */}
-              <div className="h-px bg-border mx-2 my-1 hidden md:block"></div>
+              <div className="h-px bg-zinc-200 my-6 hidden md:block"></div>
 
               <button
                 onClick={handleLogout}
-                className="hidden md:flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full"
+                className="hidden md:flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-[0.15em] text-red-500 hover:bg-red-50 hover:text-red-600 border border-transparent hover:border-red-100 transition-colors w-full"
               >
-                <LogOut className="size-4" />
+                <LogOut className="size-4 shrink-0" />
                 <span>Đăng xuất</span>
               </button>
             </div>

@@ -17,41 +17,41 @@ const Profile = ({ user }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">Thông tin cá nhân</h2>
+        <h2 className="text-xl font-black uppercase tracking-widest text-zinc-950">Thông tin cá nhân</h2>
 
-        <button className="inline-flex items-center justify-center whitespace-nowrap text-sm font-semibold transition-all duration-200 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 gap-2 rounded-xl">
-          <Pen className="size-4" />
+        <button className="inline-flex items-center justify-center whitespace-nowrap text-[10px] font-black uppercase tracking-[0.1em] transition-all duration-200 border border-zinc-200 bg-white hover:bg-zinc-50 h-10 px-4 gap-2">
+          <Pen className="size-3" />
           Chỉnh sửa
         </button>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="border border-zinc-200 bg-white p-8">
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="size-20 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <User className="size-10 text-primary" />
+          <div className="size-24 bg-zinc-50 border border-zinc-200 flex items-center justify-center shrink-0">
+            <User className="size-8 text-zinc-400" />
           </div>
 
           <div className="text-center sm:text-left">
-            <h3 className="text-lg font-bold text-foreground">{fullName}</h3>
+            <h3 className="text-lg font-black uppercase tracking-widest text-zinc-950">{fullName}</h3>
 
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-2">
               Thành viên từ {formatDate(createdAt)}
             </p>
 
-            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
-              <span className="size-1.5 rounded-full bg-primary"></span>
+            <div className="mt-4 inline-flex items-center gap-2 bg-teal-50 border border-teal-100 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-teal-700">
+              <span className="size-1.5 rounded-full bg-teal-600"></span>
               Đang hoạt động
             </div>
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="text-sm font-semibold text-foreground mb-4">
+      <div className="border border-zinc-200 bg-white p-8">
+        <h3 className="text-[11px] font-black uppercase tracking-[0.15em] text-zinc-950 mb-6">
           Thông tin chi tiết
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <InfoInput
             icon={User}
             label="Họ và tên"
@@ -78,7 +78,7 @@ const Profile = ({ user }) => {
 const InfoInput = ({ icon: Icon, label, value, className = "" }) => {
   return (
     <div className={`space-y-2 ${className}`}>
-      <label className="font-medium text-muted-foreground text-xs flex items-center gap-1.5">
+      <label className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500 flex items-center gap-2">
         <Icon className="size-3" />
         {label}
       </label>
@@ -86,7 +86,7 @@ const InfoInput = ({ icon: Icon, label, value, className = "" }) => {
       <input
         type="text"
         readOnly
-        className="flex h-10 w-full px-3 py-2 text-base rounded-md bg-muted/50 border-0 outline-none"
+        className="flex h-12 w-full px-4 py-2 text-xs font-bold text-zinc-950 bg-zinc-50 border border-zinc-200 outline-none"
         value={value || "Chưa cập nhật"}
       />
     </div>

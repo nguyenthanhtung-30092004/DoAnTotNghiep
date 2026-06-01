@@ -477,16 +477,16 @@ const Checkout = () => {
       <div className="flex items-center justify-center gap-0">
         <div className="flex items-center">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-soft transition-all duration-300">
+            <div className="flex size-8 items-center justify-center bg-zinc-950 text-[10px] font-black text-white transition-all duration-300">
               {status > 1 ? <Check className="size-4" /> : 1}
             </div>
 
-            <span className="hidden text-sm font-medium text-foreground sm:block">Giao hàng</span>
+            <span className="hidden text-[10px] font-black uppercase tracking-widest text-zinc-950 sm:block">Giao hàng</span>
           </div>
 
           <div
-            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${
-              status > 1 ? "bg-primary" : "bg-border"
+            className={`mx-3 h-px w-12 transition-colors duration-300 sm:w-20 ${
+              status > 1 ? "bg-zinc-950" : "bg-zinc-200"
             }`}
           />
         </div>
@@ -494,18 +494,18 @@ const Checkout = () => {
         <div className="flex items-center">
           <div className="flex items-center gap-2">
             <div
-              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${
+              className={`flex size-8 items-center justify-center text-[10px] font-black transition-all duration-300 ${
                 status >= 2
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-zinc-950 text-white"
+                  : "bg-zinc-100 text-zinc-400"
               }`}
             >
               {status > 2 ? <Check className="size-4" /> : 2}
             </div>
 
             <span
-              className={`hidden text-sm font-medium sm:block ${
-                status >= 2 ? "text-foreground" : "text-muted-foreground"
+              className={`hidden text-[10px] font-black uppercase tracking-widest sm:block ${
+                status >= 2 ? "text-zinc-950" : "text-zinc-400"
               }`}
             >
               Thanh toán
@@ -513,8 +513,8 @@ const Checkout = () => {
           </div>
 
           <div
-            className={`mx-3 h-0.5 w-12 rounded-full transition-colors duration-300 sm:w-20 ${
-              status > 2 ? "bg-primary" : "bg-border"
+            className={`mx-3 h-px w-12 transition-colors duration-300 sm:w-20 ${
+              status > 2 ? "bg-zinc-950" : "bg-zinc-200"
             }`}
           />
         </div>
@@ -522,18 +522,18 @@ const Checkout = () => {
         <div className="flex items-center">
           <div className="flex items-center gap-2">
             <div
-              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold shadow-soft transition-all duration-300 ${
+              className={`flex size-8 items-center justify-center text-[10px] font-black transition-all duration-300 ${
                 status >= 3
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-zinc-950 text-white"
+                  : "bg-zinc-100 text-zinc-400"
               }`}
             >
               3
             </div>
 
             <span
-              className={`hidden text-sm font-medium sm:block ${
-                status >= 3 ? "text-foreground" : "text-muted-foreground"
+              className={`hidden text-[10px] font-black uppercase tracking-widest sm:block ${
+                status >= 3 ? "text-zinc-950" : "text-zinc-400"
               }`}
             >
               Xác nhận
@@ -560,8 +560,8 @@ const Checkout = () => {
             />
           ) : status === 2 ? (
             <div className="space-y-6">
-              <div className="space-y-4 rounded-2xl bg-card p-6 shadow-card">
-                <h2 className="text-lg font-bold">Phương thức thanh toán</h2>
+              <div className="space-y-4 border border-zinc-200 p-8 bg-white">
+                <h2 className="text-sm font-black uppercase tracking-widest text-zinc-950">Phương thức thanh toán</h2>
 
                 {paymentMethods.map((method) => {
                   const Icon = method.icon;
@@ -580,17 +580,17 @@ const Checkout = () => {
 
                         setPaymentMethod(method.value);
                       }}
-                      className={`w-full active:scale-[0.99] flex items-center gap-4 rounded-xl border-2 p-4 text-left shadow-soft duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+                      className={`w-full flex items-center gap-4 border p-5 text-left duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
                         isSelected
-                          ? "border-primary bg-accent"
-                          : "border-border bg-background hover:border-primary/60"
+                          ? "border-teal-600 bg-teal-50"
+                          : "border-zinc-200 bg-zinc-50 hover:border-teal-600/50 hover:bg-white"
                       }`}
                     >
                       <div
-                        className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${
+                        className={`flex size-12 shrink-0 items-center justify-center ${
                           isSelected
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-accent text-foreground"
+                            ? "bg-teal-600 text-white"
+                            : "bg-zinc-200 text-zinc-500"
                         }`}
                       >
                         <Icon className="size-5" />
@@ -598,35 +598,35 @@ const Checkout = () => {
 
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold">{method.title}</p>
+                          <p className="text-[11px] font-black uppercase tracking-widest">{method.title}</p>
 
                           {method.disabled && (
-                            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                            <span className="bg-zinc-200 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-zinc-500">
                               Sắp có
                             </span>
                           )}
                         </div>
 
-                        <p className="mt-0.5 text-xs text-muted-foreground">{method.description}</p>
+                        <p className="mt-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{method.description}</p>
                       </div>
 
                       <div
                         className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                          isSelected ? "border-primary" : "border-border"
+                          isSelected ? "border-teal-600" : "border-zinc-300"
                         }`}
                       >
-                        {isSelected && <div className="size-2.5 rounded-full bg-primary" />}
+                        {isSelected && <div className="size-2.5 rounded-full bg-teal-600" />}
                       </div>
                     </button>
                   );
                 })}
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <button
                   onClick={() => setStatus(1)}
                   type="button"
-                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-input bg-background px-8 text-sm font-semibold transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
+                  className="inline-flex h-14 flex-1 items-center justify-center border border-zinc-200 bg-white text-[10px] font-black uppercase tracking-widest transition-all duration-200 hover:bg-zinc-50"
                 >
                   Quay lại
                 </button>
@@ -634,7 +634,7 @@ const Checkout = () => {
                 <button
                   onClick={handleNextToReview}
                   type="button"
-                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-input bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-secondary hover:shadow-xl"
+                  className="inline-flex h-14 flex-1 items-center justify-center bg-zinc-950 text-white text-[10px] font-black uppercase tracking-widest transition-all duration-200 hover:bg-teal-600"
                 >
                   Xem lại đơn hàng
                 </button>
@@ -642,17 +642,17 @@ const Checkout = () => {
             </div>
           ) : status === 3 ? (
             <div className="space-y-6">
-              <div className="rounded-2xl bg-card p-6 shadow-card">
-                <h2 className="mb-4 text-lg font-bold">Xem lại đơn hàng</h2>
+              <div className="border border-zinc-200 p-8 bg-white">
+                <h2 className="mb-6 text-sm font-black uppercase tracking-widest text-zinc-950">Xem lại đơn hàng</h2>
 
-                <div className="mb-4 flex items-start justify-between border-b border-border pb-4">
+                <div className="mb-6 flex items-start justify-between border-b border-zinc-200 pb-6">
                   <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500">
                       Giao tới
                     </p>
-                    <p className="text-sm font-medium">{shippingAddress.fullName}</p>
-                    <p className="text-sm text-muted-foreground">{shippingAddress.phone}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-zinc-950">{shippingAddress.fullName}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">{shippingAddress.phone}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">
                       {shippingAddress.detailAddress}, {shippingAddress.ward},{" "}
                       {shippingAddress.district}, {shippingAddress.province}
                     </p>
@@ -661,65 +661,65 @@ const Checkout = () => {
                   <button
                     type="button"
                     onClick={() => setStatus(1)}
-                    className="text-xs text-primary underline-offset-4 hover:underline"
+                    className="text-[10px] font-black uppercase tracking-widest text-teal-600 hover:text-teal-700"
                   >
                     Chỉnh sửa
                   </button>
                 </div>
 
-                <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
+                <div className="mb-6 flex items-center justify-between border-b border-zinc-200 pb-6">
                   <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500">
                       Thanh toán
                     </p>
-                    <p className="text-sm font-medium">{PAYMENT_METHOD_LABELS[paymentMethod]}</p>
+                    <p className="text-[11px] font-black uppercase tracking-widest text-zinc-950">{PAYMENT_METHOD_LABELS[paymentMethod]}</p>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setStatus(2)}
-                    className="text-xs text-primary underline-offset-4 hover:underline"
+                    className="text-[10px] font-black uppercase tracking-widest text-teal-600 hover:text-teal-700"
                   >
                     Sửa
                   </button>
                 </div>
 
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="mb-4 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500">
                   Sản phẩm ({totalQuantity})
                 </p>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {items.map((item) => {
                     const itemPrice = getItemPrice(item);
                     const itemTotal = itemPrice * Number(item.quantity || 0);
 
                     return (
-                      <div key={item._id} className="flex items-center gap-3">
+                      <div key={item._id} className="flex items-center gap-4">
                         <Link
                           to={getProductLink(item)}
-                          className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent"
+                          className="flex size-16 shrink-0 items-center justify-center overflow-hidden border border-zinc-200 bg-zinc-50"
                         >
                           {item.thumbnail ? (
                             <img
                               src={item.thumbnail}
                               alt={item.productName}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-cover mix-blend-multiply"
                             />
                           ) : (
-                            <ShoppingCart className="size-5 text-muted-foreground" />
+                            <ShoppingCart className="size-6 text-zinc-300" />
                           )}
                         </Link>
 
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">
+                          <p className="truncate text-xs font-black uppercase tracking-widest text-zinc-950">
                             {item.productName || item.product?.name}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">
                             Size {item.size} | SL {item.quantity}
                           </p>
                         </div>
 
-                        <p className="shrink-0 text-sm font-semibold tabular-nums">
+                        <p className="shrink-0 text-sm font-black text-teal-600 tabular-nums">
                           {formatPrice(itemTotal)}
                         </p>
                       </div>
@@ -731,12 +731,12 @@ const Checkout = () => {
               <button
                 onClick={handlePlaceOrder}
                 disabled={placingOrder}
-                className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary px-10 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:bg-secondary hover:shadow-xl disabled:opacity-60"
+                className="inline-flex h-14 w-full items-center justify-center gap-2 bg-zinc-950 text-white font-black uppercase tracking-[0.1em] text-xs transition-all duration-200 hover:bg-teal-600 disabled:opacity-60"
               >
                 {placingOrder ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <LockKeyhole className="size-5" />
+                  <LockKeyhole className="size-4" />
                 )}
                 {paymentMethod === PAYMENT_METHODS.COD ? "Đặt hàng COD" : "Thanh toán VNPAY"}
               </button>

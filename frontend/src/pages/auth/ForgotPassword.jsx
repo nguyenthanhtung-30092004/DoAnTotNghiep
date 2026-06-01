@@ -75,8 +75,8 @@ const ForgotPassword = () => {
               <Footprints className="h-6 w-6" />
               <span className="text-xl font-semibold tracking-tight">RunVault</span>
             </Link>
-            <h1 className="text-3xl font-semibold tracking-tight mb-3">Quên mật khẩu?</h1>
-            <p className="text-muted-foreground text-sm">
+            <h1 className="text-3xl lg:text-4xl font-black uppercase tracking-tighter text-zinc-950 mb-3">Quên mật khẩu?</h1>
+            <p className="text-sm font-bold text-zinc-500">
               Nhập email của bạn để nhận liên kết đặt lại mật khẩu.
             </p>
           </div>
@@ -84,21 +84,21 @@ const ForgotPassword = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Địa chỉ email</Label>
+              <Label htmlFor="email" className="block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500 mb-2">Địa chỉ email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="vidu@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none"
+                className="h-12 bg-zinc-50 border-zinc-200 focus-visible:ring-1 focus-visible:ring-teal-600 focus-visible:border-teal-600 focus-visible:bg-white rounded-none"
               />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-none bg-foreground text-background hover:bg-foreground/90 font-medium tracking-wide mt-4"
+              className="w-full h-14 rounded-none bg-zinc-950 text-white hover:bg-teal-600 text-xs font-black uppercase tracking-[0.15em] mt-4"
             >
               {isLoading ? "Đang gửi..." : "Gửi liên kết khôi phục"}
               {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
@@ -109,7 +109,7 @@ const ForgotPassword = () => {
           <div className="mt-10 pt-6 border-t border-zinc-100 dark:border-zinc-800 text-center">
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400 hover:text-zinc-950 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Quay lại đăng nhập

@@ -110,8 +110,8 @@ const Login = () => {
               <Footprints className="h-6 w-6" />
               <span className="text-xl font-semibold tracking-tight">RunVault</span>
             </Link>
-            <h1 className="text-3xl font-semibold tracking-tight mb-3">Đăng nhập</h1>
-            <p className="text-muted-foreground text-sm">
+            <h1 className="text-3xl lg:text-4xl font-black uppercase tracking-tighter text-zinc-950 mb-3">Đăng nhập</h1>
+            <p className="text-sm font-bold text-zinc-500">
               Nhập email và mật khẩu của bạn để truy cập tài khoản.
             </p>
           </div>
@@ -119,23 +119,23 @@ const Login = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Địa chỉ email</Label>
+              <Label htmlFor="email" className="block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500 mb-2">Địa chỉ email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="vidu@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none"
+                className="h-12 bg-zinc-50 border-zinc-200 focus-visible:ring-1 focus-visible:ring-teal-600 focus-visible:border-teal-600 focus-visible:bg-white rounded-none"
               />
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm font-medium">Mật khẩu</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="password" className="block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">Mật khẩu</Label>
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400 hover:text-teal-600 transition-colors"
                 >
                   Quên mật khẩu?
                 </Link>
@@ -146,16 +146,16 @@ const Login = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-12 bg-transparent border-zinc-200 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-foreground rounded-none"
+                className="h-12 bg-zinc-50 border-zinc-200 focus-visible:ring-1 focus-visible:ring-teal-600 focus-visible:border-teal-600 focus-visible:bg-white rounded-none"
               />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-none bg-foreground text-background hover:bg-foreground/90 font-medium tracking-wide mt-4"
+              className="w-full h-14 rounded-none bg-zinc-950 text-white hover:bg-teal-600 text-xs font-black uppercase tracking-[0.15em] mt-4"
             >
-              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {isLoading ? "Đang xử lý..." : "Đăng nhập"}
               {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
           </form>
