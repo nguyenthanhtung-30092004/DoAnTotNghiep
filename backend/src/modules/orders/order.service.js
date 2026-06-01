@@ -1,7 +1,7 @@
-const { BadRequestError, NotFoundError } = require("../../core/error.response");
+﻿const { BadRequestError, NotFoundError } = require("../../core/error.response");
 const orderModel = require("../../models/order.model");
 const productModel = require("../../models/product.model");
-const couponService = require("../../services/coupon.service");
+const couponService = require("../coupons/coupon.service");
 const { getFinalPrice } = require("./order.helper");
 const { createAccentRegex } = require("../../utils/format");
 const { getIO } = require("../../socket/socket");

@@ -1,5 +1,5 @@
 const { Created, OK } = require("../../core/success.response");
-const usersService = require("../../services/users.service");
+const usersService = require("../users/user.service");
 const setCookie = require("../../utils/setCookie");
 
 class UsersController {

@@ -1,6 +1,6 @@
 const { Created, OK } = require("../../core/success.response");
 const { BadRequestError } = require("../../core/error.response");
-const brandService = require("../../services/brand.service");
+const brandService = require("./brand.service");
 
 class BrandController {
   async getAllBrand(req, res) {

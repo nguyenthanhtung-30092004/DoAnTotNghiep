@@ -1,5 +1,5 @@
 const { OK } = require("../../core/success.response");
-const couponService = require("../../services/coupon.service");
+const couponService = require("./coupon.service");
 
 class CouponController {
   createCoupon = async (req, res) => {

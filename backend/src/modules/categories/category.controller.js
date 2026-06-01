@@ -1,6 +1,6 @@
 const { Created, OK } = require("../../core/success.response");
 const { BadRequestError } = require("../../core/error.response");
-const categoryService = require("../../services/category.service");
+const categoryService = require("./category.service");
 
 class CategoryController {
   async getAllCategory(req, res) {

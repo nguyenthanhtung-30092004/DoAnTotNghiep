@@ -1,12 +1,13 @@
-const { Created, OK } = require("../../core/success.response");
-const orderService = require("../../services/order.service");
+﻿const { Created, OK } = require("../../core/success.response");
+const checkoutService = require("./checkout.service");
+const orderService = require("./order.service");
 
 class OrderController {
   // user create order
   createOrderFromCart = async (req, res) => {
     new OK({
       message: "Tạo đơn hàng thành công",
-      metadata: await orderService.createOrderFromCart({
+      metadata: await checkoutService.checkout({
         // nếu có user thì lấy userid còn không thì truyển null
         userId: req.user ? req.user._id || req.user.userId : null,
         items: req.body.items,
@@ -45,7 +46,7 @@ class OrderController {
   cancelMyOrder = async (req, res) => {
     new OK({
       message: "Hủy đơn hàng thành công",
-      metadata: await orderService.cancelMyOrder({
+      metadata: await orderService.cancelOrderByUser({
         userId: req.user.userId,
         orderId: req.params.orderId,
         reason: req.body.reason,
@@ -56,7 +57,7 @@ class OrderController {
   getAllOrders = async (req, res) => {
     new OK({
       message: "Lấy danh sách đơn hàng thành công",
-      metadata: await orderService.getAllOrders(req.query),
+      metadata: await orderService.adminGetOrders(req.query),
     }).send(res);
   };
 
@@ -70,7 +71,7 @@ class OrderController {
   updateOrderStatus = async (req, res) => {
     new OK({
       message: "Cập nhật trạng thái đơn hàng thành công",
-      metadata: await orderService.updateOrderStatus({
+      metadata: await orderService.adminUpdateOrderStatus({
         orderId: req.params.orderId,
         orderStatus: req.body.orderStatus,
       }),
