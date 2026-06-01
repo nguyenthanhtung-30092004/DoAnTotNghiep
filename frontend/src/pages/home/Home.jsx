@@ -21,10 +21,7 @@ const Home = () => {
       {/* 4. Featured products — hàng nổi bật / mới nhất */}
       <FeaturedProducts />
 
-      {/* 5. Benefits — xây dựng niềm tin */}
-      <Benefits />
-
-      {/* 6. Story Banner — lifestyle / brand storytelling */}
+      {/* 5. Story Banner — lifestyle / brand storytelling */}
       <StoryBanner />
     </div>
   );

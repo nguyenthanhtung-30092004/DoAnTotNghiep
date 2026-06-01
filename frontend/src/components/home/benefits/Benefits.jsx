@@ -5,90 +5,72 @@ import { motion } from "framer-motion";
 const benefits = [
   {
     icon: ShieldCheck,
-    title: "Hàng chính hãng 100%",
-    desc: "Tất cả sản phẩm được nhập khẩu trực tiếp và có giấy chứng nhận chính hãng rõ ràng.",
-    color: "text-primary",
-    bg: "bg-primary/10",
+    title: "Chính hãng 100%",
+    desc: "Nhập khẩu trực tiếp. Đảm bảo chất lượng và nguồn gốc xuất xứ rõ ràng.",
   },
   {
     icon: Truck,
     title: "Giao nhanh toàn quốc",
-    desc: "Giao hàng trong 1–3 ngày làm việc. Miễn phí vận chuyển cho đơn từ 500.000đ.",
-    color: "text-emerald-600",
-    bg: "bg-emerald-500/10",
+    desc: "Giao hàng từ 1-3 ngày. Miễn phí vận chuyển cho các đơn hàng trên 500k.",
   },
   {
     icon: RotateCcw,
-    title: "Đổi trả trong 30 ngày",
-    desc: "Không vừa size? Chúng tôi đổi trả miễn phí trong 30 ngày kể từ ngày mua.",
-    color: "text-amber-600",
-    bg: "bg-amber-500/10",
+    title: "Đổi trả 30 ngày",
+    desc: "Không vừa vặn? Hãy đổi trả miễn phí trong vòng 30 ngày kể từ ngày mua.",
   },
   {
     icon: MessageCircle,
-    title: "Tư vấn size miễn phí",
-    desc: "Đội ngũ runner chuyên nghiệp sẵn sàng tư vấn chọn size, model phù hợp nhất cho bạn.",
-    color: "text-rose-600",
-    bg: "bg-rose-500/10",
+    title: "Hỗ trợ chuyên sâu",
+    desc: "Đội ngũ chuyên gia luôn sẵn sàng tư vấn thiết bị phù hợp nhất cho bạn.",
   },
 ];
 
 const containerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
+  visible: { transition: { staggerChildren: 0.1 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
 const Benefits = () => {
   return (
-    <section className="bg-background py-16 border-t border-border">
+    <section className="bg-foreground text-background py-24">
       <div className="container">
-        {/* Section header */}
-        <div className="mb-10 text-center">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-primary">
-            Cam kết của chúng tôi
-          </p>
-          <h2 className="text-2xl font-black text-foreground md:text-3xl tracking-tight">
-            Mua sắm không lo lắng
+        <div className="mb-16">
+          <h2 className="text-4xl font-black md:text-5xl tracking-tighter uppercase max-w-2xl leading-none">
+            Mua sắm không thỏa hiệp.
           </h2>
         </div>
 
-        {/* Cards */}
         <motion.div
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-16 gap-x-12"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={{ once: true, margin: "-100px" }}
         >
-          {benefits.map((b) => {
+          {benefits.map((b, idx) => {
             const Icon = b.icon;
             return (
               <motion.div
                 key={b.title}
                 variants={itemVariants}
-                className="group flex flex-col rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:border-border hover:shadow-md hover:-translate-y-1"
+                className="flex flex-col border-t border-background/20 pt-8"
               >
-                {/* Icon */}
-                <div
-                  className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl ${b.bg}`}
-                >
-                  <Icon className={`h-6 w-6 ${b.color}`} />
+                <div className="flex items-center justify-between mb-6">
+                  <Icon className="h-8 w-8" strokeWidth={1.5} />
+                  <span className="text-sm font-bold tracking-widest opacity-30">0{idx + 1}</span>
                 </div>
 
-                {/* Text */}
-                <h3 className="text-[15px] font-bold text-foreground">{b.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {b.desc}
-                </p>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-4">{b.title}</h3>
+                <p className="text-sm leading-relaxed opacity-70">{b.desc}</p>
               </motion.div>
             );
           })}

@@ -1,10 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Footprints, Mail, Phone, MapPin } from "lucide-react";
+import { Footprints, Mail, Phone, MapPin, ArrowRight } from "lucide-react";
 
-/* Social icons as inline SVGs (lucide-react v1 doesn't export social icons) */
 const FacebookIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+  <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
@@ -16,7 +15,7 @@ const InstagramIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="h-3.5 w-3.5"
+    className="h-5 w-5"
   >
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -24,7 +23,7 @@ const InstagramIcon = () => (
   </svg>
 );
 const YoutubeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+  <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
     <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white" />
   </svg>
@@ -34,31 +33,30 @@ const footerLinks = {
   shop: {
     title: "Cửa hàng",
     links: [
-      { label: "Giày Trail", to: "/shop/giay-trail" },
-      { label: "Giày Road", to: "/shop/giay-road" },
-      { label: "Áo & Quần", to: "/shop/ao" },
-      { label: "Phụ kiện", to: "/shop/phu-kien" },
-      { label: "Dinh dưỡng", to: "/shop/dinh-duong" },
-      { label: "Thiết bị", to: "/shop/thiet-bi" },
+      { label: "Tất cả sản phẩm", to: "/shop" },
+      { label: "Giày chạy bộ", to: "/shop?category=giay-road" },
+      { label: "Trang phục", to: "/shop?category=quan-ao" },
+      { label: "Phụ kiện", to: "/shop?category=phu-kien" },
+      { label: "Dinh dưỡng", to: "/shop?category=dinh-duong" },
     ],
   },
   support: {
     title: "Hỗ trợ",
     links: [
-      { label: "Chính sách đổi trả", to: "#" },
-      { label: "Hướng dẫn chọn size", to: "#" },
-      { label: "Vận chuyển & giao hàng", to: "#" },
-      { label: "Câu hỏi thường gặp", to: "#" },
-      { label: "Liên hệ chúng tôi", to: "#" },
+      { label: "Tài khoản của tôi", to: "/account" },
+      { label: "Theo dõi đơn hàng", to: "/account" },
+      { label: "Liên hệ", to: "/contact" },
+      { label: "Chính sách bảo hành", to: "/about" },
+      { label: "Hướng dẫn chọn size", to: "/about" },
     ],
   },
   company: {
     title: "Về RunVault",
     links: [
-      { label: "Giới thiệu", to: "#" },
-      { label: "Blog chạy bộ", to: "#" },
-      { label: "Sự kiện", to: "#" },
-      { label: "Tuyển dụng", to: "#" },
+      { label: "Câu chuyện thương hiệu", to: "/about" },
+      { label: "Blog chạy bộ", to: "/blog" },
+      { label: "Hệ thống cửa hàng", to: "/contact" },
+      { label: "Tuyển dụng", to: "/about" },
     ],
   },
 };
@@ -71,128 +69,140 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-zinc-950 text-zinc-400">
-      {/* Newsletter strip */}
-      <div className="border-b border-zinc-900">
-        <div className="container py-12 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="max-w-xl">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">
-              RunVault Newsletter
-            </p>
-            <h3 className="text-2xl md:text-3xl font-bold text-zinc-50 tracking-tight">
-              Nhận ưu đãi độc quyền mỗi tuần
-            </h3>
-            <p className="text-sm text-zinc-400 mt-2 leading-relaxed">
-              Cập nhật sản phẩm mới, mẹo chạy bộ và khuyến mãi hấp dẫn.
-            </p>
-          </div>
-          <form onSubmit={(e) => e.preventDefault()} className="flex gap-2 w-full md:w-auto">
-            <div className="relative flex-1 md:w-80">
+    <footer className="bg-foreground text-background">
+      {/* Newsletter strip - Brutalist */}
+      <div className="border-b border-background/20">
+        <div className="container py-24">
+          <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12">
+            <div className="max-w-2xl">
+              <span className="inline-block border border-background/20 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-background mb-8">
+                Bản tin RunVault
+              </span>
+              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-background leading-none">
+                Đăng ký ngay. <br />
+                Đừng bỏ lỡ.
+              </h2>
+            </div>
+            
+            <form onSubmit={(e) => e.preventDefault()} className="w-full lg:w-auto flex flex-col sm:flex-row gap-0">
               <input
                 type="email"
-                placeholder="Email của bạn..."
+                placeholder="EMAIL CỦA BẠN"
                 aria-label="Nhập email nhận bản tin"
-                className="w-full h-12 rounded-xl bg-zinc-900 border border-zinc-800 px-5 text-sm text-zinc-50 placeholder-zinc-500 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                className="w-full sm:w-[350px] h-16 bg-transparent border border-background/20 px-6 text-sm font-bold uppercase tracking-widest text-background placeholder-background/40 outline-none focus:border-background transition-colors rounded-none"
               />
-            </div>
-            <button
-              type="submit"
-              className="h-12 px-8 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors shrink-0"
-            >
-              Đăng ký
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="h-16 px-10 bg-background text-foreground text-sm font-black uppercase tracking-widest hover:bg-background/90 transition-colors flex items-center justify-center gap-3 shrink-0 rounded-none border border-background group"
+              >
+                Gửi
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
       {/* Main footer grid */}
-      <div className="container py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
-        {/* Brand column */}
-        <div className="col-span-2 md:col-span-2 pr-0 md:pr-10">
-          <Link to="/" className="flex items-center gap-2 mb-6 group inline-flex">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center group-hover:bg-primary/90 transition-colors">
-              <Footprints className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="text-zinc-50 font-bold text-xl tracking-tight">RunVault</span>
-          </Link>
+      <div className="container py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-y-16 gap-x-12">
+          
+          {/* Brand column */}
+          <div className="lg:col-span-2">
+            <Link to="/" className="flex items-center gap-3 mb-8 group inline-flex">
+              <div className="w-12 h-12 bg-background flex items-center justify-center transition-transform group-hover:-translate-y-1">
+                <Footprints className="h-6 w-6 text-foreground" />
+              </div>
+              <span className="text-3xl font-black uppercase tracking-tighter text-background">
+                RunVault
+              </span>
+            </Link>
 
-          <p className="text-sm text-zinc-400 leading-relaxed mb-8 max-w-sm">
-            Đồng hành cùng runner Việt Nam trên mọi cung đường. Chạy xa hơn, bứt tốc mạnh hơn với
-            những trang bị thể thao đỉnh cao.
-          </p>
+            <p className="text-sm text-background/60 leading-relaxed mb-10 max-w-sm font-medium">
+              Đồng hành cùng runner Việt Nam trên mọi cung đường. Chạy xa hơn, bứt tốc mạnh hơn với
+              những trang bị thể thao đỉnh cao.
+            </p>
 
-          <div className="space-y-4 text-sm">
-            <a
-              href="mailto:hello@runvault.vn"
-              className="flex items-center gap-3 text-zinc-400 hover:text-zinc-50 transition-colors"
-            >
-              <Mail className="h-4 w-4 text-primary shrink-0" />
-              hello@runvault.vn
-            </a>
-            <a
-              href="tel:0901234567"
-              className="flex items-center gap-3 text-zinc-400 hover:text-zinc-50 transition-colors"
-            >
-              <Phone className="h-4 w-4 text-primary shrink-0" />
-              0901 234 567
-            </a>
-            <div className="flex items-start gap-3 text-zinc-400">
-              <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-              <span className="leading-relaxed">123 Đinh Tiên Hoàng, Q.1, TP.HCM</span>
+            <div className="space-y-6 text-sm font-medium">
+              <a
+                href="mailto:hello@runvault.vn"
+                className="flex items-center gap-4 text-background/60 hover:text-background transition-colors group"
+              >
+                <div className="w-10 h-10 border border-background/20 flex items-center justify-center group-hover:border-background transition-colors">
+                  <Mail className="h-4 w-4" />
+                </div>
+                hello@runvault.vn
+              </a>
+              <a
+                href="tel:0901234567"
+                className="flex items-center gap-4 text-background/60 hover:text-background transition-colors group"
+              >
+                <div className="w-10 h-10 border border-background/20 flex items-center justify-center group-hover:border-background transition-colors">
+                  <Phone className="h-4 w-4" />
+                </div>
+                0901 234 567
+              </a>
+              <div className="flex items-center gap-4 text-background/60 group">
+                <div className="w-10 h-10 border border-background/20 flex items-center justify-center transition-colors">
+                  <MapPin className="h-4 w-4" />
+                </div>
+                <span className="leading-relaxed">123 Đinh Tiên Hoàng, Q.1, TP.HCM</span>
+              </div>
             </div>
           </div>
+
+          {/* Link columns */}
+          {Object.values(footerLinks).map((section) => (
+            <div key={section.title}>
+              <h4 className="text-lg font-black uppercase tracking-tighter text-background mb-8 relative inline-block">
+                {section.title}
+                <span className="absolute -bottom-2 left-0 w-8 h-1 bg-background/20"></span>
+              </h4>
+              <ul className="space-y-4">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      to={link.to}
+                      className="text-sm font-medium text-background/60 hover:text-background hover:translate-x-1 transition-all duration-200 inline-block"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-
-        {/* Link columns */}
-        {Object.values(footerLinks).map((section) => (
-          <div key={section.title}>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-100 mb-6">
-              {section.title}
-            </h4>
-            <ul className="space-y-4">
-              {section.links.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.to}
-                    className="text-sm text-zinc-400 hover:text-primary transition-colors inline-block"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-zinc-900">
-        <div className="container py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-zinc-500">
+      <div className="border-t border-background/20">
+        <div className="container py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-xs font-bold uppercase tracking-widest text-background/40">
             © {new Date().getFullYear()} RunVault. All rights reserved.
           </p>
 
+          <div className="flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-background/40">
+            <Link to="/about" className="hover:text-background transition-colors">
+              Chính sách bảo mật
+            </Link>
+            <Link to="/about" className="hover:text-background transition-colors">
+              Điều khoản
+            </Link>
+          </div>
+
           {/* Social icons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {socialLinks.map(({ icon: Icon, label, to }) => (
               <a
                 key={label}
                 href={to}
                 aria-label={label}
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-zinc-900 text-zinc-400 hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+                className="text-background/40 hover:text-background transition-colors"
               >
-                <Icon className="h-4 w-4" />
+                <Icon />
               </a>
             ))}
-          </div>
-
-          <div className="flex items-center gap-6 text-sm text-zinc-500">
-            <Link to="#" className="hover:text-zinc-300 transition-colors">
-              Chính sách bảo mật
-            </Link>
-            <Link to="#" className="hover:text-zinc-300 transition-colors">
-              Điều khoản sử dụng
-            </Link>
           </div>
         </div>
       </div>
