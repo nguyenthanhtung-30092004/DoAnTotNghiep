@@ -13,7 +13,6 @@ import ShopFilterSidebar from "../../components/products/ShopFilterSidebar";
 import ShopToolbar from "../../components/products/ShopToolbar";
 import ShopPagination from "../../components/products/ShopPagination";
 
-
 const Shop = () => {
   const { categorySlug } = useParams();
   const [searchParams] = useSearchParams();
@@ -52,7 +51,7 @@ const Shop = () => {
   }, [categories, categorySlug]);
 
   const currentCategoryTitle = search
-    ? `Kết quả tìm kiếm cho "${search}"`
+    ? `Kết quả cho "${search}"`
     : currentCategory?.name || (categorySlug ? "Danh mục sản phẩm" : "Tất cả sản phẩm");
 
   const hasActiveFilter = filters.brand || filters.activePrice;
@@ -186,47 +185,47 @@ const Shop = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Page header + breadcrumb */}
-      <div className="bg-background border-b border-border">
-        <div className="container py-6">
-          {/* Breadcrumb */}
-          <nav className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <Link to="/" className="hover:text-primary transition-colors">
+    <div className="min-h-screen bg-white">
+      {/* ── Page header + breadcrumb ── */}
+      <div className="border-b border-zinc-200 bg-white">
+        <div className="container py-8 md:py-12">
+          {/* Breadcrumb - Clean & Monospaced vibe */}
+          <nav className="mb-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+            <Link to="/" className="hover:text-zinc-950 transition-colors">
               Trang chủ
             </Link>
             <ChevronRight className="h-3 w-3" />
-            <Link to="/shop" className="hover:text-primary transition-colors">
+            <Link to="/shop" className="hover:text-zinc-950 transition-colors">
               Cửa hàng
             </Link>
             {categorySlug && (
               <>
                 <ChevronRight className="h-3 w-3" />
-                <span className="font-semibold text-muted-foreground capitalize">
+                <span className="text-zinc-950">
                   {currentCategoryTitle}
                 </span>
               </>
             )}
           </nav>
 
-          {/* Title + stats */}
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-black text-foreground md:text-3xl">
+          {/* Title + Stats + Active Filters */}
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-3xl">
+              <h1 className="text-4xl font-black uppercase tracking-tighter text-zinc-950 md:text-5xl lg:text-6xl">
                 {currentCategoryTitle}
               </h1>
               {pagination.totalProduct > 0 && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {pagination.totalProduct} sản phẩm
+                <p className="mt-4 text-sm font-medium text-zinc-500">
+                  {pagination.totalProduct} sản phẩm được tìm thấy
                 </p>
               )}
             </div>
 
             {/* Active filter pills */}
             {hasActiveFilter && (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden md:flex flex-wrap items-center gap-2">
                 {filters.activePrice && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <span className="inline-flex h-8 items-center gap-1 border border-zinc-200 bg-zinc-50 pl-3 pr-1 text-[11px] font-bold uppercase tracking-wider text-zinc-950">
                     {filters.activePrice}
                     <button
                       type="button"
@@ -237,30 +236,30 @@ const Shop = () => {
                           maxPrice: "",
                         })
                       }
-                      className="hover:text-primary ml-0.5"
+                      className="flex h-6 w-6 items-center justify-center text-zinc-400 hover:text-teal-600 transition-colors"
                     >
-                      ×
+                      <X className="h-3 w-3" />
                     </button>
                   </span>
                 )}
                 {filters.brand && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <span className="inline-flex h-8 items-center gap-1 border border-zinc-200 bg-zinc-50 pl-3 pr-1 text-[11px] font-bold uppercase tracking-wider text-zinc-950">
                     {brands.find((b) => b._id === filters.brand)?.nameBrand || "Thương hiệu"}
                     <button
                       type="button"
                       onClick={() => handleChangeBrand("")}
-                      className="hover:text-primary ml-0.5"
+                      className="flex h-6 w-6 items-center justify-center text-zinc-400 hover:text-teal-600 transition-colors"
                     >
-                      ×
+                      <X className="h-3 w-3" />
                     </button>
                   </span>
                 )}
                 <button
                   type="button"
                   onClick={handleResetFilter}
-                  className="text-xs font-semibold text-muted-foreground hover:text-destructive transition-colors"
+                  className="ml-2 text-[11px] font-bold uppercase tracking-wider text-zinc-400 hover:text-red-500 transition-colors"
                 >
-                  Xóa tất cả
+                  Xóa bộ lọc
                 </button>
               </div>
             )}
@@ -268,12 +267,13 @@ const Shop = () => {
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="container py-8">
-        <div className="flex gap-8">
+      {/* ── Main content ── */}
+      <div className="container py-10 md:py-16">
+        <div className="flex flex-col lg:flex-row gap-10 xl:gap-16">
+          
           {/* ── Desktop Sidebar ── */}
-          <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
-            <div className="sticky top-24 rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <aside className="hidden lg:block w-64 shrink-0">
+            <div className="sticky top-24">
               <ShopFilterSidebar
                 brands={brands}
                 activeBrand={filters.brand}
@@ -291,30 +291,30 @@ const Shop = () => {
               {/* Backdrop */}
               <button
                 type="button"
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Đóng bộ lọc"
               />
 
               {/* Drawer panel */}
-              <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[88vw] bg-background overflow-y-auto shadow-2xl animate-slide-in-left">
+              <div className="absolute left-0 top-0 bottom-0 w-[85vw] max-w-sm bg-white overflow-y-auto shadow-2xl animate-slide-in-left">
                 {/* Drawer header */}
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-5 py-4">
-                  <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="h-4 w-4 text-primary" />
-                    <h2 className="font-bold text-foreground">Bộ lọc sản phẩm</h2>
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-5">
+                  <div className="flex items-center gap-3">
+                    <SlidersHorizontal className="h-5 w-5 text-zinc-950" />
+                    <h2 className="text-sm font-black uppercase tracking-wider text-zinc-950">Bộ lọc</h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent text-muted-foreground transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
 
                 {/* Sidebar content */}
-                <div className="px-5 py-4">
+                <div className="px-6 py-6">
                   <ShopFilterSidebar
                     brands={brands}
                     activeBrand={filters.brand}
@@ -335,13 +335,13 @@ const Shop = () => {
                 </div>
 
                 {/* Apply button */}
-                <div className="sticky bottom-0 border-t border-border bg-background p-4">
+                <div className="sticky bottom-0 border-t border-zinc-200 bg-white p-6">
                   <button
                     type="button"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full h-11 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors"
+                    className="flex h-12 w-full items-center justify-center bg-teal-600 text-xs font-black uppercase tracking-[0.15em] text-white transition-colors hover:bg-teal-500 active:scale-[0.98]"
                   >
-                    Áp dụng
+                    Xem kết quả
                   </button>
                 </div>
               </div>
@@ -364,8 +364,8 @@ const Shop = () => {
             {/* Loading skeleton */}
             {loading ? (
               <div
-                className={`grid gap-3 md:gap-4 ${
-                  gridView === "list" ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+                className={`grid gap-4 md:gap-6 ${
+                  gridView === "list" ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3"
                 }`}
               >
                 {Array.from({ length: 12 }).map((_, i) => (
@@ -373,29 +373,29 @@ const Shop = () => {
                 ))}
               </div>
             ) : products.length === 0 ? (
-              /* ── Empty state ── */
-              <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-border bg-card text-center px-6 py-16">
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-                  <PackageSearch className="h-10 w-10 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-bold text-foreground">Không tìm thấy sản phẩm</h3>
-                <p className="mt-2 max-w-xs text-sm text-muted-foreground leading-6">
-                  Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.
+              /* ── Empty state (Editorial style) ── */
+              <div className="flex min-h-[50vh] flex-col items-center justify-center border-y border-zinc-200 bg-white text-center px-6 py-20">
+                <PackageSearch className="mb-6 h-12 w-12 text-zinc-300 stroke-[1.5]" />
+                <h3 className="text-2xl font-black uppercase tracking-tight text-zinc-950">
+                  Không tìm thấy sản phẩm
+                </h3>
+                <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-500">
+                  Thử thay đổi tiêu chí lọc hoặc tìm kiếm với một từ khóa khác.
                 </p>
                 {hasActiveFilter && (
                   <button
                     type="button"
                     onClick={handleResetFilter}
-                    className="mt-6 rounded-xl border border-primary/20 bg-primary/10 px-6 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors"
+                    className="mt-8 flex h-12 items-center justify-center border border-zinc-950 bg-white px-8 text-xs font-black uppercase tracking-[0.15em] text-zinc-950 transition-all hover:bg-zinc-950 hover:text-white"
                   >
-                    Xóa bộ lọc
+                    Xóa tất cả bộ lọc
                   </button>
                 )}
               </div>
             ) : (
               <div
-                className={`grid gap-3 md:gap-4 ${
-                  gridView === "list" ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+                className={`grid gap-4 md:gap-6 ${
+                  gridView === "list" ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3"
                 }`}
               >
                 {products.map((product) => (

@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight as ChevronRightIcon,
   ChevronRight,
   Heart,
   Loader2,
@@ -12,6 +9,8 @@ import {
   Send,
   ShoppingCart,
   Star,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -19,17 +18,12 @@ import CartService from "../../services/cart.service";
 import ProductService from "../../services/product.service";
 import reviewService from "../../services/review.service";
 import SizeChartModal from "../../components/products/SizeChartModal";
-import ProductGallery from "../../components/products/ProductGallery";
 import ProductDescription from "../../components/products/ProductDescription";
 import RatingStars from "../../components/products/RatingStars";
 import socket from "../../socket/socket";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addGuestCart,
-  openCartDrawer,
-  setCart,
-} from "../../redux/slices/cartSlice";
+import { addGuestCart, openCartDrawer, setCart } from "../../redux/slices/cartSlice";
 
 const formatPrice = (price) => {
   if (price === undefined || price === null) return "Liên hệ";
@@ -147,9 +141,7 @@ const ProductDetail = () => {
 
   const activeImages = useMemo(() => {
     const variantImages =
-      selectedVariant?.images
-        ?.map((image) => getImageUrl(image))
-        .filter(Boolean) || [];
+      selectedVariant?.images?.map((image) => getImageUrl(image)).filter(Boolean) || [];
 
     if (variantImages.length > 0) {
       return variantImages;
@@ -173,10 +165,7 @@ const ProductDetail = () => {
       : null;
 
   const totalStock =
-    selectedVariant?.sizes?.reduce(
-      (sum, item) => sum + Number(item.stock || 0),
-      0,
-    ) || 0;
+    selectedVariant?.sizes?.reduce((sum, item) => sum + Number(item.stock || 0), 0) || 0;
 
   const selectedStock = Number(selectedSize?.stock || 0);
 
@@ -200,9 +189,7 @@ const ProductDetail = () => {
       setQuantity(1);
     } catch (error) {
       console.log(error);
-      toast.error(
-        error.response?.data?.message || "Lấy chi tiết sản phẩm thất bại",
-      );
+      toast.error(error.response?.data?.message || "Lấy chi tiết sản phẩm thất bại");
     } finally {
       setLoading(false);
     }
@@ -225,9 +212,7 @@ const ProductDetail = () => {
       setReviewPagination(data.pagination || null);
     } catch (error) {
       console.log(error);
-      toast.error(
-        error.response?.data?.message || "Lấy đánh giá sản phẩm thất bại",
-      );
+      toast.error(error.response?.data?.message || "Lấy đánh giá sản phẩm thất bại");
     } finally {
       setLoadingReviews(false);
     }
@@ -301,8 +286,7 @@ const ProductDetail = () => {
     if (activeImages.length <= 1) return;
 
     const currentIndex = activeImages.indexOf(selectedImage);
-    const nextIndex =
-      currentIndex >= 0 ? (currentIndex + 1) % activeImages.length : 0;
+    const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % activeImages.length : 0;
 
     setSelectedImage(activeImages[nextIndex]);
   };
@@ -311,8 +295,7 @@ const ProductDetail = () => {
     if (activeImages.length <= 1) return;
 
     const currentIndex = activeImages.indexOf(selectedImage);
-    const prevIndex =
-      currentIndex > 0 ? currentIndex - 1 : activeImages.length - 1;
+    const prevIndex = currentIndex > 0 ? currentIndex - 1 : activeImages.length - 1;
 
     setSelectedImage(activeImages[prevIndex]);
   };
@@ -381,7 +364,7 @@ const ProductDetail = () => {
             salePrice: selectedSize.salePrice,
             maxQuantity: selectedStock,
             isAvailable: selectedStock > 0,
-          }),
+          })
         );
       }
 
@@ -389,9 +372,7 @@ const ProductDetail = () => {
       dispatch(openCartDrawer());
     } catch (error) {
       console.log(error);
-      toast.error(
-        error.response?.data?.message || "Thêm vào giỏ hàng thất bại",
-      );
+      toast.error(error.response?.data?.message || "Thêm vào giỏ hàng thất bại");
     } finally {
       setAddingToCart(false);
     }
@@ -412,7 +393,7 @@ const ProductDetail = () => {
   useEffect(() => {
     if (product) {
       window.scrollTo({
-        top: 50,
+        top: 150,
         behavior: "smooth",
       });
     }
@@ -437,9 +418,7 @@ const ProductDetail = () => {
       const newReview = data.review;
 
       const reviewProductId =
-        typeof newReview?.product === "string"
-          ? newReview.product
-          : newReview?.product?._id;
+        typeof newReview?.product === "string" ? newReview.product : newReview?.product?._id;
 
       if (!newReview || reviewProductId !== product._id) return;
 
@@ -458,9 +437,7 @@ const ProductDetail = () => {
 
     const handleReviewRemoved = (data) => {
       const productId =
-        typeof data.productId === "string"
-          ? data.productId
-          : data.productId?.toString();
+        typeof data.productId === "string" ? data.productId : data.productId?.toString();
 
       if (productId !== product._id) return;
 
@@ -481,10 +458,10 @@ const ProductDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center text-muted-foreground">
-          <Loader2 className="h-9 w-9 animate-spin mb-3 text-primary" />
-          <p>Đang tải chi tiết sản phẩm...</p>
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="flex flex-col items-center text-zinc-500">
+          <Loader2 className="mb-3 h-9 w-9 animate-spin text-zinc-950" />
+          <p className="text-sm font-bold uppercase tracking-widest text-zinc-950">Đang tải...</p>
         </div>
       </div>
     );
@@ -492,15 +469,15 @@ const ProductDetail = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-foreground">
+          <h2 className="text-3xl font-black uppercase tracking-tight text-zinc-950">
             Không tìm thấy sản phẩm
           </h2>
 
           <Link
             to="/shop"
-            className="inline-block mt-4 text-primary font-semibold hover:underline"
+            className="mt-6 inline-flex h-12 items-center justify-center bg-zinc-950 px-8 text-xs font-black uppercase tracking-[0.15em] text-white transition-all hover:bg-teal-600"
           >
             Quay lại cửa hàng
           </Link>
@@ -510,122 +487,150 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 lg:pb-0">
+    <div className="min-h-screen bg-white pb-24 lg:pb-0">
       <main>
-        <section>
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <nav className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <Link to="/" className="hover:text-primary transition-colors">
+        <section className="border-b border-zinc-200">
+          <div className="mx-auto max-w-7xl px-6 py-6">
+            <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+              <Link to="/" className="transition-colors hover:text-zinc-950">
                 Trang chủ
               </Link>
-
               <ChevronRight className="h-3 w-3" />
-
-              <Link to="/shop" className="hover:text-primary transition-colors">
+              <Link to="/shop" className="transition-colors hover:text-zinc-950">
                 Cửa hàng
               </Link>
-
               <ChevronRight className="h-3 w-3" />
-
-              <span className="text-foreground capitalize line-clamp-1">
-                {product.name}
-              </span>
+              <span className="line-clamp-1 text-zinc-950">{product.name}</span>
             </nav>
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 pb-12 pt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-            <ProductGallery
-              activeImages={activeImages}
-              selectedImage={selectedImage}
-              setSelectedImage={setSelectedImage}
-              handlePrevImage={handlePrevImage}
-              handleNextImage={handleNextImage}
-              productName={product.name}
-            />
+        <section className="mx-auto max-w-7xl px-6 pb-16 pt-10 lg:pt-16">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-7">
+              <div className="grid grid-cols-[82px_1fr] gap-5">
+                <div className="flex max-h-[700px] flex-col gap-3 overflow-y-auto pr-1">
+                  {activeImages.map((image, index) => {
+                    const isActive = selectedImage === image;
 
-            <div>
-              <div className="mb-6">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-2">
+                    return (
+                      <button
+                        key={`${image}-${index}`}
+                        type="button"
+                        onClick={() => setSelectedImage(image)}
+                        className={`flex h-24 w-20 items-center justify-center border bg-white p-3 transition-all ${
+                          isActive ? "border-zinc-950" : "border-transparent hover:border-zinc-300"
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`${product.name} ${index + 1}`}
+                          className="h-full w-full object-contain mix-blend-multiply"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="relative flex min-h-[620px] items-center justify-center overflow-hidden bg-zinc-50 p-12">
+                  {selectedImage ? (
+                    <img
+                      src={selectedImage}
+                      alt={product.name}
+                      className="h-full max-h-[520px] w-full object-contain mix-blend-multiply"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-sm font-bold uppercase tracking-widest text-zinc-400">
+                      Không có ảnh
+                    </div>
+                  )}
+
+                  {activeImages.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handlePrevImage}
+                        className="absolute left-5 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center bg-white text-zinc-950 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all hover:bg-zinc-950 hover:text-white"
+                        aria-label="Ảnh trước"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleNextImage}
+                        className="absolute right-5 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center bg-white text-zinc-950 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all hover:bg-zinc-950 hover:text-white"
+                        aria-label="Ảnh sau"
+                      >
+                        <ChevronRightIcon className="h-5 w-5" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="mb-8">
+                <p className="mb-4 text-[11px] font-black uppercase tracking-[0.2em] text-teal-600">
                   {getBrandName(product.brand)}
                 </p>
 
-                <h1 className="text-3xl lg:text-4xl font-black text-foreground mt-2 leading-[1.1] tracking-tight">
+                <h1 className="text-4xl font-black uppercase leading-[0.95] tracking-tighter text-zinc-950 lg:text-5xl">
                   {product.name}
                 </h1>
 
-                <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                    <span className="font-bold text-foreground">
+                <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                  <div className="flex items-center gap-1.5">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-zinc-950">
                       {ratingAverage > 0 ? ratingAverage.toFixed(1) : "0.0"}
                     </span>
-                    <span className="text-muted-foreground">
-                      ({ratingCount} đánh giá)
-                    </span>
+                    <span>({ratingCount} đánh giá)</span>
                   </div>
 
-                  <span className="h-1 w-1 rounded-full bg-border" />
+                  <span className="h-1 w-1 bg-zinc-300" />
 
-                  <span className="text-muted-foreground">
+                  <span>
                     Danh mục:{" "}
-                    <span className="font-semibold text-foreground">
-                      {getCategoryName(product.category)}
-                    </span>
+                    <span className="text-zinc-950">{getCategoryName(product.category)}</span>
                   </span>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <div className="flex items-end gap-3">
-                  <p className="text-3xl font-black text-foreground tracking-tight">
+              <div className="border-t border-zinc-200 py-8">
+                <div className="flex items-end gap-4">
+                  <p className="text-4xl font-black tracking-tighter text-zinc-950">
                     {formatPrice(displayPrice)}
                   </p>
-
                   {originalPrice && (
-                    <p className="text-lg text-muted-foreground line-through mb-1 font-medium">
+                    <p className="mb-1 text-lg font-bold text-zinc-400 line-through">
                       {formatPrice(originalPrice)}
                     </p>
                   )}
                 </div>
 
-                <p className="text-sm text-muted-foreground mt-2">
-                  Tồn kho:{" "}
-                  <span className="font-semibold text-foreground">
-                    {totalStock}
-                  </span>
-                </p>
-
-                <div className="mt-8">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-foreground">Màu sắc</h3>
-
-                    <button
-                      type="button"
-                      onClick={() => setSizeChartOpen(true)}
-                    >
-                      <span className="text-[11px] uppercase tracking-wider underline font-bold text-primary hover:text-primary/80 transition-colors">
-                        Size chart
-                      </span>
-                    </button>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2.5 mt-4">
+                <div className="mt-10">
+                  <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
+                    Màu sắc
+                  </h3>
+                  <div className="mt-4 flex flex-wrap gap-3">
                     {variants.map((variant, index) => (
                       <button
                         key={variant._id || index}
                         type="button"
                         onMouseEnter={() => handlePreviewVariant(index)}
                         onClick={() => handleChangeVariant(index)}
-                        className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                        className={`flex h-11 items-center gap-3 border px-5 text-xs font-bold uppercase tracking-wider transition-all ${
                           selectedVariantIndex === index
-                            ? "border-primary bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
-                            : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+                            ? "border-zinc-950 bg-zinc-950 text-white"
+                            : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-400 hover:text-zinc-950"
                         }`}
                       >
                         <span
-                          className="h-4 w-4 rounded-full border border-border shadow-sm"
+                          className={`h-4 w-4 rounded-full border shadow-sm ${
+                            selectedVariantIndex === index ? "border-zinc-700" : "border-zinc-200"
+                          }`}
                           style={{
                             backgroundColor: variant.colorCode || "#d1d5db",
                           }}
@@ -636,10 +641,21 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                <div className="mt-8">
-                  <h3 className="font-bold text-foreground">Kích cỡ</h3>
+                <div className="mt-10">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
+                      Kích cỡ
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setSizeChartOpen(true)}
+                      className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-400 underline transition-colors hover:text-teal-600"
+                    >
+                      Bảng size
+                    </button>
+                  </div>
 
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2.5 mt-4">
+                  <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5 lg:grid-cols-4">
                     {selectedVariant?.sizes?.map((item) => {
                       const isOutOfStock = Number(item.stock || 0) <= 0;
 
@@ -652,13 +668,13 @@ const ProductDetail = () => {
                             setSelectedSizeId(item._id);
                             setQuantity(1);
                           }}
-                          className={`h-12 rounded-xl border text-sm font-semibold transition-all ${
+                          className={`flex h-12 items-center justify-center border text-sm font-bold uppercase transition-all ${
                             selectedSizeId === item._id
-                              ? "border-primary bg-primary text-primary-foreground shadow-md"
-                              : "border-border bg-background text-foreground hover:border-primary hover:text-primary"
+                              ? "border-teal-600 bg-teal-600 text-white"
+                              : "border-zinc-200 bg-white text-zinc-950 hover:border-zinc-950"
                           } ${
                             isOutOfStock
-                              ? "opacity-40 cursor-not-allowed line-through hover:border-border hover:text-foreground"
+                              ? "cursor-not-allowed opacity-30 line-through hover:border-zinc-200"
                               : ""
                           }`}
                         >
@@ -669,27 +685,30 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                <div className="mt-8">
-                  <h3 className="font-bold text-foreground">Số lượng</h3>
+                <div className="mt-10">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
+                      Số lượng
+                    </h3>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                      Còn lại: <span className="text-zinc-950">{selectedStock}</span>
+                    </p>
+                  </div>
 
-                  <div className="mt-4 flex items-center gap-3">
-                    <div className="h-12 inline-flex items-center rounded-xl border border-border bg-card overflow-hidden">
+                  <div className="flex flex-col gap-4 sm:flex-row">
+                    <div className="flex h-14 w-full items-center border border-zinc-200 bg-white sm:w-36">
                       <button
                         type="button"
                         onClick={handleDecreaseQuantity}
-                        className="h-full w-12 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="flex h-full w-12 items-center justify-center text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950"
                       >
                         <Minus className="h-4 w-4" />
                       </button>
-
-                      <span className="w-12 text-center font-semibold text-foreground">
-                        {quantity}
-                      </span>
-
+                      <span className="flex-1 text-center font-bold text-zinc-950">{quantity}</span>
                       <button
                         type="button"
                         onClick={handleIncreaseQuantity}
-                        className="h-full w-12 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="flex h-full w-12 items-center justify-center text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
@@ -699,19 +718,20 @@ const ProductDetail = () => {
                       type="button"
                       onClick={handleAddToCart}
                       disabled={addingToCart}
-                      className="h-12 px-6 rounded-xl bg-primary disabled:opacity-60 disabled:cursor-not-allowed text-primary-foreground font-semibold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm"
+                      className="flex h-14 flex-1 items-center justify-center gap-3 bg-zinc-950 px-8 text-xs font-black uppercase tracking-[0.15em] text-white transition-colors hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {addingToCart ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <ShoppingCart className="h-4 w-4" />
+                        <ShoppingCart className="h-5 w-5" />
                       )}
-                      {addingToCart ? "Đang thêm..." : "Thêm vào giỏ hàng"}
+                      {addingToCart ? "Đang thêm..." : "Thêm vào giỏ"}
                     </button>
 
                     <button
                       type="button"
-                      className="h-12 w-12 rounded-xl border border-border bg-card flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                      className="flex h-14 w-14 items-center justify-center border border-zinc-200 bg-white text-zinc-500 transition-colors hover:border-zinc-950 hover:bg-zinc-950 hover:text-white"
+                      aria-label="Thêm vào yêu thích"
                     >
                       <Heart className="h-5 w-5" />
                     </button>
@@ -722,71 +742,62 @@ const ProductDetail = () => {
           </div>
         </section>
 
-        <section className="bg-background">
-          <div className="max-w-7xl mx-auto px-4 py-12">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <ProductDescription description={product.description} />
+        <section className="border-t border-zinc-200 bg-zinc-50">
+          <div className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
+            <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+              <div className="lg:col-span-8">
+                <ProductDescription description={product.description} />
+              </div>
 
-              <div>
-                <h2 className="text-2xl font-bold text-foreground tracking-tight">
+              <div className="lg:col-span-4">
+                <h2 className="mb-6 text-xl font-black uppercase tracking-tight text-zinc-950">
                   Thông tin nhanh
                 </h2>
 
-                <div className="mt-6 rounded-2xl border border-border bg-card p-6 space-y-5">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Thương hiệu</p>
-                    <p className="font-semibold text-foreground">
-                      {getBrandName(product.brand)}
+                <div className="border border-zinc-200 bg-white">
+                  <div className="flex flex-col border-b border-zinc-200 p-6 last:border-0">
+                    <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                      Thương hiệu
                     </p>
+                    <p className="font-bold text-zinc-950">{getBrandName(product.brand)}</p>
                   </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Danh mục</p>
-                    <p className="font-semibold text-foreground">
-                      {getCategoryName(product.category)}
+                  <div className="flex flex-col border-b border-zinc-200 p-6 last:border-0">
+                    <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                      Danh mục
                     </p>
+                    <p className="font-bold text-zinc-950">{getCategoryName(product.category)}</p>
                   </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Số biến thể</p>
-                    <p className="font-semibold text-foreground">
-                      {variants.length} màu / phiên bản
+                  <div className="flex flex-col border-b border-zinc-200 p-6 last:border-0">
+                    <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                      Phiên bản
                     </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Trạng thái</p>
-                    <p className="font-semibold text-foreground">
-                      {product.isPublished ? "Đang bán" : "Tạm ẩn"}
-                    </p>
+                    <p className="font-bold text-zinc-950">{variants.length} màu / thiết kế</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-12 rounded-3xl border border-border bg-card p-6 lg:p-8">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground tracking-tight">
-                    Đánh giá sản phẩm
+            <div className="mt-20 lg:mt-32">
+              <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-16">
+                <div className="lg:w-1/3">
+                  <h2 className="text-3xl font-black uppercase tracking-tighter text-zinc-950">
+                    Đánh giá
                   </h2>
-
-                  <p className="text-muted-foreground mt-2">
-                    Xem nhận xét thật từ khách hàng đã mua sản phẩm.
+                  <p className="mt-4 text-sm leading-relaxed text-zinc-500">
+                    Đọc nhận xét thực tế từ khách hàng đã mua sản phẩm này.
                   </p>
 
-                  <div className="mt-6 flex items-center gap-4">
+                  <div className="mt-8 flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      <Star className="h-8 w-8 fill-amber-400 text-amber-400" />
-                      <span className="text-5xl font-black text-foreground tracking-tight">
+                      <Star className="h-10 w-10 fill-yellow-400 text-yellow-400" />
+                      <span className="text-6xl font-black tracking-tighter text-zinc-950">
                         {ratingAverage > 0 ? ratingAverage.toFixed(1) : "0.0"}
                       </span>
                     </div>
-
                     <div>
                       <RatingStars value={Math.round(ratingAverage)} />
-                      <p className="text-sm font-medium text-muted-foreground mt-1">
-                        Dựa trên {ratingCount} đánh giá
+                      <p className="mt-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                        Từ {ratingCount} lượt mua
                       </p>
                     </div>
                   </div>
@@ -794,117 +805,99 @@ const ProductDetail = () => {
 
                 <form
                   onSubmit={handleCreateReview}
-                  className="w-full lg:max-w-md rounded-2xl bg-card border border-border p-6 shadow-sm"
+                  className="border border-zinc-200 bg-white p-8 lg:w-2/3"
                 >
-                  <h3 className="font-bold text-foreground mb-4">
+                  <h3 className="mb-6 text-sm font-black uppercase tracking-[0.1em] text-zinc-950">
                     Viết đánh giá của bạn
                   </h3>
 
                   {!user && (
-                    <div className="mb-4 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-sm text-amber-600 font-medium">
-                      Bạn cần đăng nhập để gửi đánh giá.
+                    <div className="mb-6 border border-zinc-950 bg-zinc-950 px-5 py-4 text-xs font-bold uppercase tracking-wider text-white">
+                      Vui lòng đăng nhập để gửi đánh giá.
                     </div>
                   )}
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-semibold text-foreground mb-2">
-                        Số sao
+                      <label className="mb-3 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">
+                        Đánh giá sao
                       </label>
-
-                      <RatingStars
-                        value={reviewRating}
-                        onChange={setReviewRating}
-                        size="h-6 w-6"
-                      />
-                    </div>
-
-                    <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 text-sm text-primary font-medium">
-                      Bạn chỉ có thể đánh giá sản phẩm đã mua và đơn hàng đã
-                      giao.
+                      <RatingStars value={reviewRating} onChange={setReviewRating} size="h-6 w-6" />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-foreground mb-2">
-                        Nội dung đánh giá
+                      <label className="mb-3 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">
+                        Chia sẻ cảm nhận
                       </label>
-
                       <textarea
                         value={reviewContent}
                         onChange={(e) => setReviewContent(e.target.value)}
-                        placeholder="Sản phẩm có tốt không? Size có vừa không?"
+                        placeholder="Chất liệu thế nào? Kích thước có vừa vặn không?"
                         rows={4}
                         maxLength={1000}
-                        className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none resize-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                        className="w-full resize-none border border-zinc-200 bg-zinc-50 px-5 py-4 text-sm outline-none transition-all focus:border-teal-600 focus:bg-white focus:ring-1 focus:ring-teal-600"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={submittingReview || !user}
-                      className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+                      className="flex h-12 w-full items-center justify-center gap-3 bg-zinc-950 px-10 text-xs font-black uppercase tracking-[0.15em] text-white transition-colors hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     >
                       {submittingReview ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <Send className="h-4 w-4" />
                       )}
-
                       {submittingReview ? "Đang gửi..." : "Gửi đánh giá"}
                     </button>
                   </div>
                 </form>
               </div>
 
-              <div className="mt-10">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-foreground">
+              <div className="mt-16 lg:mt-24">
+                <div className="mb-8 flex items-center justify-between border-b border-zinc-200 pb-4">
+                  <h3 className="text-xl font-black uppercase tracking-tight text-zinc-950">
                     Bình luận mới nhất
                   </h3>
-
                   {reviewPagination && (
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {reviewPagination.totalReview || 0} đánh giá
+                    <span className="text-[11px] font-black uppercase tracking-[0.15em] text-zinc-400">
+                      {reviewPagination.totalReview || 0} bình luận
                     </span>
                   )}
                 </div>
 
                 {loadingReviews ? (
-                  <div className="flex items-center justify-center py-10 text-muted-foreground">
-                    <Loader2 className="h-6 w-6 animate-spin mr-2 text-primary" />
-                    Đang tải đánh giá...
+                  <div className="flex items-center justify-center py-16 text-zinc-400">
+                    <Loader2 className="mr-3 h-6 w-6 animate-spin text-zinc-950" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Đang tải...</span>
                   </div>
                 ) : reviews.length === 0 ? (
-                  <div className="rounded-2xl bg-background border border-border p-8 text-center text-muted-foreground">
-                    Sản phẩm chưa có đánh giá nào.
+                  <div className="border border-zinc-200 bg-white p-12 text-center">
+                    <p className="text-sm font-bold text-zinc-500">
+                      Sản phẩm chưa có đánh giá nào.
+                    </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {reviews.map((review) => (
-                      <div
-                        key={review._id}
-                        className="rounded-2xl bg-background border border-border p-6 shadow-sm"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div key={review._id} className="border border-zinc-200 bg-white p-6 sm:p-8">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                           <div>
-                            <p className="font-bold text-foreground">
-                              {review.user?.name ||
-                                review.user?.email ||
-                                "Khách hàng"}
+                            <p className="font-bold text-zinc-950">
+                              {review.user?.name || review.user?.email || "Khách hàng"}
                             </p>
-
-                            <div className="flex items-center gap-2 mt-1.5">
+                            <div className="mt-2 flex items-center gap-3">
                               <RatingStars value={review.rating} />
-                              <span className="text-xs font-medium text-muted-foreground">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                                 {formatDate(review.createdAt)}
                               </span>
                             </div>
                           </div>
                         </div>
 
-                        <p className="text-sm text-foreground mt-4 leading-relaxed">
-                          {review.content ||
-                            "Khách hàng không để lại nội dung."}
+                        <p className="mt-5 text-sm leading-relaxed text-zinc-600">
+                          {review.content || "Khách hàng không để lại nội dung."}
                         </p>
                       </div>
                     ))}
@@ -916,19 +909,20 @@ const ProductDetail = () => {
         </section>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur lg:hidden">
-        <div className="px-4 py-3 flex items-center gap-3">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 bg-white p-4 lg:hidden">
+        <div className="flex items-center gap-4">
           <div className="flex-1">
-            <p className="text-xs font-medium text-muted-foreground line-clamp-1">{product.name}</p>
-            <p className="font-black text-foreground tracking-tight">
+            <p className="line-clamp-1 text-[10px] font-black uppercase tracking-[0.1em] text-zinc-500">
+              {product.name}
+            </p>
+            <p className="text-lg font-black tracking-tight text-zinc-950">
               {formatPrice(displayPrice)}
             </p>
           </div>
-
           <button
             type="button"
             onClick={handleAddToCart}
-            className="h-11 px-5 rounded-full bg-primary text-primary-foreground font-semibold flex items-center gap-2 shadow-sm hover:bg-primary/90 transition-colors"
+            className="flex h-12 items-center gap-2 bg-teal-600 px-6 text-xs font-black uppercase tracking-[0.1em] text-white hover:bg-teal-500"
           >
             <ShoppingCart className="h-4 w-4" />
             Thêm
@@ -936,10 +930,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      <SizeChartModal
-        open={sizeChartOpen}
-        onClose={() => setSizeChartOpen(false)}
-      />
+      <SizeChartModal open={sizeChartOpen} onClose={() => setSizeChartOpen(false)} />
     </div>
   );
 };

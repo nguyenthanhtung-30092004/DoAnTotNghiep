@@ -13,37 +13,37 @@ const priceOptions = [
 const FilterSection = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b border-border py-4 last:border-0">
+    <div className="border-b border-zinc-200 py-6 last:border-0">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between text-left"
+        className="flex w-full items-center justify-between text-left group"
       >
-        <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+        <span className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950 transition-colors group-hover:text-teal-600">
           {title}
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-zinc-400 transition-transform duration-300 group-hover:text-teal-600 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
-      {open && <div className="mt-4 space-y-3">{children}</div>}
+      {open && <div className="mt-5 space-y-4">{children}</div>}
     </div>
   );
 };
 
 /* ── RadioItem ── */
 const RadioItem = ({ label, checked, onChange }) => (
-  <label className="group flex cursor-pointer items-center gap-3">
+  <label className="group flex cursor-pointer items-start gap-4">
     <div
-      className={`flex h-4.5 w-4.5 items-center justify-center rounded-full border-2 transition-all ${
+      className={`mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
         checked
-          ? "border-primary bg-primary shadow-sm"
-          : "border-border bg-background group-hover:border-primary/50"
+          ? "border-teal-600 bg-teal-600"
+          : "border-zinc-300 bg-white group-hover:border-teal-600"
       }`}
-      style={{ width: "18px", height: "18px", minWidth: "18px" }}
+      style={{ width: "18px", height: "18px" }}
     >
-      {checked && <div className="h-2 w-2 rounded-full bg-primary-foreground" />}
+      {checked && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
     </div>
     <input
       type="radio"
@@ -53,10 +53,10 @@ const RadioItem = ({ label, checked, onChange }) => (
       onChange={onChange}
     />
     <span
-      className={`text-sm transition-colors ${
+      className={`text-sm leading-tight transition-colors duration-300 ${
         checked
-          ? "font-semibold text-foreground"
-          : "font-medium text-muted-foreground group-hover:text-foreground"
+          ? "font-bold text-teal-600"
+          : "font-medium text-zinc-500 group-hover:text-zinc-950"
       }`}
     >
       {label}
@@ -66,16 +66,16 @@ const RadioItem = ({ label, checked, onChange }) => (
 
 /* ── CheckboxItem ── */
 const CheckboxItem = ({ label, checked, onChange }) => (
-  <label className="group flex cursor-pointer items-center gap-3">
+  <label className="group flex cursor-pointer items-start gap-4">
     <div
-      className={`flex items-center justify-center rounded-md border-2 transition-all ${
+      className={`mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center border transition-all duration-300 ${
         checked
-          ? "border-primary bg-primary shadow-sm"
-          : "border-border bg-background group-hover:border-primary/50"
+          ? "border-teal-600 bg-teal-600"
+          : "border-zinc-300 bg-white group-hover:border-teal-600"
       }`}
-      style={{ width: "18px", height: "18px", minWidth: "18px" }}
+      style={{ width: "18px", height: "18px" }}
     >
-      {checked && <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />}
+      {checked && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
     </div>
     <input
       type="checkbox"
@@ -84,10 +84,10 @@ const CheckboxItem = ({ label, checked, onChange }) => (
       onChange={onChange}
     />
     <span
-      className={`text-sm transition-colors ${
+      className={`text-sm leading-tight transition-colors duration-300 ${
         checked
-          ? "font-semibold text-foreground"
-          : "font-medium text-muted-foreground group-hover:text-foreground"
+          ? "font-bold text-teal-600"
+          : "font-medium text-zinc-500 group-hover:text-zinc-950"
       }`}
     >
       {label}
@@ -108,59 +108,23 @@ const ShopFilterSidebar = ({
 
   return (
     <div className="w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-bold text-foreground">Bộ lọc</h2>
+      {/* Header (Desktop only, mobile hides this and uses its own) */}
+      <div className="hidden lg:flex items-center justify-between mb-4 border-b border-zinc-200 pb-4">
+        <h2 className="text-xl font-black uppercase tracking-tight text-zinc-950">Bộ lọc</h2>
         {hasActiveFilter && (
           <button
             type="button"
             onClick={onReset}
-            className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-bold text-primary hover:bg-primary/10 transition-colors uppercase tracking-wider"
+            className="group flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-zinc-400 hover:text-red-500 transition-colors"
           >
-            <RotateCcw className="h-3 w-3" />
+            <RotateCcw className="h-3 w-3 transition-transform duration-300 group-hover:-rotate-90" />
             Xóa lọc
           </button>
         )}
       </div>
 
-      {/* Active filters */}
-      {hasActiveFilter && (
-        <div className="mt-2 mb-2 flex flex-wrap gap-2">
-          {activePrice && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1.5 text-[11px] font-bold text-primary">
-              {activePrice}
-              <button
-                type="button"
-                onClick={() =>
-                  onChangePrice({ label: "", minPrice: "", maxPrice: "" })
-                }
-                className="ml-0.5 hover:text-primary/70"
-              >
-                ×
-              </button>
-            </span>
-          )}
-          {activeBrand && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1.5 text-[11px] font-bold text-primary">
-              {brands.find((b) => b._id === activeBrand)?.nameBrand ||
-                "Thương hiệu"}
-              <button
-                type="button"
-                onClick={() => onChangeBrand("")}
-                className="ml-0.5 hover:text-primary/70"
-              >
-                ×
-              </button>
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Divider */}
-      <div className="mt-4 border-t border-border" />
-
       {/* Mức giá */}
-      <FilterSection title="Mức giá">
+      <FilterSection title="Khoảng giá">
         {priceOptions.map((price) => (
           <RadioItem
             key={price.label}
@@ -178,7 +142,7 @@ const ShopFilterSidebar = ({
       {/* Thương hiệu */}
       <FilterSection title="Thương hiệu">
         {brands.length === 0 ? (
-          <p className="text-xs text-muted-foreground font-medium">Chưa có thương hiệu</p>
+          <p className="text-xs text-zinc-400 font-medium">Chưa có thương hiệu</p>
         ) : (
           brands
             .slice(0, 12)
@@ -194,9 +158,9 @@ const ShopFilterSidebar = ({
             ))
         )}
         {brands.length > 12 && (
-          <p className="text-[11px] font-bold text-primary uppercase tracking-wider cursor-pointer hover:underline mt-4">
-            +{brands.length - 12} thương hiệu khác
-          </p>
+          <button className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-950 hover:text-teal-600 transition-colors mt-2">
+            + {brands.length - 12} thương hiệu khác
+          </button>
         )}
       </FilterSection>
     </div>
