@@ -294,7 +294,7 @@ const Header = () => {
     >
       <div className="container h-16 flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl shrink-0 group">
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-foreground text-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200">
+          <div className="flex items-center justify-center w-8 h-8 bg-zinc-950 text-white transition-colors duration-200">
             <Footprints className="h-4 w-4" />
           </div>
           <span className="text-foreground tracking-tight">RunVault</span>
@@ -320,7 +320,7 @@ const Header = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Tìm kiếm sản phẩm..."
-                    className="w-64 h-10 rounded-full border border-border bg-muted/30 px-4 pr-10 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-muted-foreground"
+                    className="w-64 h-10 border border-zinc-200 bg-zinc-50 px-4 pr-10 text-sm outline-none focus:border-teal-600 focus:bg-white focus:ring-1 focus:ring-teal-600 transition-all"
                   />
                   {isSearching && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -371,10 +371,10 @@ const Header = () => {
                               className="size-10 rounded-lg object-cover bg-muted"
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">
+                              <p className="text-sm font-bold text-zinc-950 truncate">
                                 {product.name}
                               </p>
-                              <p className="text-xs font-semibold text-primary">
+                              <p className="text-xs font-bold text-teal-600">
                                 {new Intl.NumberFormat("vi-VN", {
                                   style: "currency",
                                   currency: "VND",
@@ -405,7 +405,7 @@ const Header = () => {
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="p-2.5 rounded-full text-foreground hover:bg-muted transition-colors"
+                className="p-2.5 text-zinc-950 hover:bg-zinc-100 transition-colors"
                 aria-label="Tìm kiếm"
               >
                 <Search className="h-5 w-5" />
@@ -417,13 +417,13 @@ const Header = () => {
             type="button"
             id="header-cart-btn"
             onClick={() => dispatch(openCartDrawer())}
-            className="relative p-2.5 rounded-full text-foreground hover:bg-muted transition-colors"
+            className="relative p-2.5 text-zinc-950 hover:bg-zinc-100 transition-colors"
             aria-label="Giỏ hàng"
           >
             <ShoppingCart className="h-5 w-5" />
 
             {totalQuantity > 0 && (
-              <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground leading-none">
+              <span className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-teal-600 px-1 text-[10px] font-bold text-white leading-none">
                 {totalQuantity > 99 ? "99+" : totalQuantity}
               </span>
             )}
@@ -434,11 +434,11 @@ const Header = () => {
               <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
                 <button
                   type="button"
-                  className="flex items-center gap-2 p-1.5 pl-2 pr-3 rounded-full border border-border hover:border-foreground/20 hover:bg-muted transition-colors"
+                  className="flex items-center gap-2 p-1.5 pl-2 pr-3 border border-zinc-200 hover:border-zinc-950 hover:bg-zinc-50 transition-colors"
                   aria-label="Tài khoản"
                 >
-                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                    <User className="h-3 w-3 text-primary-foreground" />
+                  <div className="w-6 h-6 bg-teal-600 flex items-center justify-center">
+                    <User className="h-3 w-3 text-white" />
                   </div>
 
                   <span className="hidden md:block text-sm font-semibold text-foreground max-w-[80px] truncate">
@@ -449,7 +449,7 @@ const Header = () => {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-5 h-9 rounded-full bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors ml-1"
+                className="flex items-center justify-center px-6 h-10 bg-zinc-950 text-white text-xs font-black uppercase tracking-[0.1em] hover:bg-teal-600 transition-colors ml-1"
               >
                 <span className="hidden sm:block">Đăng nhập</span>
               </Link>
@@ -482,12 +482,12 @@ const Header = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Tìm kiếm sản phẩm..."
-                  className="flex-1 h-10 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none focus:border-primary"
+                  className="flex-1 h-12 border border-zinc-200 bg-zinc-50 px-4 text-sm outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
                 />
 
                 <button
                   type="submit"
-                  className="px-4 h-10 rounded-xl bg-primary text-white text-sm font-semibold"
+                  className="px-6 h-12 bg-zinc-950 text-white text-xs font-black uppercase tracking-[0.1em] hover:bg-teal-600 transition-colors"
                 >
                   Tìm
                 </button>
@@ -509,7 +509,7 @@ const Header = () => {
                 <Link
                   to="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center h-12 rounded-2xl bg-primary text-white font-semibold"
+                  className="flex items-center justify-center h-14 bg-zinc-950 text-white text-xs font-black uppercase tracking-[0.1em] hover:bg-teal-600 transition-colors"
                 >
                   Đăng nhập
                 </Link>
@@ -517,7 +517,7 @@ const Header = () => {
                 <Link
                   to="/signup"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center h-12 rounded-2xl border border-slate-200 text-slate-800 font-semibold"
+                  className="flex items-center justify-center h-14 border border-zinc-200 bg-zinc-50 text-zinc-950 text-xs font-black uppercase tracking-[0.1em] hover:border-zinc-950 hover:bg-white transition-colors"
                 >
                   Tạo tài khoản
                 </Link>
