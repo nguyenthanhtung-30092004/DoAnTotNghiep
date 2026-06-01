@@ -505,10 +505,10 @@ const ProductDetail = () => {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-6 pb-16 pt-10 lg:pt-16">
+        <section className="mx-auto max-w-7xl px-6 pb-5 pt-10 lg:pt-16">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-7">
-              <div className="grid grid-cols-[82px_1fr] gap-5">
+              <div className="grid grid-cols-[82px_1fr]">
                 <div className="flex max-h-[700px] flex-col gap-3 overflow-y-auto pr-1">
                   {activeImages.map((image, index) => {
                     const isActive = selectedImage === image;
@@ -518,7 +518,7 @@ const ProductDetail = () => {
                         key={`${image}-${index}`}
                         type="button"
                         onClick={() => setSelectedImage(image)}
-                        className={`flex h-24 w-20 items-center justify-center border bg-white p-3 transition-all ${
+                        className={`flex size-14 items-center justify-center rounded-[5px] border bg-white p-3 transition-all ${
                           isActive ? "border-zinc-950" : "border-transparent hover:border-zinc-300"
                         }`}
                       >
@@ -532,12 +532,12 @@ const ProductDetail = () => {
                   })}
                 </div>
 
-                <div className="relative flex min-h-[620px] items-center justify-center overflow-hidden bg-zinc-50 p-12">
+                <div className="relative flex items-center h-[500px] justify-center overflow-hidden bg-white p-12a border rounded-[30px]">
                   {selectedImage ? (
                     <img
                       src={selectedImage}
                       alt={product.name}
-                      className="h-full max-h-[520px] w-full object-contain mix-blend-multiply"
+                      className="h-full w-full object-contain mix-blend-multiply"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-sm font-bold uppercase tracking-widest text-zinc-400">
@@ -576,7 +576,7 @@ const ProductDetail = () => {
                   {getBrandName(product.brand)}
                 </p>
 
-                <h1 className="text-4xl font-black uppercase leading-[0.95] tracking-tighter text-zinc-950 lg:text-5xl">
+                <h1 className="text-[20px] leading-[0.95] font-bold tracking-tighter text-zinc-950 lg:text-[20px]">
                   {product.name}
                 </h1>
 
@@ -600,7 +600,7 @@ const ProductDetail = () => {
 
               <div className="border-t border-zinc-200 py-8">
                 <div className="flex items-end gap-4">
-                  <p className="text-4xl font-black tracking-tighter text-zinc-950">
+                  <p className="text-[28px] font-black tracking-tighter text-red-500">
                     {formatPrice(displayPrice)}
                   </p>
                   {originalPrice && (
@@ -610,7 +610,7 @@ const ProductDetail = () => {
                   )}
                 </div>
 
-                <div className="mt-10">
+                <div className="mt-5">
                   <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
                     Màu sắc
                   </h3>
@@ -641,7 +641,7 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                <div className="mt-10">
+                <div className="mt-5">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
                       Kích cỡ
@@ -668,7 +668,7 @@ const ProductDetail = () => {
                             setSelectedSizeId(item._id);
                             setQuantity(1);
                           }}
-                          className={`flex h-12 items-center justify-center border text-sm font-bold uppercase transition-all ${
+                          className={`flex px-[7px] py-[10px] items-center justify-center border text-sm font-bold uppercase transition-all ${
                             selectedSizeId === item._id
                               ? "border-teal-600 bg-teal-600 text-white"
                               : "border-zinc-200 bg-white text-zinc-950 hover:border-zinc-950"
@@ -685,7 +685,7 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                <div className="mt-10">
+                <div className="mt-5">
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
                       Số lượng
@@ -742,8 +742,8 @@ const ProductDetail = () => {
           </div>
         </section>
 
-        <section className="border-t border-zinc-200 bg-zinc-50">
-          <div className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
+        <section className="">
+          <div className="mx-auto max-w-7xl px-6 py-[20px] lg:py-[30px]">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
               <div className="lg:col-span-8">
                 <ProductDescription description={product.description} />

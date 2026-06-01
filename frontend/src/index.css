@@ -99,7 +99,7 @@
 
   body {
     @apply bg-background text-foreground antialiased tracking-tight;
-    font-family: "DM Sans", "Inter", sans-serif;
+    font-family: "Inter", "DM Sans", sans-serif;
     line-height: 1.6;
   }
 
