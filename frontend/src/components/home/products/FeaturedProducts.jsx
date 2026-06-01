@@ -70,7 +70,8 @@ const FeaturedProducts = () => {
               Hàng mới về
             </h2>
             <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
-              Những phát kiến mới nhất về tốc độ và sức bền. Được thử nghiệm bởi các vận động viên hàng đầu.
+              Những phát kiến mới nhất về tốc độ và sức bền. Được thử nghiệm bởi các vận động viên
+              hàng đầu.
             </p>
           </div>
 

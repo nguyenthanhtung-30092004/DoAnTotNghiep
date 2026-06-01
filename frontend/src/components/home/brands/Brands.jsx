@@ -1,90 +1,163 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import brandService from "../../../services/brand.service";
 
 const getList = (data) => {
   if (Array.isArray(data)) return data;
+
   return data?.brands || data?.items || data?.data || [];
+};
+
+const getBrandLogo = (brand) => {
+  if (!brand?.logoBrand) return "";
+
+  if (typeof brand.logoBrand === "string") {
+    return brand.logoBrand;
+  }
+
+  return brand.logoBrand.url || "";
 };
 
 const Brands = () => {
   const [brands, setBrands] = useState([]);
-  
+
   useEffect(() => {
     const fetchBrands = async () => {
       try {
         const res = await brandService.getAllBrands();
+
         const data = Array.isArray(res) ? res : res?.metadata || res?.data || res;
-        const list = getList(data).filter((b) => !b.isDeleted);
+
+        const list = getList(data).filter((brand) => !brand.isDeleted);
+
         setBrands(list);
       } catch (err) {
         console.error(err);
         setBrands([]);
       }
     };
+
     fetchBrands();
   }, []);
 
+  const marqueeBrands = useMemo(() => {
+    return [...brands, ...brands, ...brands, ...brands];
+  }, [brands]);
+
   if (!brands.length) return null;
 
-  // Duplicate multiple times to ensure enough content for seamless scroll
-  const marqueeBrands = [...brands, ...brands, ...brands, ...brands, ...brands, ...brands];
-
   return (
-    <section className="bg-background py-16 border-b border-border overflow-hidden">
-      <div className="container mb-12">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-          Thương hiệu hàng đầu
-        </h2>
-      </div>
+    <section className="overflow-hidden border-y border-zinc-100 bg-white py-16">
+      <div className="container">
+        {/* Header */}
+        <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="mb-2 text-[11px] font-black uppercase tracking-[0.22em] text-zinc-400">
+              Brands
+            </p>
 
-      <div className="relative flex overflow-x-hidden group border-y border-border py-8 bg-zinc-50 dark:bg-zinc-900/20">
-        <div className="animate-marquee group-hover:[animation-play-state:paused]">
-          {marqueeBrands.map((brand, index) => (
-            <Link
-              key={`${brand._id}-${index}`}
-              to={`/shop?brand=${brand.slugBrand || brand._id}`}
-              className="flex w-40 sm:w-56 flex-col items-center justify-center mx-6 transition-opacity hover:opacity-50"
-            >
-              <div className="h-12 w-full flex items-center justify-center mb-3">
-                {brand.logoBrand ? (
-                  <img
-                    src={brand.logoBrand}
-                    alt={brand.nameBrand}
-                    className="max-h-full max-w-full object-contain grayscale"
-                  />
-                ) : (
-                  <span className="text-2xl font-black text-foreground uppercase tracking-tighter">
-                    {brand.nameBrand}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-foreground">
-                  {brand.nameBrand}
-                </span>
-                {brand.outStanding && (
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-background bg-foreground px-1.5 py-0.5 rounded-none">
-                    Hot
-                  </span>
-                )}
-              </div>
-            </Link>
-          ))}
+            <h2 className="text-2xl font-black tracking-tight text-zinc-950 md:text-3xl">
+              Thương hiệu nổi bật
+            </h2>
+          </div>
+
+          <p className="max-w-md text-sm leading-6 text-zinc-500">
+            Khám phá các thương hiệu giày chạy bộ được yêu thích tại Runner Store.
+          </p>
         </div>
       </div>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        .animate-marquee {
-          display: flex;
-          width: max-content;
-          animation: scroll-marquee 40s linear infinite;
-        }
-        @keyframes scroll-marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
-        }
-      `}} />
+
+      {/* Marquee */}
+      <div className="relative">
+        {/* Fade left */}
+        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white to-transparent md:w-40" />
+
+        {/* Fade right */}
+        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white to-transparent md:w-40" />
+
+        <div className="group flex overflow-hidden py-2">
+          <div className="flex w-max animate-brand-marquee items-center gap-5 group-hover:[animation-play-state:paused]">
+            {marqueeBrands.map((brand, index) => {
+              const logo = getBrandLogo(brand);
+              const brandName = brand.nameBrand || brand.name || "Brand";
+              const brandSlug = brand.slugBrand || brand._id;
+
+              return (
+                <Link
+                  key={`${brand._id || brandName}-${index}`}
+                  to={`/shop?brand=${brandSlug}`}
+                  className="
+                    flex h-32 w-52 shrink-0 flex-col items-center justify-center
+                    rounded-3xl border border-zinc-100 bg-zinc-50/70 px-6
+                    transition-all duration-300 ease-out
+                    hover:-translate-y-1 hover:border-zinc-200 hover:bg-white
+                    hover:shadow-[0_18px_45px_rgba(0,0,0,0.08)]
+                    active:scale-[0.98]
+                    sm:w-60
+                  "
+                >
+                  <div className="flex h-14 w-full items-center justify-center">
+                    {logo ? (
+                      <img
+                        src={logo}
+                        alt={brandName}
+                        className="
+                          max-h-12 max-w-[130px] object-contain
+                          opacity-70 grayscale
+                          transition-all duration-300
+                          group-hover:opacity-70
+                        "
+                      />
+                    ) : (
+                      <span className="line-clamp-1 text-2xl font-black uppercase tracking-tight text-zinc-950">
+                        {brandName}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-5 flex items-center justify-center gap-2">
+                    <span className="line-clamp-1 text-[11px] font-black uppercase tracking-[0.18em] text-zinc-500">
+                      {brandName}
+                    </span>
+
+                    {brand.outStanding && (
+                      <span className="rounded-full bg-zinc-950 px-2 py-1 text-[8px] font-black uppercase tracking-[0.16em] text-white">
+                        Hot
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .animate-brand-marquee {
+              animation: brand-marquee 38s linear infinite;
+            }
+
+            @keyframes brand-marquee {
+              from {
+                transform: translateX(0);
+              }
+
+              to {
+                transform: translateX(-50%);
+              }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+              .animate-brand-marquee {
+                animation: none;
+              }
+            }
+          `,
+        }}
+      />
     </section>
   );
 };
