@@ -38,7 +38,12 @@ const getCategoryImage = (category, index) => {
 };
 
 const isParentCategory = (category) => {
-  return !(category.parent || category.parentId || category.parentCategory || category.parent?._id);
+  return !(
+    category.parent ||
+    category.parentId ||
+    category.parentCategory ||
+    category.parent?._id
+  );
 };
 
 const Categories = () => {
@@ -88,8 +93,8 @@ const Categories = () => {
               Danh mục nổi bật
             </h2>
             <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
-              Tuyển tập trang bị chạy bộ cao cấp được tuyển chọn dành cho mọi cung đường. Từ luyện tập
-              hàng ngày đến những cuộc đua quan trọng.
+              Tuyển tập trang bị chạy bộ cao cấp được tuyển chọn dành cho mọi
+              cung đường. Từ luyện tập hàng ngày đến những cuộc đua quan trọng.
             </p>
           </div>
 
@@ -115,7 +120,9 @@ const Categories = () => {
                   <div
                     key={`img-${getCategorySlug(category)}`}
                     className={`absolute inset-0 flex items-center justify-center p-10 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      isActive ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                      isActive
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-95 pointer-events-none"
                     }`}
                   >
                     <img
@@ -126,16 +133,6 @@ const Categories = () => {
                   </div>
                 );
               })}
-
-              <div className="absolute left-8 bottom-8 z-20">
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center gap-3 rounded-full bg-zinc-950 px-6 h-12 text-xs font-black uppercase tracking-[0.15em] text-white transition-all duration-300 hover:bg-zinc-800 hover:-translate-y-1 shadow-lg"
-                >
-                  Tất cả danh mục
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
             </div>
           </div>
 
@@ -242,14 +239,20 @@ const CategoriesSkeleton = () => {
           <div className="col-span-5 h-[600px] animate-pulse rounded-[32px] bg-zinc-100" />
           <div className="col-span-7 flex flex-col gap-10 pt-12">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-20 w-full animate-pulse rounded-xl bg-zinc-100" />
+              <div
+                key={i}
+                className="h-20 w-full animate-pulse rounded-xl bg-zinc-100"
+              />
             ))}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:hidden">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-[380px] w-full animate-pulse rounded-[24px] bg-zinc-100" />
+            <div
+              key={i}
+              className="h-[380px] w-full animate-pulse rounded-[24px] bg-zinc-100"
+            />
           ))}
         </div>
       </div>

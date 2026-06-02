@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ChevronRight,
-  Heart,
   Loader2,
   Minus,
   Plus,
@@ -23,7 +22,11 @@ import RatingStars from "../../components/products/RatingStars";
 import socket from "../../socket/socket";
 
 import { useDispatch, useSelector } from "react-redux";
-import { addGuestCart, openCartDrawer, setCart } from "../../redux/slices/cartSlice";
+import {
+  addGuestCart,
+  openCartDrawer,
+  setCart,
+} from "../../redux/slices/cartSlice";
 
 const formatPrice = (price) => {
   if (price === undefined || price === null) return "Liên hệ";
@@ -126,6 +129,12 @@ const ProductDetail = () => {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewContent, setReviewContent] = useState("");
 
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [dragDistance, setDragDistance] = useState(0);
+
+  const dragStartXRef = useRef(0);
+  const dragCurrentXRef = useRef(0);
+
   const variants = Array.isArray(product?.variants) ? product.variants : [];
   const selectedVariant = variants[selectedVariantIndex];
 
@@ -141,7 +150,9 @@ const ProductDetail = () => {
 
   const activeImages = useMemo(() => {
     const variantImages =
-      selectedVariant?.images?.map((image) => getImageUrl(image)).filter(Boolean) || [];
+      selectedVariant?.images
+        ?.map((image) => getImageUrl(image))
+        .filter(Boolean) || [];
 
     if (variantImages.length > 0) {
       return variantImages;
@@ -149,6 +160,10 @@ const ProductDetail = () => {
 
     return allImages;
   }, [selectedVariant, allImages]);
+
+  const selectedImageIndex = useMemo(() => {
+    return activeImages.findIndex((image) => image === selectedImage);
+  }, [activeImages, selectedImage]);
 
   const displayPrice = selectedSize
     ? Number(selectedSize.salePrice || 0) > 0 &&
@@ -163,9 +178,6 @@ const ProductDetail = () => {
     Number(selectedSize.salePrice) < Number(selectedSize.price)
       ? selectedSize.price
       : null;
-
-  const totalStock =
-    selectedVariant?.sizes?.reduce((sum, item) => sum + Number(item.stock || 0), 0) || 0;
 
   const selectedStock = Number(selectedSize?.stock || 0);
 
@@ -189,7 +201,9 @@ const ProductDetail = () => {
       setQuantity(1);
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Lấy chi tiết sản phẩm thất bại");
+      toast.error(
+        error.response?.data?.message || "Lấy chi tiết sản phẩm thất bại"
+      );
     } finally {
       setLoading(false);
     }
@@ -212,7 +226,9 @@ const ProductDetail = () => {
       setReviewPagination(data.pagination || null);
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Lấy đánh giá sản phẩm thất bại");
+      toast.error(
+        error.response?.data?.message || "Lấy đánh giá sản phẩm thất bại"
+      );
     } finally {
       setLoadingReviews(false);
     }
@@ -286,7 +302,8 @@ const ProductDetail = () => {
     if (activeImages.length <= 1) return;
 
     const currentIndex = activeImages.indexOf(selectedImage);
-    const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % activeImages.length : 0;
+    const nextIndex =
+      currentIndex >= 0 ? (currentIndex + 1) % activeImages.length : 0;
 
     setSelectedImage(activeImages[nextIndex]);
   };
@@ -295,9 +312,77 @@ const ProductDetail = () => {
     if (activeImages.length <= 1) return;
 
     const currentIndex = activeImages.indexOf(selectedImage);
-    const prevIndex = currentIndex > 0 ? currentIndex - 1 : activeImages.length - 1;
+    const prevIndex =
+      currentIndex > 0 ? currentIndex - 1 : activeImages.length - 1;
 
     setSelectedImage(activeImages[prevIndex]);
+  };
+
+  const handleArrowPrevClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handlePrevImage();
+  };
+
+  const handleArrowNextClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleNextImage();
+  };
+
+  const handleImagePointerDown = (e) => {
+    if (activeImages.length <= 1) return;
+
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+
+    setIsDraggingImage(true);
+    setDragDistance(0);
+
+    dragStartXRef.current = e.clientX;
+    dragCurrentXRef.current = e.clientX;
+
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const handleImagePointerMove = (e) => {
+    if (!isDraggingImage) return;
+
+    dragCurrentXRef.current = e.clientX;
+
+    const distance = dragCurrentXRef.current - dragStartXRef.current;
+
+    setDragDistance(distance);
+  };
+
+  const handleImagePointerUp = (e) => {
+    if (!isDraggingImage) return;
+
+    const distance = dragCurrentXRef.current - dragStartXRef.current;
+    const minSwipeDistance = 45;
+
+    setIsDraggingImage(false);
+    setDragDistance(0);
+
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+
+    if (Math.abs(distance) < minSwipeDistance) return;
+
+    if (distance < 0) {
+      handleNextImage();
+    } else {
+      handlePrevImage();
+    }
+  };
+
+  const handleImagePointerCancel = () => {
+    setIsDraggingImage(false);
+    setDragDistance(0);
+  };
+
+  const handleImagePointerLeave = (e) => {
+    if (e.pointerType === "mouse") {
+      handleImagePointerCancel();
+    }
   };
 
   const handleDecreaseQuantity = () => {
@@ -372,7 +457,9 @@ const ProductDetail = () => {
       dispatch(openCartDrawer());
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Thêm vào giỏ hàng thất bại");
+      toast.error(
+        error.response?.data?.message || "Thêm vào giỏ hàng thất bại"
+      );
     } finally {
       setAddingToCart(false);
     }
@@ -418,7 +505,9 @@ const ProductDetail = () => {
       const newReview = data.review;
 
       const reviewProductId =
-        typeof newReview?.product === "string" ? newReview.product : newReview?.product?._id;
+        typeof newReview?.product === "string"
+          ? newReview.product
+          : newReview?.product?._id;
 
       if (!newReview || reviewProductId !== product._id) return;
 
@@ -437,7 +526,9 @@ const ProductDetail = () => {
 
     const handleReviewRemoved = (data) => {
       const productId =
-        typeof data.productId === "string" ? data.productId : data.productId?.toString();
+        typeof data.productId === "string"
+          ? data.productId
+          : data.productId?.toString();
 
       if (productId !== product._id) return;
 
@@ -461,7 +552,9 @@ const ProductDetail = () => {
       <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="flex flex-col items-center text-zinc-500">
           <Loader2 className="mb-3 h-9 w-9 animate-spin text-zinc-950" />
-          <p className="text-sm font-bold uppercase tracking-widest text-zinc-950">Đang tải...</p>
+          <p className="text-sm font-bold uppercase tracking-widest text-zinc-950">
+            Đang tải...
+          </p>
         </div>
       </div>
     );
@@ -490,26 +583,36 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-white pb-24 lg:pb-0">
       <main>
         <section className="border-b border-zinc-200">
-          <div className="mx-auto max-w-7xl px-6 py-6">
-            <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
-              <Link to="/" className="transition-colors hover:text-zinc-950">
+          <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6">
+            <nav className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.16em] text-zinc-400 sm:text-[10px] sm:tracking-[0.2em]">
+              <Link
+                to="/"
+                className="shrink-0 transition-colors hover:text-zinc-950"
+              >
                 Trang chủ
               </Link>
-              <ChevronRight className="h-3 w-3" />
-              <Link to="/shop" className="transition-colors hover:text-zinc-950">
+
+              <ChevronRight className="h-3 w-3 shrink-0" />
+
+              <Link
+                to="/shop"
+                className="shrink-0 transition-colors hover:text-zinc-950"
+              >
                 Cửa hàng
               </Link>
-              <ChevronRight className="h-3 w-3" />
+
+              <ChevronRight className="h-3 w-3 shrink-0" />
+
               <span className="line-clamp-1 text-zinc-950">{product.name}</span>
             </nav>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-6 pb-5 pt-10 lg:pt-16">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+        <section className="mx-auto max-w-7xl px-4 pb-5 pt-6 sm:px-6 lg:pt-16">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-7">
-              <div className="grid grid-cols-[82px_1fr]">
-                <div className="flex max-h-[700px] flex-col gap-3 overflow-y-auto pr-1">
+              <div className="flex flex-col-reverse gap-4 lg:grid lg:grid-cols-[76px_1fr] lg:gap-5">
+                <div className="flex gap-3 overflow-x-auto pb-1 lg:max-h-[680px] lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-0 lg:pr-1">
                   {activeImages.map((image, index) => {
                     const isActive = selectedImage === image;
 
@@ -518,26 +621,53 @@ const ProductDetail = () => {
                         key={`${image}-${index}`}
                         type="button"
                         onClick={() => setSelectedImage(image)}
-                        className={`flex size-14 items-center justify-center rounded-[5px] border bg-white p-3 transition-all ${
-                          isActive ? "border-zinc-950" : "border-transparent hover:border-zinc-300"
+                        className={`flex h-16 w-16 shrink-0 items-center justify-center border bg-white p-2 transition-all lg:h-[68px] lg:w-[68px] ${
+                          isActive
+                            ? "border-zinc-950"
+                            : "border-zinc-200 hover:border-zinc-400"
                         }`}
                       >
                         <img
                           src={image}
                           alt={`${product.name} ${index + 1}`}
                           className="h-full w-full object-contain mix-blend-multiply"
+                          draggable={false}
                         />
                       </button>
                     );
                   })}
                 </div>
 
-                <div className="relative flex items-center h-[560px] justify-center overflow-hidden bg-white p-12a border rounded-[30px]">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onPointerDown={handleImagePointerDown}
+                  onPointerMove={handleImagePointerMove}
+                  onPointerUp={handleImagePointerUp}
+                  onPointerCancel={handleImagePointerCancel}
+                  onPointerLeave={handleImagePointerLeave}
+                  style={{
+                    touchAction: "pan-y",
+                  }}
+                  className={`relative flex h-[360px] select-none items-center justify-center overflow-hidden rounded-[28px] border border-zinc-200 bg-zinc-50/70 p-6 sm:h-[480px] sm:p-10 lg:h-[620px] lg:rounded-[34px] lg:p-14 ${
+                    activeImages.length > 1
+                      ? isDraggingImage
+                        ? "cursor-grabbing"
+                        : "cursor-grab"
+                      : "cursor-default"
+                  }`}
+                >
                   {selectedImage ? (
                     <img
                       src={selectedImage}
                       alt={product.name}
-                      className="size-[70%] object-contain mix-blend-multiply"
+                      draggable={false}
+                      style={{
+                        transform: `translateX(${dragDistance * 0.35}px) scale(${
+                          isDraggingImage ? 0.98 : 1
+                        })`,
+                      }}
+                      className="h-full w-full object-contain mix-blend-multiply transition-transform duration-200"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-sm font-bold uppercase tracking-widest text-zinc-400">
@@ -549,21 +679,49 @@ const ProductDetail = () => {
                     <>
                       <button
                         type="button"
-                        onClick={handlePrevImage}
-                        className="absolute left-5 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center bg-white text-zinc-950 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all hover:bg-zinc-950 hover:text-white"
+                        onClick={handleArrowPrevClick}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 items-center justify-center text-zinc-400 transition-all hover:-translate-x-1 hover:text-zinc-950 sm:left-5"
                         aria-label="Ảnh trước"
                       >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-9 w-9 stroke-[1.4] sm:h-11 sm:w-11" />
                       </button>
 
                       <button
                         type="button"
-                        onClick={handleNextImage}
-                        className="absolute right-5 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center bg-white text-zinc-950 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all hover:bg-zinc-950 hover:text-white"
+                        onClick={handleArrowNextClick}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 items-center justify-center text-zinc-400 transition-all hover:translate-x-1 hover:text-zinc-950 sm:right-5"
                         aria-label="Ảnh sau"
                       >
-                        <ChevronRightIcon className="h-5 w-5" />
+                        <ChevronRightIcon className="h-9 w-9 stroke-[1.4] sm:h-11 sm:w-11" />
                       </button>
+
+                      <div className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-zinc-500 shadow-sm backdrop-blur-sm">
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                        <span>Kéo ảnh để xem thêm</span>
+                        <ChevronRightIcon className="h-3.5 w-3.5" />
+                      </div>
+
+                      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+                        {activeImages.map((image, index) => (
+                          <button
+                            key={`dot-${image}-${index}`}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedImage(image);
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className={`h-1.5 rounded-full transition-all ${
+                              selectedImageIndex === index
+                                ? "w-6 bg-zinc-950"
+                                : "w-1.5 bg-zinc-300 hover:bg-zinc-500"
+                            }`}
+                            aria-label={`Chọn ảnh ${index + 1}`}
+                          />
+                        ))}
+                      </div>
                     </>
                   )}
                 </div>
@@ -576,7 +734,7 @@ const ProductDetail = () => {
                   {getBrandName(product.brand)}
                 </p>
 
-                <h1 className="text-[20px] leading-[0.95] font-bold tracking-tighter text-zinc-950 lg:text-[20px]">
+                <h1 className="text-2xl font-black leading-tight tracking-tighter text-zinc-950 sm:text-3xl lg:text-4xl">
                   {product.name}
                 </h1>
 
@@ -593,16 +751,19 @@ const ProductDetail = () => {
 
                   <span>
                     Danh mục:{" "}
-                    <span className="text-zinc-950">{getCategoryName(product.category)}</span>
+                    <span className="text-zinc-950">
+                      {getCategoryName(product.category)}
+                    </span>
                   </span>
                 </div>
               </div>
 
               <div className="border-t border-zinc-200 py-8">
-                <div className="flex items-end gap-4">
+                <div className="flex flex-wrap items-end gap-4">
                   <p className="text-[28px] font-black tracking-tighter text-red-500">
                     {formatPrice(displayPrice)}
                   </p>
+
                   {originalPrice && (
                     <p className="mb-1 text-lg font-bold text-zinc-400 line-through">
                       {formatPrice(originalPrice)}
@@ -614,6 +775,7 @@ const ProductDetail = () => {
                   <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
                     Màu sắc
                   </h3>
+
                   <div className="mt-4 flex flex-wrap gap-3">
                     {variants.map((variant, index) => (
                       <button
@@ -629,7 +791,9 @@ const ProductDetail = () => {
                       >
                         <span
                           className={`h-4 w-4 rounded-full border shadow-sm ${
-                            selectedVariantIndex === index ? "border-zinc-700" : "border-zinc-200"
+                            selectedVariantIndex === index
+                              ? "border-zinc-700"
+                              : "border-zinc-200"
                           }`}
                           style={{
                             backgroundColor: variant.colorCode || "#d1d5db",
@@ -646,6 +810,7 @@ const ProductDetail = () => {
                     <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
                       Kích cỡ
                     </h3>
+
                     <button
                       type="button"
                       onClick={() => setSizeChartOpen(true)}
@@ -668,7 +833,7 @@ const ProductDetail = () => {
                             setSelectedSizeId(item._id);
                             setQuantity(1);
                           }}
-                          className={`flex px-[7px] py-[10px] items-center justify-center border text-sm font-bold uppercase transition-all ${
+                          className={`flex items-center justify-center border px-[7px] py-[10px] text-sm font-bold uppercase transition-all ${
                             selectedSizeId === item._id
                               ? "border-teal-600 bg-teal-600 text-white"
                               : "border-zinc-200 bg-white text-zinc-950 hover:border-zinc-950"
@@ -690,8 +855,10 @@ const ProductDetail = () => {
                     <h3 className="text-xs font-black uppercase tracking-[0.15em] text-zinc-950">
                       Số lượng
                     </h3>
+
                     <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
-                      Còn lại: <span className="text-zinc-950">{selectedStock}</span>
+                      Còn lại:{" "}
+                      <span className="text-zinc-950">{selectedStock}</span>
                     </p>
                   </div>
 
@@ -704,7 +871,11 @@ const ProductDetail = () => {
                       >
                         <Minus className="h-4 w-4" />
                       </button>
-                      <span className="flex-1 text-center font-bold text-zinc-950">{quantity}</span>
+
+                      <span className="flex-1 text-center font-bold text-zinc-950">
+                        {quantity}
+                      </span>
+
                       <button
                         type="button"
                         onClick={handleIncreaseQuantity}
@@ -718,22 +889,14 @@ const ProductDetail = () => {
                       type="button"
                       onClick={handleAddToCart}
                       disabled={addingToCart}
-                      className="flex h-14 flex-1 items-center justify-center gap-3 bg-zinc-950 px-8 text-xs font-black uppercase tracking-[0.15em] text-white transition-colors hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap bg-zinc-950 px-4 text-[11px] font-black uppercase tracking-[0.08em] text-white transition-colors hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:flex-1 sm:gap-3 sm:px-8 sm:text-xs sm:tracking-[0.15em]"
                     >
                       {addingToCart ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <ShoppingCart className="h-5 w-5" />
+                        <ShoppingCart className="h-5 w-5 shrink-0" />
                       )}
                       {addingToCart ? "Đang thêm..." : "Thêm vào giỏ"}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="flex h-14 w-14 items-center justify-center border border-zinc-200 bg-white text-zinc-500 transition-colors hover:border-zinc-950 hover:bg-zinc-950 hover:text-white"
-                      aria-label="Thêm vào yêu thích"
-                    >
-                      <Heart className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -742,8 +905,8 @@ const ProductDetail = () => {
           </div>
         </section>
 
-        <section className="">
-          <div className="mx-auto max-w-7xl px-6 py-[20px] lg:py-[30px]">
+        <section>
+          <div className="mx-auto max-w-7xl px-4 py-[20px] sm:px-6 lg:py-[30px]">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
               <div className="lg:col-span-8">
                 <ProductDescription description={product.description} />
@@ -759,19 +922,27 @@ const ProductDetail = () => {
                     <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
                       Thương hiệu
                     </p>
-                    <p className="font-bold text-zinc-950">{getBrandName(product.brand)}</p>
+                    <p className="font-bold text-zinc-950">
+                      {getBrandName(product.brand)}
+                    </p>
                   </div>
+
                   <div className="flex flex-col border-b border-zinc-200 p-6 last:border-0">
                     <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
                       Danh mục
                     </p>
-                    <p className="font-bold text-zinc-950">{getCategoryName(product.category)}</p>
+                    <p className="font-bold text-zinc-950">
+                      {getCategoryName(product.category)}
+                    </p>
                   </div>
+
                   <div className="flex flex-col border-b border-zinc-200 p-6 last:border-0">
                     <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
                       Phiên bản
                     </p>
-                    <p className="font-bold text-zinc-950">{variants.length} màu / thiết kế</p>
+                    <p className="font-bold text-zinc-950">
+                      {variants.length} màu / thiết kế
+                    </p>
                   </div>
                 </div>
               </div>
@@ -783,6 +954,7 @@ const ProductDetail = () => {
                   <h2 className="text-3xl font-black uppercase tracking-tighter text-zinc-950">
                     Đánh giá
                   </h2>
+
                   <p className="mt-4 text-sm leading-relaxed text-zinc-500">
                     Đọc nhận xét thực tế từ khách hàng đã mua sản phẩm này.
                   </p>
@@ -790,12 +962,15 @@ const ProductDetail = () => {
                   <div className="mt-8 flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Star className="h-10 w-10 fill-yellow-400 text-yellow-400" />
+
                       <span className="text-6xl font-black tracking-tighter text-zinc-950">
                         {ratingAverage > 0 ? ratingAverage.toFixed(1) : "0.0"}
                       </span>
                     </div>
+
                     <div>
                       <RatingStars value={Math.round(ratingAverage)} />
+
                       <p className="mt-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
                         Từ {ratingCount} lượt mua
                       </p>
@@ -805,7 +980,7 @@ const ProductDetail = () => {
 
                 <form
                   onSubmit={handleCreateReview}
-                  className="border border-zinc-200 bg-white p-8 lg:w-2/3"
+                  className="border border-zinc-200 bg-white p-6 sm:p-8 lg:w-2/3"
                 >
                   <h3 className="mb-6 text-sm font-black uppercase tracking-[0.1em] text-zinc-950">
                     Viết đánh giá của bạn
@@ -822,13 +997,19 @@ const ProductDetail = () => {
                       <label className="mb-3 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">
                         Đánh giá sao
                       </label>
-                      <RatingStars value={reviewRating} onChange={setReviewRating} size="h-6 w-6" />
+
+                      <RatingStars
+                        value={reviewRating}
+                        onChange={setReviewRating}
+                        size="h-6 w-6"
+                      />
                     </div>
 
                     <div>
                       <label className="mb-3 block text-[11px] font-black uppercase tracking-[0.15em] text-zinc-500">
                         Chia sẻ cảm nhận
                       </label>
+
                       <textarea
                         value={reviewContent}
                         onChange={(e) => setReviewContent(e.target.value)}
@@ -860,6 +1041,7 @@ const ProductDetail = () => {
                   <h3 className="text-xl font-black uppercase tracking-tight text-zinc-950">
                     Bình luận mới nhất
                   </h3>
+
                   {reviewPagination && (
                     <span className="text-[11px] font-black uppercase tracking-[0.15em] text-zinc-400">
                       {reviewPagination.totalReview || 0} bình luận
@@ -870,7 +1052,9 @@ const ProductDetail = () => {
                 {loadingReviews ? (
                   <div className="flex items-center justify-center py-16 text-zinc-400">
                     <Loader2 className="mr-3 h-6 w-6 animate-spin text-zinc-950" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Đang tải...</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">
+                      Đang tải...
+                    </span>
                   </div>
                 ) : reviews.length === 0 ? (
                   <div className="border border-zinc-200 bg-white p-12 text-center">
@@ -881,14 +1065,21 @@ const ProductDetail = () => {
                 ) : (
                   <div className="space-y-6">
                     {reviews.map((review) => (
-                      <div key={review._id} className="border border-zinc-200 bg-white p-6 sm:p-8">
+                      <div
+                        key={review._id}
+                        className="border border-zinc-200 bg-white p-6 sm:p-8"
+                      >
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <p className="font-bold text-zinc-950">
-                              {review.user?.name || review.user?.email || "Khách hàng"}
+                              {review.user?.name ||
+                                review.user?.email ||
+                                "Khách hàng"}
                             </p>
+
                             <div className="mt-2 flex items-center gap-3">
                               <RatingStars value={review.rating} />
+
                               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                                 {formatDate(review.createdAt)}
                               </span>
@@ -897,7 +1088,8 @@ const ProductDetail = () => {
                         </div>
 
                         <p className="mt-5 text-sm leading-relaxed text-zinc-600">
-                          {review.content || "Khách hàng không để lại nội dung."}
+                          {review.content ||
+                            "Khách hàng không để lại nội dung."}
                         </p>
                       </div>
                     ))}
@@ -911,26 +1103,36 @@ const ProductDetail = () => {
 
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 bg-white p-4 lg:hidden">
         <div className="flex items-center gap-4">
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <p className="line-clamp-1 text-[10px] font-black uppercase tracking-[0.1em] text-zinc-500">
               {product.name}
             </p>
+
             <p className="text-lg font-black tracking-tight text-zinc-950">
               {formatPrice(displayPrice)}
             </p>
           </div>
+
           <button
             type="button"
             onClick={handleAddToCart}
-            className="flex h-12 items-center gap-2 bg-teal-600 px-6 text-xs font-black uppercase tracking-[0.1em] text-white hover:bg-teal-500"
+            disabled={addingToCart}
+            className="flex h-12 shrink-0 items-center gap-2 bg-teal-600 px-5 text-xs font-black uppercase tracking-[0.1em] text-white hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <ShoppingCart className="h-4 w-4" />
+            {addingToCart ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ShoppingCart className="h-4 w-4" />
+            )}
             Thêm
           </button>
         </div>
       </div>
 
-      <SizeChartModal open={sizeChartOpen} onClose={() => setSizeChartOpen(false)} />
+      <SizeChartModal
+        open={sizeChartOpen}
+        onClose={() => setSizeChartOpen(false)}
+      />
     </div>
   );
 };
