@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import CategoryService from "../../../services/category.service";
 
 import giaytrail from "../../../assets/Giaytrail.png";
@@ -18,7 +18,7 @@ const getList = (data) => {
 };
 
 const getCategoryName = (category) => {
-  return category.name || category.nameCategory || category.title || "Danh mục";
+  return category.name || category.nameCategory || category.title || "Category";
 };
 
 const getCategorySlug = (category) => {
@@ -46,10 +46,24 @@ const isParentCategory = (category) => {
   );
 };
 
+const getBentoGridClasses = (index) => {
+  switch (index) {
+    case 0:
+      return "md:col-span-7";
+    case 1:
+      return "md:col-span-5";
+    case 2:
+      return "md:col-span-5";
+    case 3:
+      return "md:col-span-7";
+    default:
+      return "md:col-span-12";
+  }
+};
+
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -81,145 +95,53 @@ const Categories = () => {
 
   if (parentCategories.length === 0) return null;
 
-  const visibleCategories = parentCategories.slice(0, 6);
+  const visibleCategories = parentCategories.slice(0, 4);
 
   return (
-    <section className="bg-white py-20 md:py-32 overflow-hidden">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-16 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end border-b border-border pb-8">
-          <div>
-            <h2 className="text-4xl font-black text-foreground md:text-5xl tracking-tighter uppercase">
-              Danh mục nổi bật
-            </h2>
-            <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
-              Tuyển tập trang bị chạy bộ cao cấp được tuyển chọn dành cho mọi
-              cung đường. Từ luyện tập hàng ngày đến những cuộc đua quan trọng.
-            </p>
-          </div>
-
-          <Link
-            to="/shop"
-            className="group inline-flex items-center gap-3 border border-foreground px-6 py-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-foreground hover:text-background"
-          >
-            Xem tất cả
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+    <section className="bg-white py-24 md:py-32">
+      <div className="container mx-auto px-4 max-w-[1400px]">
+        <div className="mb-16 md:mb-24 max-w-2xl">
+          <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-zinc-950">
+            Danh mục nổi bật
+          </h2>
+          <p className="mt-6 text-lg text-zinc-600 leading-relaxed max-w-[65ch]">
+            Tuyển tập các danh mục sản phẩm cốt lõi. Hiệu suất cao, thiết kế
+            chuẩn xác dành cho cả tập luyện hàng ngày và thi đấu.
+          </p>
         </div>
 
-        {/* Desktop */}
-        <div className="hidden lg:grid grid-cols-12 gap-12 items-start">
-          {/* Left */}
-          <div className="col-span-5">
-            <div className="sticky top-32 h-[60vh] min-h-[460px] rounded-[32px] overflow-hidden bg-zinc-50">
-              {visibleCategories.map((category, index) => {
-                const image = getCategoryImage(category, index);
-                const isActive = index === activeIndex;
-
-                return (
-                  <div
-                    key={`img-${getCategorySlug(category)}`}
-                    className={`absolute inset-0 flex items-center justify-center p-10 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      isActive
-                        ? "opacity-100 scale-100"
-                        : "opacity-0 scale-95 pointer-events-none"
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={getCategoryName(category)}
-                      className="w-full h-full object-contain mix-blend-multiply"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Right */}
-          <div className="col-span-7">
-            <div className="flex flex-col">
-              {visibleCategories.map((category, index) => {
-                const slug = getCategorySlug(category);
-                const name = getCategoryName(category);
-                const isActive = activeIndex === index;
-
-                return (
-                  <Link
-                    key={slug}
-                    to={`/shop?category=${slug}`}
-                    onMouseEnter={() => setActiveIndex(index)}
-                    className="group flex items-center justify-between border-b border-zinc-200 py-7"
-                  >
-                    <span
-                      className={`font-black uppercase tracking-[-0.04em] transition-all duration-500 ${
-                        isActive
-                          ? "text-zinc-950 text-5xl"
-                          : "text-zinc-300 text-4xl group-hover:text-zinc-500"
-                      }`}
-                    >
-                      {name}
-                    </span>
-
-                    <span
-                      className={`flex items-center justify-center rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                        isActive
-                          ? "h-14 w-14 bg-zinc-950 text-white -rotate-45"
-                          : "h-14 w-14 bg-transparent text-transparent translate-x-4"
-                      }`}
-                    >
-                      <ArrowRight className="h-5 w-5" />
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile */}
-        <div className="grid grid-cols-1 gap-5 lg:hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
           {visibleCategories.map((category, index) => {
             const name = getCategoryName(category);
             const slug = getCategorySlug(category);
             const image = getCategoryImage(category, index);
+            const gridClass = getBentoGridClasses(index);
 
             return (
               <Link
                 key={slug}
                 to={`/shop?category=${slug}`}
-                className="group relative overflow-hidden rounded-[24px] bg-zinc-50 border border-zinc-100 h-[340px]"
+                className={`group relative block h-[480px] md:h-[640px] w-full overflow-hidden bg-zinc-100 ${gridClass}`}
               >
-                <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <img
-                    src={image}
-                    alt={name}
-                    className="h-[75%] w-[75%] object-contain mix-blend-multiply transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
-                  />
-                </div>
+                <img
+                  src={image}
+                  alt={name}
+                  className="absolute inset-0 h-full w-full object-contain mix-blend-multiply transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                />
 
-                <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                  <div className="flex justify-end">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md transition-transform duration-300 group-hover:-rotate-45">
-                      <ArrowRight className="h-5 w-5" />
-                    </span>
-                  </div>
-
-                  <h3 className="text-3xl font-black uppercase tracking-[-0.04em] text-zinc-950">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-90" />
+                <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between p-8 md:p-10 z-10">
+                  <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">
                     {name}
                   </h3>
+
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white text-zinc-950 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
+                    <ArrowRight className="h-6 w-6 -rotate-45 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:rotate-0" />
+                  </span>
                 </div>
               </Link>
             );
           })}
-
-          <Link
-            to="/shop"
-            className="mt-4 inline-flex h-14 items-center justify-center gap-3 rounded-full bg-zinc-950 text-sm font-black uppercase tracking-[0.15em] text-white"
-          >
-            Tất cả danh mục
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </div>
     </section>
@@ -228,32 +150,17 @@ const Categories = () => {
 
 const CategoriesSkeleton = () => {
   return (
-    <section className="bg-white py-24 md:py-40">
-      <div className="container mx-auto px-4">
-        <div className="mb-16 md:mb-24 max-w-4xl">
-          <div className="h-16 w-3/4 animate-pulse rounded-xl bg-zinc-100" />
-          <div className="mt-8 h-6 w-1/2 animate-pulse rounded-xl bg-zinc-100" />
+    <section className="bg-white py-24 md:py-32">
+      <div className="container mx-auto px-4 max-w-[1400px]">
+        <div className="mb-16 md:mb-24 max-w-2xl">
+          <div className="h-16 w-3/4 animate-pulse bg-zinc-200" />
+          <div className="mt-6 h-6 w-1/2 animate-pulse bg-zinc-100" />
         </div>
-
-        <div className="hidden lg:grid grid-cols-12 gap-12">
-          <div className="col-span-5 h-[600px] animate-pulse rounded-[32px] bg-zinc-100" />
-          <div className="col-span-7 flex flex-col gap-10 pt-12">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="h-20 w-full animate-pulse rounded-xl bg-zinc-100"
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 lg:hidden">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="h-[380px] w-full animate-pulse rounded-[24px] bg-zinc-100"
-            />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+          <div className="md:col-span-8 h-[480px] md:h-[640px] w-full animate-pulse bg-zinc-100" />
+          <div className="md:col-span-4 h-[480px] md:h-[640px] w-full animate-pulse bg-zinc-100" />
+          <div className="md:col-span-5 h-[480px] md:h-[640px] w-full animate-pulse bg-zinc-100" />
+          <div className="md:col-span-7 h-[480px] md:h-[640px] w-full animate-pulse bg-zinc-100" />
         </div>
       </div>
     </section>
