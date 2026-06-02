@@ -1,13 +1,7 @@
 import {
-  Banknote,
   Check,
   ChevronRight,
-  CreditCard,
-  Dot,
   Loader2,
-  LockKeyhole,
-  RotateCcw,
-  Shield,
   ShoppingCart,
 } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -23,6 +17,8 @@ import couponService from "../../services/coupon.service";
 import addressService from "../../services/address.service";
 import CheckoutAddress from "../../components/checkout/CheckoutAddress";
 import CheckoutSummary from "../../components/checkout/CheckoutSummary";
+import CheckoutPayment from "../../components/checkout/CheckoutPayment";
+import CheckoutReview from "../../components/checkout/CheckoutReview";
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHODS } from "../../constants/payment.constants";
 
 const formatPrice = (price) => {
@@ -43,22 +39,7 @@ const getItemPrice = (item) => {
   return price;
 };
 
-const paymentMethods = [
-  {
-    value: PAYMENT_METHODS.COD,
-    title: PAYMENT_METHOD_LABELS.COD,
-    description: "Thanh toán bằng tiền mặt khi đơn hàng được giao tới bạn",
-    icon: Banknote,
-    disabled: false,
-  },
-  {
-    value: PAYMENT_METHODS.VNPAY,
-    title: PAYMENT_METHOD_LABELS.VNPAY,
-    description: "Thanh toán qua cổng VNPAY",
-    icon: CreditCard,
-    disabled: false,
-  },
-];
+
 
 const Checkout = () => {
   const [status, setStatus] = useState(1);
@@ -559,188 +540,25 @@ const Checkout = () => {
               handleNextToPayment={handleNextToPayment}
             />
           ) : status === 2 ? (
-            <div className="space-y-6">
-              <div className="space-y-4 border border-zinc-200 p-8 bg-white">
-                <h2 className="text-sm font-black uppercase tracking-widest text-zinc-950">Phương thức thanh toán</h2>
-
-                {paymentMethods.map((method) => {
-                  const Icon = method.icon;
-                  const isSelected = paymentMethod === method.value;
-
-                  return (
-                    <button
-                      key={method.value}
-                      type="button"
-                      disabled={method.disabled}
-                      onClick={() => {
-                        if (method.disabled) {
-                          toast.info("Phương thức này sẽ được hỗ trợ sau");
-                          return;
-                        }
-
-                        setPaymentMethod(method.value);
-                      }}
-                      className={`w-full flex items-center gap-4 border p-5 text-left duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
-                        isSelected
-                          ? "border-teal-600 bg-teal-50"
-                          : "border-zinc-200 bg-zinc-50 hover:border-teal-600/50 hover:bg-white"
-                      }`}
-                    >
-                      <div
-                        className={`flex size-12 shrink-0 items-center justify-center ${
-                          isSelected
-                            ? "bg-teal-600 text-white"
-                            : "bg-zinc-200 text-zinc-500"
-                        }`}
-                      >
-                        <Icon className="size-5" />
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-[11px] font-black uppercase tracking-widest">{method.title}</p>
-
-                          {method.disabled && (
-                            <span className="bg-zinc-200 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-zinc-500">
-                              Sắp có
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="mt-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{method.description}</p>
-                      </div>
-
-                      <div
-                        className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                          isSelected ? "border-teal-600" : "border-zinc-300"
-                        }`}
-                      >
-                        {isSelected && <div className="size-2.5 rounded-full bg-teal-600" />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setStatus(1)}
-                  type="button"
-                  className="inline-flex h-14 flex-1 items-center justify-center border border-zinc-200 bg-white text-[10px] font-black uppercase tracking-widest transition-all duration-200 hover:bg-zinc-50"
-                >
-                  Quay lại
-                </button>
-
-                <button
-                  onClick={handleNextToReview}
-                  type="button"
-                  className="inline-flex h-14 flex-1 items-center justify-center bg-zinc-950 text-white text-[10px] font-black uppercase tracking-widest transition-all duration-200 hover:bg-teal-600"
-                >
-                  Xem lại đơn hàng
-                </button>
-              </div>
-            </div>
+            <CheckoutPayment
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              setStatus={setStatus}
+              handleNextToReview={handleNextToReview}
+            />
           ) : status === 3 ? (
-            <div className="space-y-6">
-              <div className="border border-zinc-200 p-8 bg-white">
-                <h2 className="mb-6 text-sm font-black uppercase tracking-widest text-zinc-950">Xem lại đơn hàng</h2>
-
-                <div className="mb-6 flex items-start justify-between border-b border-zinc-200 pb-6">
-                  <div>
-                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500">
-                      Giao tới
-                    </p>
-                    <p className="text-[11px] font-black uppercase tracking-widest text-zinc-950">{shippingAddress.fullName}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">{shippingAddress.phone}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">
-                      {shippingAddress.detailAddress}, {shippingAddress.ward},{" "}
-                      {shippingAddress.district}, {shippingAddress.province}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setStatus(1)}
-                    className="text-[10px] font-black uppercase tracking-widest text-teal-600 hover:text-teal-700"
-                  >
-                    Chỉnh sửa
-                  </button>
-                </div>
-
-                <div className="mb-6 flex items-center justify-between border-b border-zinc-200 pb-6">
-                  <div>
-                    <p className="mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500">
-                      Thanh toán
-                    </p>
-                    <p className="text-[11px] font-black uppercase tracking-widest text-zinc-950">{PAYMENT_METHOD_LABELS[paymentMethod]}</p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setStatus(2)}
-                    className="text-[10px] font-black uppercase tracking-widest text-teal-600 hover:text-teal-700"
-                  >
-                    Sửa
-                  </button>
-                </div>
-
-                <p className="mb-4 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500">
-                  Sản phẩm ({totalQuantity})
-                </p>
-
-                <div className="space-y-4">
-                  {items.map((item) => {
-                    const itemPrice = getItemPrice(item);
-                    const itemTotal = itemPrice * Number(item.quantity || 0);
-
-                    return (
-                      <div key={item._id} className="flex items-center gap-4">
-                        <Link
-                          to={getProductLink(item)}
-                          className="flex size-16 shrink-0 items-center justify-center overflow-hidden border border-zinc-200 bg-zinc-50"
-                        >
-                          {item.thumbnail ? (
-                            <img
-                              src={item.thumbnail}
-                              alt={item.productName}
-                              className="h-full w-full object-cover mix-blend-multiply"
-                            />
-                          ) : (
-                            <ShoppingCart className="size-6 text-zinc-300" />
-                          )}
-                        </Link>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-black uppercase tracking-widest text-zinc-950">
-                            {item.productName || item.product?.name}
-                          </p>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-1">
-                            Size {item.size} | SL {item.quantity}
-                          </p>
-                        </div>
-
-                        <p className="shrink-0 text-sm font-black text-teal-600 tabular-nums">
-                          {formatPrice(itemTotal)}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <button
-                onClick={handlePlaceOrder}
-                disabled={placingOrder}
-                className="inline-flex h-14 w-full items-center justify-center gap-2 bg-zinc-950 text-white font-black uppercase tracking-[0.1em] text-xs transition-all duration-200 hover:bg-teal-600 disabled:opacity-60"
-              >
-                {placingOrder ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <LockKeyhole className="size-4" />
-                )}
-                {paymentMethod === PAYMENT_METHODS.COD ? "Đặt hàng COD" : "Thanh toán VNPAY"}
-              </button>
-            </div>
+            <CheckoutReview
+              shippingAddress={shippingAddress}
+              paymentMethod={paymentMethod}
+              totalQuantity={totalQuantity}
+              items={items}
+              getItemPrice={getItemPrice}
+              getProductLink={getProductLink}
+              formatPrice={formatPrice}
+              setStatus={setStatus}
+              handlePlaceOrder={handlePlaceOrder}
+              placingOrder={placingOrder}
+            />
           ) : null}
         </div>
 
