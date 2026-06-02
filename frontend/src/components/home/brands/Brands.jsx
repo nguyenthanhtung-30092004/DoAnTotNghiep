@@ -27,7 +27,9 @@ const Brands = () => {
       try {
         const res = await brandService.getAllBrands();
 
-        const data = Array.isArray(res) ? res : res?.metadata || res?.data || res;
+        const data = Array.isArray(res)
+          ? res
+          : res?.metadata || res?.data || res;
 
         const list = getList(data).filter((brand) => !brand.isDeleted);
 
@@ -57,7 +59,8 @@ const Brands = () => {
               Thương hiệu nổi bật
             </h2>
             <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
-              Khám phá các thương hiệu giày chạy bộ được yêu thích tại Runner Store.
+              Khám phá các thương hiệu giày chạy bộ được yêu thích tại Runner
+              Store.
             </p>
           </div>
 
@@ -69,17 +72,16 @@ const Brands = () => {
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
-      </div>
 
-      {/* Marquee */}
-      <div className="relative">
-        {/* Fade left */}
-        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white to-transparent md:w-40" />
+        {/* Marquee */}
+        <div className="relative">
+          {/* Fade left */}
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white to-transparent md:w-40" />
 
-        {/* Fade right */}
-        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white to-transparent md:w-40" />
+          {/* Fade right */}
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white to-transparent md:w-40" />
 
-        <div className="group flex overflow-hidden py-2">
+          <div className="group flex overflow-hidden py-2">
           <div className="flex w-max animate-brand-marquee items-center gap-5 group-hover:[animation-play-state:paused]">
             {marqueeBrands.map((brand, index) => {
               const logo = getBrandLogo(brand);
@@ -91,42 +93,34 @@ const Brands = () => {
                   key={`${brand._id || brandName}-${index}`}
                   to={`/shop?brand=${brandSlug}`}
                   className="
-                    flex h-32 w-52 shrink-0 flex-col items-center justify-center
-                    rounded-3xl border border-zinc-100 bg-zinc-50/70 px-6
+                    group relative flex h-32 w-52 shrink-0 flex-col items-center justify-center
+                    rounded-sm border border-zinc-200 bg-zinc-50/50 px-6
                     transition-all duration-300 ease-out
-                    hover:-translate-y-1 hover:border-zinc-200 hover:bg-white
-                    hover:shadow-[0_18px_45px_rgba(0,0,0,0.08)]
+                    hover:-translate-y-1 hover:border-zinc-300 hover:bg-white
+                    hover:shadow-xl
                     active:scale-[0.98]
                     sm:w-60
                   "
                 >
+                  {brand.outStanding && (
+                    <span className="absolute right-3 top-3 rounded-sm bg-red-600 px-2 py-1 text-[9px] font-black uppercase tracking-[0.16em] text-white">
+                      Hot
+                    </span>
+                  )}
                   <div className="flex h-14 w-full items-center justify-center">
                     {logo ? (
                       <img
                         src={logo}
                         alt={brandName}
                         className="
-                          max-h-12 max-w-[130px] object-contain
-                          opacity-70 grayscale
-                          transition-all duration-300
-                          group-hover:opacity-70
+                          max-h-14 max-w-[140px] object-contain
+                          opacity-90 transition-all duration-300
+                          group-hover:opacity-100 group-hover:scale-105
                         "
                       />
                     ) : (
-                      <span className="line-clamp-1 text-2xl font-black uppercase tracking-tight text-zinc-950">
+                      <span className="line-clamp-1 text-2xl font-black uppercase tracking-tight text-zinc-950 transition-colors group-hover:text-red-600">
                         {brandName}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-center gap-2">
-                    <span className="line-clamp-1 text-[11px] font-black uppercase tracking-[0.18em] text-zinc-500">
-                      {brandName}
-                    </span>
-
-                    {brand.outStanding && (
-                      <span className="rounded-full bg-zinc-950 px-2 py-1 text-[8px] font-black uppercase tracking-[0.16em] text-white">
-                        Hot
                       </span>
                     )}
                   </div>
@@ -135,6 +129,7 @@ const Brands = () => {
             })}
           </div>
         </div>
+      </div>
       </div>
 
       <style
