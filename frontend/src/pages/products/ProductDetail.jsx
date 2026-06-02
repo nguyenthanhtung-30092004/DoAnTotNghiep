@@ -697,12 +697,6 @@ const ProductDetail = () => {
                         <ChevronRightIcon className="h-9 w-9 stroke-[1.4] sm:h-11 sm:w-11" />
                       </button>
 
-                      <div className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-zinc-500 shadow-sm backdrop-blur-sm">
-                        <ChevronLeft className="h-3.5 w-3.5" />
-                        <span>Kéo ảnh để xem thêm</span>
-                        <ChevronRightIcon className="h-3.5 w-3.5" />
-                      </div>
-
                       <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
                         {activeImages.map((image, index) => (
                           <button
