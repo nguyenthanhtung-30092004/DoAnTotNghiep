@@ -1,6 +1,6 @@
 {
   // ===== Theme =====
-  "workbench.colorTheme": "Darcula",
+  "workbench.colorTheme": "Cobalt2",
   "workbench.iconTheme": "material-icon-theme",
   "workbench.startupEditor": "none",
   "window.commandCenter": false,
@@ -9,10 +9,7 @@
   // ===== Font =====
   "editor.fontFamily": "JetBrains Mono, Geist Mono, Fira Code, Cascadia Code, Consolas, monospace",
   "editor.fontLigatures": true,
-  "editor.fontSize": 13,
-  "editor.lineHeight": 27,
   "editor.fontWeight": "500",
-  "editor.letterSpacing": 0.15,
 
   // ===== Editor look =====
   "editor.minimap.enabled": false,
@@ -30,8 +27,10 @@
   "editor.dragAndDrop": false,
   "editor.overviewRulerBorder": false,
   "editor.hideCursorInOverviewRuler": true,
-  "editor.scrollbar.verticalScrollbarSize": 10,
-  "editor.scrollbar.horizontalScrollbarSize": 10,
+  "breadcrumbs.enabled": false,
+  "workbench.editor.showTabs": true,
+  "workbench.editor.tabSizing": "shrink",
+  "workbench.layoutControl.enabled": false,
 
   // ===== Guides =====
   "editor.bracketPairColorization.enabled": true,
@@ -45,6 +44,9 @@
   "editor.acceptSuggestionOnCommitCharacter": false,
   "editor.suggestSelection": "first",
   "editor.tabCompletion": "on",
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggest.showStatusBar": false,
+  "editor.parameterHints.enabled": true,
 
   // ===== Formatting =====
   "editor.formatOnSave": true,
@@ -56,7 +58,6 @@
   "prettier.singleQuote": false,
   "prettier.semi": true,
   "prettier.tabWidth": 2,
-  "prettier.printWidth": 100,
   "prettier.trailingComma": "es5",
   "prettier.bracketSpacing": true,
   "prettier.arrowParens": "always",
@@ -73,6 +74,13 @@
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "explorer.compactFolders": false,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb",
+    "tsconfig.json": "tsconfig.*.json",
+    ".env": ".env.*",
+    "vite.config.*": "vitest.config.*, postcss.config.*, tailwind.config.*"
+  },
 
   // ===== Search =====
   "search.exclude": {
@@ -96,9 +104,91 @@
 
   // ===== Terminal =====
   "terminal.integrated.fontFamily": "JetBrains Mono, Cascadia Code, Consolas, monospace",
-  "terminal.integrated.fontSize": 14,
-  "terminal.integrated.lineHeight": 1.25,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+  // ===== JavaScript / TypeScript =====
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+
+  // ===== Emmet =====
+  "emmet.triggerExpansionOnTab": true,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "typescript": "typescriptreact"
+  },
+
+  // ===== Git =====
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
 
   // ===== Performance =====
-  "editor.largeFileOptimizations": true
+  "editor.largeFileOptimizations": true,
+  "extensions.ignoreRecommendations": true,
+
+  // ===== Custom Cobalt2 UI Colors =====
+  "workbench.colorCustomizations": {
+    "editor.background": "#193549",
+    "editor.foreground": "#FFFFFF",
+    "editorLineNumber.foreground": "#5A7A8C",
+    "editorLineNumber.activeForeground": "#FFC600",
+
+    "editorCursor.foreground": "#FFC600",
+    "editor.selectionBackground": "#2F5D7C",
+    "editor.inactiveSelectionBackground": "#24475F",
+    "editor.lineHighlightBackground": "#1F4662",
+
+    "editorIndentGuide.background1": "#2D536B",
+    "editorIndentGuide.activeBackground1": "#FFC600",
+
+    "sideBar.background": "#102A3A",
+    "sideBar.foreground": "#D6E9F5",
+    "sideBarSectionHeader.background": "#0D2230",
+
+    "activityBar.background": "#0B1F2A",
+    "activityBar.foreground": "#FFC600",
+    "activityBar.inactiveForeground": "#6D8FA3",
+
+    "statusBar.background": "#0B1F2A",
+    "statusBar.foreground": "#FFC600",
+    "statusBar.noFolderBackground": "#0B1F2A",
+    "statusBar.debuggingBackground": "#FF628C",
+
+    "titleBar.activeBackground": "#0B1F2A",
+    "titleBar.activeForeground": "#FFFFFF",
+    "titleBar.inactiveBackground": "#0B1F2A",
+    "titleBar.inactiveForeground": "#6D8FA3",
+
+    "tab.activeBackground": "#193549",
+    "tab.activeForeground": "#FFFFFF",
+    "tab.inactiveBackground": "#102A3A",
+    "tab.inactiveForeground": "#8FB3C8",
+    "tab.border": "#0B1F2A",
+    "tab.activeBorderTop": "#FFC600",
+
+    "terminal.background": "#102A3A",
+    "terminal.foreground": "#FFFFFF",
+    "terminalCursor.foreground": "#FFC600",
+
+    "input.background": "#102A3A",
+    "input.foreground": "#FFFFFF",
+    "input.border": "#2D536B",
+
+    "dropdown.background": "#102A3A",
+    "dropdown.foreground": "#FFFFFF",
+    "dropdown.border": "#2D536B",
+
+    "list.activeSelectionBackground": "#1F4662",
+    "list.activeSelectionForeground": "#FFFFFF",
+    "list.hoverBackground": "#193549",
+    "list.hoverForeground": "#FFFFFF",
+
+    "scrollbarSlider.background": "#FFFFFF22",
+    "scrollbarSlider.hoverBackground": "#FFFFFF33",
+    "scrollbarSlider.activeBackground": "#FFFFFF44"
+  }
 }

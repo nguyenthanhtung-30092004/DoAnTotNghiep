@@ -537,7 +537,7 @@ const ProductDetail = () => {
                     <img
                       src={selectedImage}
                       alt={product.name}
-                      className="h-full w-full object-contain mix-blend-multiply"
+                      className="size-[70%] object-contain mix-blend-multiply"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-sm font-bold uppercase tracking-widest text-zinc-400">
