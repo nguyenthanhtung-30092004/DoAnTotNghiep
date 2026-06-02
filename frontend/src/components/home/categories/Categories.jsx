@@ -82,22 +82,31 @@ const Categories = () => {
     <section className="bg-white py-20 md:py-32 overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="mb-16 md:mb-20 max-w-4xl">
-          <h2 className="text-5xl md:text-6xl lg:text-[5rem] font-black uppercase tracking-[-0.05em] leading-[0.9] text-zinc-950">
-            Danh mục nổi bật
-          </h2>
+        <div className="mb-16 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end border-b border-border pb-8">
+          <div>
+            <h2 className="text-4xl font-black text-foreground md:text-5xl tracking-tighter uppercase">
+              Danh mục nổi bật
+            </h2>
+            <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
+              Tuyển tập trang bị chạy bộ cao cấp được tuyển chọn dành cho mọi cung đường. Từ luyện tập
+              hàng ngày đến những cuộc đua quan trọng.
+            </p>
+          </div>
 
-          <p className="mt-6 max-w-2xl text-base md:text-lg leading-relaxed text-zinc-600">
-            Tuyển tập trang bị chạy bộ cao cấp được tuyển chọn dành cho mọi cung đường. Từ luyện tập
-            hàng ngày đến những cuộc đua quan trọng.
-          </p>
+          <Link
+            to="/shop"
+            className="group inline-flex items-center gap-3 border border-foreground px-6 py-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-foreground hover:text-background"
+          >
+            Xem tất cả
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
 
         {/* Desktop */}
         <div className="hidden lg:grid grid-cols-12 gap-12 items-start">
           {/* Left */}
           <div className="col-span-5">
-            <div className="sticky top-28 h-[70vh] min-h-[520px] rounded-[32px] overflow-hidden">
+            <div className="sticky top-32 h-[60vh] min-h-[460px] rounded-[32px] overflow-hidden bg-zinc-50">
               {visibleCategories.map((category, index) => {
                 const image = getCategoryImage(category, index);
                 const isActive = index === activeIndex;
@@ -121,7 +130,7 @@ const Categories = () => {
               <div className="absolute left-8 bottom-8 z-20">
                 <Link
                   to="/shop"
-                  className="inline-flex items-center gap-3 rounded-full bg-zinc-950 px-6 h-12 text-xs font-black uppercase tracking-[0.15em] text-white transition-all duration-300 hover:bg-zinc-800 hover:-translate-y-1"
+                  className="inline-flex items-center gap-3 rounded-full bg-zinc-950 px-6 h-12 text-xs font-black uppercase tracking-[0.15em] text-white transition-all duration-300 hover:bg-zinc-800 hover:-translate-y-1 shadow-lg"
                 >
                   Tất cả danh mục
                   <ArrowRight className="h-4 w-4" />
@@ -148,8 +157,8 @@ const Categories = () => {
                     <span
                       className={`font-black uppercase tracking-[-0.04em] transition-all duration-500 ${
                         isActive
-                          ? "text-zinc-950 text-6xl"
-                          : "text-zinc-300 text-5xl group-hover:text-zinc-500"
+                          ? "text-zinc-950 text-5xl"
+                          : "text-zinc-300 text-4xl group-hover:text-zinc-500"
                       }`}
                     >
                       {name}

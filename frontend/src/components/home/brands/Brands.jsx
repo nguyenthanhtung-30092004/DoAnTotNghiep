@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import brandService from "../../../services/brand.service";
 
 const getList = (data) => {
@@ -50,20 +51,23 @@ const Brands = () => {
     <section className="overflow-hidden border-y border-zinc-100 bg-white py-16">
       <div className="container">
         {/* Header */}
-        <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="mb-16 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end border-b border-border pb-8">
           <div>
-            <p className="mb-2 text-[11px] font-black uppercase tracking-[0.22em] text-zinc-400">
-              Brands
-            </p>
-
-            <h2 className="text-2xl font-black tracking-tight text-zinc-950 md:text-3xl">
+            <h2 className="text-4xl font-black text-foreground md:text-5xl tracking-tighter uppercase">
               Thương hiệu nổi bật
             </h2>
+            <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
+              Khám phá các thương hiệu giày chạy bộ được yêu thích tại Runner Store.
+            </p>
           </div>
 
-          <p className="max-w-md text-sm leading-6 text-zinc-500">
-            Khám phá các thương hiệu giày chạy bộ được yêu thích tại Runner Store.
-          </p>
+          <Link
+            to="/shop"
+            className="group inline-flex items-center gap-3 border border-foreground px-6 py-3 text-xs font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-foreground hover:text-background"
+          >
+            Xem tất cả
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
       </div>
 
