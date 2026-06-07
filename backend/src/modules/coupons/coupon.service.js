@@ -1,4 +1,4 @@
-﻿const {
+const {
   BadRequestError,
   ConflictRequestError,
   NotFoundError,
@@ -302,9 +302,12 @@ class CouponService {
       );
     }
 
-    const usedInfo = coupon.usedBy.find(
-      (item) => item.user.toString() === userId.toString(),
-    );
+    let usedInfo = null;
+    if (userId) {
+      usedInfo = coupon.usedBy.find(
+        (item) => item.user.toString() === userId.toString(),
+      );
+    }
 
     if (usedInfo && usedInfo.count >= coupon.usageLimitPerUser) {
       throw new BadRequestError("Bạn đã dùng hết lượt mã giảm giá này");
@@ -335,6 +338,7 @@ class CouponService {
     }
 
     if (coupon.applyTo === "USERS") {
+      if (!item.userId) return false;
       return coupon.users.some((id) => id.toString() === item.userId?.toString());
     }
 
@@ -479,13 +483,16 @@ class CouponService {
 
     coupon.usedCount += 1;
 
-    const usedInfo = coupon.usedBy.find(
-      (item) => item.user.toString() === userId.toString(),
-    );
+    let usedInfo = null;
+    if (userId) {
+      usedInfo = coupon.usedBy.find(
+        (item) => item.user.toString() === userId.toString(),
+      );
+    }
 
     if (usedInfo) {
       usedInfo.count += 1;
-    } else {
+    } else if (userId) {
       coupon.usedBy.push({
         user: userId,
         count: 1,
@@ -508,9 +515,12 @@ class CouponService {
 
     coupon.usedCount = Math.max(coupon.usedCount - 1, 0);
 
-    const usedInfo = coupon.usedBy.find(
-      (item) => item.user.toString() === userId.toString(),
-    );
+    let usedInfo = null;
+    if (userId) {
+      usedInfo = coupon.usedBy.find(
+        (item) => item.user.toString() === userId.toString(),
+      );
+    }
 
     if (usedInfo) {
       usedInfo.count = Math.max(usedInfo.count - 1, 0);

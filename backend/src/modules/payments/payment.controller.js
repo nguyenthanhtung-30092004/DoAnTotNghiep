@@ -3,6 +3,7 @@ const orderModel = require("../../models/order.model");
 const cartService = require("../cart/cart.service");
 const couponService = require("../coupons/coupon.service");
 const orderService = require("../orders/order.service");
+const sendOrderStatusEmail = require("../../utils/sendOrderStatusEmail");
 
 const vnpayPayment = require("./methods/vnpay.payment");
 
@@ -71,11 +72,13 @@ class PaymentController {
       });
     }
 
-    if (!order.cartCleared) {
+    if (!order.cartCleared && order.user) {
       await cartService.clearCartByUser({
         userId: order.user,
       });
 
+      order.cartCleared = true;
+    } else if (!order.cartCleared) {
       order.cartCleared = true;
     }
 
@@ -85,6 +88,10 @@ class PaymentController {
     order.transactionId = transactionId || "";
 
     await order.save();
+
+    if (order.shippingAddress?.email) {
+      sendOrderStatusEmail(order.shippingAddress.email, order, order.orderStatus);
+    }
   };
 
   markOrderFailed = async ({ order }) => {

@@ -192,7 +192,7 @@ const AdminOrderDetail = () => {
               <p className="font-semibold text-slate-900">
                 {address.fullName || order.user?.fullName || order.user?.name}
               </p>
-              <p>{order.user?.email}</p>
+              <p>{order.user?.email || address.email || "Chưa có email"}</p>
               <p>{address.phone}</p>
               <p>
                 {address.detailAddress}, {address.ward}, {address.district},{" "}

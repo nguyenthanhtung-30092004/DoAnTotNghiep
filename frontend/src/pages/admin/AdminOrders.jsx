@@ -145,7 +145,7 @@ const getCustomerName = (order) => {
 };
 
 const getCustomerEmail = (order) => {
-  return order.user?.email || "Chưa có email";
+  return order.user?.email || order.shippingAddress?.email || "Chưa có email";
 };
 
 const getCustomerPhone = (order) => {
