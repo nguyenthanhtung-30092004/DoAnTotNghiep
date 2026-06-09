@@ -50,7 +50,10 @@ class CartController {
   syncCart = async (req, res) => {
     new OK({
       message: "Sync cart thành công",
-      metadata: await cartService.syncCart(req.user.userId),
+      metadata: await cartService.syncCart({
+        userId: req.user.userId,
+        items: req.body.items || [],
+      }),
     }).send(res);
   };
 }

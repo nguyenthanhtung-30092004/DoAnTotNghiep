@@ -1,4 +1,4 @@
-﻿const { BadRequestError, NotFoundError } = require("../../core/error.response");
+const { BadRequestError, NotFoundError } = require("../../core/error.response");
 const cartModel = require("../../models/cart.model");
 const productModel = require("../../models/product.model");
 
@@ -361,19 +361,46 @@ class CartService {
     };
   }
 
-  async syncCart(userId) {
-    const cart = await cartModel.findOne({
+  async syncCart({ userId, items = [] }) {
+    let cart = await cartModel.findOne({
       user: userId,
     });
 
     if (!cart) {
-      return {
+      cart = await cartModel.create({
+        user: userId,
         items: [],
-        totalQuantity: 0,
-        totalPrice: 0,
-        totalDiscount: 0,
-        finalPrice: 0,
-      };
+      });
+    }
+
+    if (Array.isArray(items) && items.length > 0) {
+      for (const guestItem of items) {
+        const productIdStr = guestItem.productId || guestItem.product;
+        const variantIdStr = guestItem.variantId;
+        const sizeIdStr = guestItem.sizeId;
+        const quantity = Number(guestItem.quantity || 0);
+
+        if (!productIdStr || !variantIdStr || !sizeIdStr || quantity <= 0) continue;
+
+        const existingItem = cart.items.find((item) => {
+          return (
+            item.product.toString() === productIdStr.toString() &&
+            item.variantId.toString() === variantIdStr.toString() &&
+            item.sizeId.toString() === sizeIdStr.toString()
+          );
+        });
+
+        if (existingItem) {
+          existingItem.quantity = Number(existingItem.quantity || 0) + quantity;
+        } else {
+          cart.items.push({
+            product: productIdStr,
+            variantId: variantIdStr,
+            sizeId: sizeIdStr,
+            quantity,
+          });
+        }
+      }
     }
 
     for (const item of cart.items) {

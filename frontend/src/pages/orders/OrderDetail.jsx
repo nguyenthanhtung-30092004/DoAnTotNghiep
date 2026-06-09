@@ -109,18 +109,6 @@ const OrderDetail = () => {
 
     const userId = user._id || user.id;
 
-    const joinRoom = () => {
-      socket.emit("join-user-room", userId);
-    };
-
-    if (!socket.connected) {
-      socket.connect();
-    } else {
-      joinRoom();
-    }
-
-    socket.on("connect", joinRoom);
-
     const handleOrderUpdated = (payload) => {
       if (payload.orderId !== orderId) return;
 
@@ -145,7 +133,6 @@ const OrderDetail = () => {
     socket.on("order:updated", handleOrderUpdated);
 
     return () => {
-      socket.off("connect", joinRoom);
       socket.off("order:updated", handleOrderUpdated);
     };
   }, [user?._id, user?.id, orderId]);

@@ -8,6 +8,9 @@ import { store } from "./redux/store";
 import { ToastContainer, Slide } from "react-toastify";
 import authService from "./services/auth.service";
 import { clearUser, setUser } from "./redux/slices/authSlice";
+import cartService from "./services/cart.service";
+import { setCart } from "./redux/slices/cartSlice";
+import socket from "./socket/socket";
 
 function AuthBootstrap() {
   const dispatch = useDispatch();
@@ -24,6 +27,13 @@ function AuthBootstrap() {
         if (currentUser) {
           dispatch(setUser(currentUser));
           
+          try {
+            const cartRes = await cartService.getCart();
+            dispatch(setCart(cartRes));
+          } catch (err) {
+            console.error("Lỗi lấy giỏ hàng:", err);
+          }
+
           if (currentUser.role === "admin" && window.location.pathname === "/") {
             window.location.href = "/admin";
           }
@@ -44,6 +54,28 @@ function AuthBootstrap() {
 
     syncAuth();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const userId = user._id || user.id;
+      
+      const joinUserRoom = () => {
+        socket.emit("join-user-room", userId);
+      };
+
+      if (!socket.connected) {
+        socket.connect();
+      } else {
+        joinUserRoom();
+      }
+
+      socket.on("connect", joinUserRoom);
+
+      return () => {
+        socket.off("connect", joinUserRoom);
+      };
+    }
+  }, [user]);
 
   return null;
 }

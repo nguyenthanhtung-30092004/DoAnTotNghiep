@@ -22,6 +22,7 @@ import Orders from "../../components/account/Orders";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { clearUser, setAuthLoading } from "../../redux/slices/authSlice";
+import { clearCartRedux } from "../../redux/slices/cartSlice";
 import { toast } from "react-toastify";
 import authService from "../../services/auth.service";
 
@@ -42,6 +43,7 @@ const Account = () => {
       dispatch(setAuthLoading(true));
       await authService.logout();
       dispatch(clearUser());
+      dispatch(clearCartRedux());
       toast.info("Đã đăng xuất");
       navigate("/login");
     } catch (error) {

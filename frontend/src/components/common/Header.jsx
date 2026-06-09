@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser, setAuthLoading } from "../../redux/slices/authSlice";
-import { openCartDrawer } from "../../redux/slices/cartSlice";
+import { clearCartRedux, openCartDrawer } from "../../redux/slices/cartSlice";
 import { Dropdown } from "antd";
 import { toast } from "react-toastify";
 import authService from "../../services/auth.service";
@@ -249,6 +249,7 @@ const Header = () => {
       await authService.logout();
 
       dispatch(clearUser());
+      dispatch(clearCartRedux());
       toast.info("Đã đăng xuất");
       navigate("/login");
     } catch (error) {

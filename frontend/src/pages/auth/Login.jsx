@@ -38,6 +38,7 @@ const Login = () => {
       const data = res;
 
       dispatch(setCart(data));
+      localStorage.removeItem("guest_cart");
     } catch (error) {
       console.log(error);
       toast.warning("Đăng nhập thành công, nhưng đồng bộ giỏ hàng chưa hoàn tất");

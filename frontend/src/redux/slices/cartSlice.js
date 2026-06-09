@@ -65,6 +65,7 @@ const cartSlice = createSlice({
     clearCartRedux: (state) => {
       state.items = [];
       state.totalQuantity = 0;
+      localStorage.removeItem("guest_cart");
     },
 
     openCartDrawer: (state) => {

@@ -98,19 +98,6 @@ const Orders = () => {
 
     const userId = user._id || user.id;
 
-    const joinRoom = () => {
-      socket.emit("join-user-room", userId);
-    };
-
-    if (!socket.connected) {
-      socket.connect();
-    } else {
-      joinRoom();
-    }
-
-    // Re-join room mỗi khi socket reconnect thành công
-    socket.on("connect", joinRoom);
-
     const handleOrderUpdated = (payload) => {
       setOrders((prev) =>
         prev.map((order) =>
@@ -134,7 +121,6 @@ const Orders = () => {
     socket.on("order:updated", handleOrderUpdated);
 
     return () => {
-      socket.off("connect", joinRoom);
       socket.off("order:updated", handleOrderUpdated);
     };
   }, [user?._id, user?.id]);
