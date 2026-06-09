@@ -44,7 +44,7 @@ class VnpayPayment {
     const createDate = moment().format("YYYYMMDDHHmmss");
     const expireDate = moment().add(15, "minutes").format("YYYYMMDDHHmmss");
 
-    const returnUrl = `${publicBackendUrl}/v1/api/payments/vnpay-return`;
+    const returnUrl = `${publicBackendUrl}/payments/vnpay-return`;
 
     let vnpParams = {
       vnp_Version: "2.1.0",
