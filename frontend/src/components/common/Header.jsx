@@ -107,8 +107,8 @@ const Header = () => {
         to: "/shop",
         children: categoryTree,
       },
-      { label: "Giới thiệu", to: "#" },
-      { label: "Liên hệ", to: "#" },
+      { label: "Giới thiệu", to: "/about" },
+      { label: "Liên hệ", to: "/contact" },
     ],
     [categoryTree]
   );

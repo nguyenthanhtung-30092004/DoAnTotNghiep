@@ -22,7 +22,7 @@ const CouponFilters = ({
           <input
             value={filters.search}
             onChange={(e) => onChangeFilter("search", e.target.value)}
-            placeholder="TÃ¬m theo mÃ£ hoáº·c tÃªn mÃ£..."
+            placeholder="Tìm theo mã hoặc tên mã..."
             className="h-11 w-full rounded-xl border border-slate-200 pl-10 pr-4 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
           />
         </div>
@@ -85,4 +85,3 @@ const CouponFilters = ({
 };
 
 export default CouponFilters;
-

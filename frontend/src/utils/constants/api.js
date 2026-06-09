@@ -64,3 +64,6 @@ export const API_ADMIN_USERS = `${API_USERS}/admin/users`;
 export const API_ADMIN_USER_DETAIL = (userId) => `${API_ADMIN_USERS}/${userId}`;
 export const API_ADMIN_USER_ROLE = (userId) =>
   `${API_ADMIN_USERS}/${userId}/role`;
+
+// Dashboard
+export const API_DASHBOARD_STATS = `${API_BASE}/dashboard/stats`;

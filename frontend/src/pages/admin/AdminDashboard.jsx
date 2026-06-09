@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DollarSign,
   ShoppingBag,
@@ -21,197 +21,329 @@ import {
   Legend,
   Cell,
 } from "recharts";
+import dashboardService from "../../services/dashboard.service";
+import { toast } from "react-toastify";
 
-const revenueData = [
-  { date: "01/04", revenue: 12000000, orders: 20 },
-  { date: "02/04", revenue: 18000000, orders: 25 },
-  { date: "03/04", revenue: 15000000, orders: 22 },
-  { date: "04/04", revenue: 22000000, orders: 30 },
-  { date: "05/04", revenue: 17000000, orders: 28 },
-  { date: "06/04", revenue: 25000000, orders: 35 },
-  { date: "07/04", revenue: 20000000, orders: 32 },
-];
-
-const orderStatusData = [
-  { name: "Đã giao", value: 400, color: "#4f46e5" },
-  { name: "Đang xử lý", value: 300, color: "#3b82f6" },
-  { name: "Đã hủy", value: 100, color: "#ef4444" },
-];
-
-const formatVND = (value) => value.toLocaleString("vi-VN") + " ₫";
+const formatVND = (value) => {
+  if (value === undefined || value === null) return "0 ₫";
+  return value.toLocaleString("vi-VN") + " ₫";
+};
 
 const AdminDashboard = () => {
-  const data = useMemo(() => {
-    return revenueData;
-  }, []);
+  const [days, setDays] = useState(30);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    summary: {
+      revenue: { total: 0, growth: 0 },
+      orders: { total: 0, growth: 0 },
+      customers: { total: 0, growth: 0 },
+      products: { total: 0, growth: 0 },
+    },
+    charts: {
+      revenueData: [],
+      orderStatusData: [],
+    },
+  });
 
-  const totalRevenue = data.reduce((s, d) => s + d.revenue, 0);
-  const totalOrders = data.reduce((s, d) => s + d.orders, 0);
+  useEffect(() => {
+    fetchStats();
+  }, [days]);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const res = await dashboardService.getStats({ days });
+      if (res && (res.summary || res.metadata)) {
+        setStats(res.summary ? res : res.metadata);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Không thể tải dữ liệu thống kê");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderGrowth = (growth) => {
+    if (growth > 0) {
+      return (
+        <div className="flex items-center gap-1 mt-3 text-xs">
+          <TrendingUp className="text-emerald-600 size-4" strokeWidth={2.5} />
+          <span className="text-emerald-600 font-semibold">+{growth}%</span>
+          <span className="text-zinc-500 font-medium">kỳ trước</span>
+        </div>
+      );
+    }
+    if (growth < 0) {
+      return (
+        <div className="flex items-center gap-1 mt-3 text-xs">
+          <TrendingDown className="text-rose-600 size-4" strokeWidth={2.5} />
+          <span className="text-rose-600 font-semibold">{growth}%</span>
+          <span className="text-zinc-500 font-medium">kỳ trước</span>
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center gap-1 mt-3 text-xs">
+        <span className="text-zinc-500 font-medium">
+          Không đổi so với kỳ trước
+        </span>
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-6 w-full">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="w-full space-y-8 animate-in fade-in duration-500 px-2 sm:px-6 lg:px-8 py-6">
+      {/* HEADER SECTION */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-4 border-b border-zinc-200">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Thống kê</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Tổng quan hoạt động kinh doanh
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
+            Tổng quan
+          </h1>
+          <p className="text-sm text-zinc-500 mt-1.5 font-medium">
+            Hiệu suất kinh doanh và đơn hàng của cửa hàng
           </p>
         </div>
 
-        <div className="flex bg-white border border-slate-200 rounded-lg p-1">
-          <button className="px-4 py-1.5 text-sm font-medium text-slate-600">
-            7 ngày
-          </button>
-          <button className="px-4 py-1.5 text-sm font-medium bg-indigo-600 text-white rounded-md">
-            30 ngày
-          </button>
-          <button className="px-4 py-1.5 text-sm font-medium text-slate-600">
-            90 ngày
-          </button>
+        {/* TIME FILTER */}
+        <div className="flex bg-zinc-100/80 p-1 rounded-md border border-zinc-200/50">
+          {[
+            { label: "7 ngày", value: 7 },
+            { label: "30 ngày", value: 30 },
+            { label: "90 ngày", value: 90 },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setDays(tab.value)}
+              className={`px-4 py-1.5 text-sm font-medium rounded transition-all duration-200 ${
+                days === tab.value
+                  ? "bg-white text-zinc-950 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-900"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* STAT */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* DOANH THU */}
-        <div className="bg-white rounded-xl p-5 border">
-          <div className="flex justify-between">
-            <div>
-              <div className="text-sm text-slate-500">Doanh thu</div>
-              <div className="text-2xl font-bold mt-1">
-                {formatVND(totalRevenue)}
+      {loading ? (
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="size-8 border-2 border-zinc-200 border-t-zinc-800 rounded-full animate-spin" />
+        </div>
+      ) : (
+        <>
+          {/* STATS BENTO */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* DOANH THU */}
+            <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm relative overflow-hidden group">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="text-sm font-medium text-zinc-500 mb-2">
+                    Doanh thu
+                  </div>
+                  <div className="text-2xl font-semibold text-zinc-900 tracking-tight">
+                    {formatVND(stats.summary.revenue.total)}
+                  </div>
+                </div>
+                <div className="size-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 transition-colors group-hover:bg-zinc-900 group-hover:text-white">
+                  <DollarSign className="size-5" />
+                </div>
+              </div>
+              {renderGrowth(stats.summary.revenue.growth)}
+            </div>
+
+            {/* ĐƠN HÀNG */}
+            <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm relative overflow-hidden group">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="text-sm font-medium text-zinc-500 mb-2">
+                    Đơn hàng
+                  </div>
+                  <div className="text-2xl font-semibold text-zinc-900 tracking-tight">
+                    {stats.summary.orders.total.toLocaleString("vi-VN")}
+                  </div>
+                </div>
+                <div className="size-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 transition-colors group-hover:bg-zinc-900 group-hover:text-white">
+                  <ShoppingBag className="size-5" />
+                </div>
+              </div>
+              {renderGrowth(stats.summary.orders.growth)}
+            </div>
+
+            {/* KHÁCH HÀNG */}
+            <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm relative overflow-hidden group">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="text-sm font-medium text-zinc-500 mb-2">
+                    Khách hàng mới
+                  </div>
+                  <div className="text-2xl font-semibold text-zinc-900 tracking-tight">
+                    {stats.summary.customers.total.toLocaleString("vi-VN")}
+                  </div>
+                </div>
+                <div className="size-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 transition-colors group-hover:bg-zinc-900 group-hover:text-white">
+                  <Users className="size-5" />
+                </div>
+              </div>
+              {renderGrowth(stats.summary.customers.growth)}
+            </div>
+
+            {/* SẢN PHẨM BÁN */}
+            <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm relative overflow-hidden group">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="text-sm font-medium text-zinc-500 mb-2">
+                    Sản phẩm đã bán
+                  </div>
+                  <div className="text-2xl font-semibold text-zinc-900 tracking-tight">
+                    {stats.summary.products.total.toLocaleString("vi-VN")}
+                  </div>
+                </div>
+                <div className="size-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 transition-colors group-hover:bg-zinc-900 group-hover:text-white">
+                  <Package className="size-5" />
+                </div>
+              </div>
+              {renderGrowth(stats.summary.products.growth)}
+            </div>
+          </div>
+
+          {/* CHARTS BENTO */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* REVENUE LINE CHART */}
+            <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+              <div className="flex justify-between items-end mb-8">
+                <div>
+                  <h3 className="text-lg font-semibold text-zinc-900 tracking-tight">
+                    Biểu đồ doanh thu
+                  </h3>
+                  <p className="text-sm text-zinc-500 font-medium mt-1">
+                    Trong {days} ngày qua
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-[320px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={stats.charts.revenueData}
+                    margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#e4e4e7"
+                    />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: "#71717a", fontSize: 12, fontWeight: 500 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: "#71717a", fontSize: 12, fontWeight: 500 }}
+                      tickFormatter={(v) =>
+                        v >= 1000000 ? `${(v / 1000000).toFixed(0)}M` : v
+                      }
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow:
+                          "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                      }}
+                      formatter={(value, name) => [
+                        name === "revenue" ? formatVND(value) : value,
+                        name === "revenue" ? "Doanh thu" : "Đơn hàng",
+                      ]}
+                      labelStyle={{
+                        fontWeight: 600,
+                        color: "#18181b",
+                        marginBottom: "4px",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#09090b" // zinc-950 for pure aesthetic
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={{
+                        r: 6,
+                        fill: "#09090b",
+                        stroke: "#fff",
+                        strokeWidth: 2,
+                      }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </div>
-            <div className="size-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <DollarSign className="text-white size-5" />
+
+            {/* ORDER STATUS PIE CHART */}
+            <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm flex flex-col">
+              <div>
+                <h3 className="text-lg font-semibold text-zinc-900 tracking-tight">
+                  Trạng thái đơn hàng
+                </h3>
+                <p className="text-sm text-zinc-500 font-medium mt-1">
+                  Phân bổ theo số lượng
+                </p>
+              </div>
+
+              <div className="flex-1 flex items-center justify-center h-[320px] mt-4">
+                {stats.charts.orderStatusData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={stats.charts.orderStatusData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={100}
+                        dataKey="value"
+                        paddingAngle={4}
+                        stroke="none"
+                      >
+                        {stats.charts.orderStatusData.map((entry, idx) => (
+                          <Cell key={idx} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "8px",
+                          border: "none",
+                          boxShadow:
+                            "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                        }}
+                        formatter={(value) => [`${value} đơn hàng`, ""]}
+                      />
+                      <Legend
+                        verticalAlign="bottom"
+                        height={36}
+                        iconType="circle"
+                        wrapperStyle={{
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          color: "#52525b",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-zinc-400 text-sm font-medium">
+                    Chưa có dữ liệu đơn hàng
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-
-          <div className="flex items-center gap-1 mt-3 text-xs">
-            <TrendingUp className="text-emerald-600 size-3.5" />
-            <span className="text-emerald-600 font-semibold">+12.5%</span>
-            <span className="text-slate-500">so với kỳ trước</span>
-          </div>
-        </div>
-
-        {/* ORDERS */}
-        <div className="bg-white rounded-xl p-5 border">
-          <div className="flex justify-between">
-            <div>
-              <div className="text-sm text-slate-500">Đơn hàng</div>
-              <div className="text-2xl font-bold mt-1">{totalOrders}</div>
-            </div>
-            <div className="size-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <ShoppingBag className="text-white size-5" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1 mt-3 text-xs">
-            <TrendingUp className="text-emerald-600 size-3.5" />
-            <span className="text-emerald-600 font-semibold">+8.2%</span>
-            <span className="text-slate-500">so với kỳ trước</span>
-          </div>
-        </div>
-
-        {/* USERS */}
-        <div className="bg-white rounded-xl p-5 border">
-          <div className="flex justify-between">
-            <div>
-              <div className="text-sm text-slate-500">Khách hàng mới</div>
-              <div className="text-2xl font-bold mt-1">124</div>
-            </div>
-            <div className="size-10 bg-emerald-600 rounded-lg flex items-center justify-center">
-              <Users className="text-white size-5" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1 mt-3 text-xs">
-            <TrendingDown className="text-red-600 size-3.5" />
-            <span className="text-red-600 font-semibold">-3.1%</span>
-            <span className="text-slate-500">so với kỳ trước</span>
-          </div>
-        </div>
-
-        {/* PRODUCTS */}
-        <div className="bg-white rounded-xl p-5 border">
-          <div className="flex justify-between">
-            <div>
-              <div className="text-sm text-slate-500">Sản phẩm bán</div>
-              <div className="text-2xl font-bold mt-1">892</div>
-            </div>
-            <div className="size-10 bg-amber-600 rounded-lg flex items-center justify-center">
-              <Package className="text-white size-5" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1 mt-3 text-xs">
-            <TrendingUp className="text-emerald-600 size-3.5" />
-            <span className="text-emerald-600 font-semibold">+15.7%</span>
-            <span className="text-slate-500">so với kỳ trước</span>
-          </div>
-        </div>
-      </div>
-
-      {/* CHART */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl p-5 border border-slate-200">
-          <div className="flex justify-between mb-4">
-            <h3 className="font-semibold">Doanh thu theo ngày</h3>
-            <span className="text-xs text-slate-500">VNĐ</span>
-          </div>
-
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-
-              <XAxis dataKey="date" />
-
-              <YAxis tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} />
-
-              <Tooltip formatter={(v) => formatVND(v)} />
-
-              <Line
-                type="monotone"
-                dataKey="revenue"
-                stroke="#4f46e5"
-                strokeWidth={2.5}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-xl p-5 border border-slate-200">
-          <div className="font-semibold text-slate-900 mb-4">
-            Trạng thái đơn hàng
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={orderStatusData}
-                cx="50%"
-                cy="50%"
-                innerRadius={55}
-                outerRadius={90}
-                dataKey="value"
-                paddingAngle={2}
-              >
-                {orderStatusData.map((entry, idx) => (
-                  <Cell key={idx} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                iconType="circle"
-                wrapperStyle={{ fontSize: "12px" }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

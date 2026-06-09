@@ -12,6 +12,8 @@ import Cart from "../pages/cart/Cart";
 import Checkout from "../pages/checkout/Checkout";
 import Account from "../pages/account/Account";
 import OrderDetail from "../pages/orders/OrderDetail";
+import About from "../pages/about/About";
+import Contact from "../pages/contact/Contact";
 import AdminLayout from "../components/admin/layout/AdminLayout";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminProducts from "../pages/admin/AdminProducts";
@@ -38,6 +40,14 @@ const router = createBrowserRouter([
       {
         path: "shop",
         element: <Shop />,
+      },
+      {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
       },
       {
         path: "shop/:categorySlug",
