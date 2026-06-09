@@ -13,6 +13,7 @@ import {
   Ticket,
   Users,
   Contact,
+  MessageSquare,
   X,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -33,6 +34,7 @@ const NAV_ITEMS = [
   { path: "/admin/coupons", icon: Ticket, label: "Quản lý mã giảm giá" },
   { path: "/admin/posts", icon: FileText, label: "Quản lý bài viết" },
   { path: "/admin/reviews", icon: Star, label: "Quản lý đánh giá" },
+  { path: "/admin/chat", icon: MessageSquare, label: "Quản lý Chat AI" },
 ];
 
 const AdminLayout = () => {

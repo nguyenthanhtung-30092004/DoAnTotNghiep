@@ -7,6 +7,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import MiniCartDrawer from "../cart/MiniCartDrawer";
 import socket from "../../socket/socket";
+import ChatWidget from "../chat/ChatWidget";
 
 const Layout = () => {
   const { user } = useSelector((state) => state.auth);
@@ -57,6 +58,7 @@ const Layout = () => {
       </main>
       <Footer />
       <MiniCartDrawer />
+      <ChatWidget />
     </>
   );
 };

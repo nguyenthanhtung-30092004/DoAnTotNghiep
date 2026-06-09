@@ -1,4 +1,5 @@
 let io;
+const chatService = require('../modules/chat/chat.service');
 
 const initSocket = (server) => {
   const { Server } = require("socket.io");
@@ -48,6 +49,47 @@ const initSocket = (server) => {
       socket.leave(`product:${productId}`);
       console.log(`Socket left room product:${productId}`);
     });
+
+    // --- CHAT AI SYSTEM ---
+    socket.on("join-chat", (data) => {
+      const { userId, sessionId, role } = data;
+      if (role === 'admin') {
+        socket.join('admin:chat');
+        console.log('Admin joined admin:chat room');
+      } else {
+        const room = userId ? `chat:user:${userId}` : `chat:session:${sessionId}`;
+        socket.join(room);
+        console.log(`User/Guest joined ${room}`);
+      }
+    });
+
+    socket.on("send-message", async (data) => {
+      const { conversationId, text, sender, userId, sessionId } = data;
+      try {
+        const savedMsg = await chatService.saveMessage(conversationId, sender, text);
+        const room = userId ? `chat:user:${userId}` : `chat:session:${sessionId}`;
+
+        io.to(room).emit("receive-message", savedMsg);
+        io.to("admin:chat").emit("receive-message", savedMsg);
+
+        // Auto reply with AI if sender is user
+        if (sender === 'user') {
+          // Kiểm tra xem admin đã từng trả lời trong cuộc hội thoại này chưa
+          const messages = await chatService.getMessages(conversationId);
+          const hasAdminReplied = messages.some(msg => msg.sender === 'admin');
+
+          if (!hasAdminReplied) {
+            const aiResponseText = await chatService.getGeminiResponse(conversationId, text);
+            const aiMsg = await chatService.saveMessage(conversationId, 'ai', aiResponseText);
+            io.to(room).emit("receive-message", aiMsg);
+            io.to("admin:chat").emit("receive-message", aiMsg);
+          }
+        }
+      } catch (err) {
+        console.error("Socket send-message error:", err);
+      }
+    });
+    // --- END CHAT AI ---
 
     socket.on("disconnect", () => {
       console.log("Socket disconnected:", socket.id); 

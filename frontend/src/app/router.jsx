@@ -25,6 +25,7 @@ import AdminUsers from "../pages/admin/AdminUsers";
 import AdminCustomers from "../pages/admin/AdminCustomers";
 import AdminCoupons from "../pages/admin/AdminCoupons";
 import AdminReviews from "../pages/admin/AdminReviews";
+import AdminChats from "../pages/admin/AdminChats";
 import AdminRoute from "./routes/AdminRoute";
 import PrivateRoute from "./routes/PrivateRoute";
 import PaymentResult from "../pages/payment/PaymentResult";
@@ -152,6 +153,10 @@ const router = createBrowserRouter([
       {
         path: "reviews",
         element: <AdminReviews />,
+      },
+      {
+        path: "chat",
+        element: <AdminChats />,
       },
     ],
   },

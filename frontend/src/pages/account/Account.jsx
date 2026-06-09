@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import Profile from "../../components/account/Profile";
 import Orders from "../../components/account/Orders";
-import Address from "../../components/account/Address";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { clearUser, setAuthLoading } from "../../redux/slices/authSlice";
@@ -106,18 +105,6 @@ const Account = () => {
                   <Package className="size-4 shrink-0" />
                   <span>Đơn hàng</span>
                 </button>
-
-                <button
-                  onClick={() => setActiveTab("addresses")}
-                  className={`flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-[0.15em] transition-colors whitespace-nowrap w-full ${
-                    activeTab === "addresses"
-                      ? "bg-zinc-950 text-white"
-                      : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950 border border-transparent hover:border-zinc-200"
-                  }`}
-                >
-                  <MapPin className="size-4 shrink-0" />
-                  <span>Địa chỉ</span>
-                </button>
               </nav>
 
               {/* Gạch chân 2 */}
@@ -136,10 +123,8 @@ const Account = () => {
           <div className="flex-1 min-w-0">
             {activeTab === "profile" ? (
               <Profile user={user} />
-            ) : activeTab === "orders" ? (
-              <Orders />
             ) : (
-              <Address user={user} />
+              <Orders />
             )}
           </div>
         </div>
