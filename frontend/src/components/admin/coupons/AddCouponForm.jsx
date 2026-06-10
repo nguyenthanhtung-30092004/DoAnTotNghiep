@@ -1,4 +1,4 @@
-﻿import { CalendarDays, Percent, Ticket, X } from "lucide-react";
+import { CalendarDays, Percent, Ticket, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -9,6 +9,9 @@ import {
   DISCOUNT_TYPE_OPTIONS,
 } from "../../../constants/coupon.constants";
 import couponService from "../../../services/coupon.service";
+import categoryService from "../../../services/category.service";
+import brandService from "../../../services/brand.service";
+import productService from "../../../services/product.service";
 
 const initialForm = {
   code: "",
@@ -23,6 +26,9 @@ const initialForm = {
   usageLimit: "",
   usageLimitPerUser: 1,
   applyTo: COUPON_APPLY_TO.ALL,
+  categories: [],
+  brands: [],
+  products: [],
   isActive: true,
 };
 
@@ -31,6 +37,31 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
 
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(false);
+
+  // Data cho multi-select
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetchOptions();
+  }, []);
+
+  const fetchOptions = async () => {
+    try {
+      const [catRes, brandRes, prodRes] = await Promise.all([
+        categoryService.getAllCategories({ limit: 1000 }),
+        brandService.getAllBrands(),
+        productService.getAllProducts({ limit: 1000 }),
+      ]);
+      setCategories(catRes.data || []);
+      setBrands(brandRes || []);
+      setProducts(prodRes.products || []);
+    } catch (error) {
+      console.log(error);
+      toast.error("Lỗi khi lấy danh mục tuỳ chọn");
+    }
+  };
 
   useEffect(() => {
     if (!coupon) {
@@ -51,6 +82,9 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
       usageLimit: coupon.usageLimit || "",
       usageLimitPerUser: coupon.usageLimitPerUser || 1,
       applyTo: coupon.applyTo || COUPON_APPLY_TO.ALL,
+      categories: coupon.categories?.map((c) => c._id || c) || [],
+      brands: coupon.brands?.map((b) => b._id || b) || [],
+      products: coupon.products?.map((p) => p._id || p) || [],
       isActive: coupon.isActive ?? true,
     });
   }, [coupon]);
@@ -69,6 +103,17 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
       ...prev,
       code: e.target.value.toUpperCase(),
     }));
+  };
+
+  const handleCheckboxMultiSelect = (type, id) => {
+    setFormData((prev) => {
+      const currentList = prev[type] || [];
+      if (currentList.includes(id)) {
+        return { ...prev, [type]: currentList.filter((item) => item !== id) };
+      } else {
+        return { ...prev, [type]: [...currentList, id] };
+      }
+    });
   };
 
   const validateForm = () => {
@@ -120,6 +165,21 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
       return false;
     }
 
+    if (formData.applyTo === COUPON_APPLY_TO.CATEGORIES && formData.categories.length === 0) {
+      toast.warning("Vui lòng chọn ít nhất một danh mục");
+      return false;
+    }
+
+    if (formData.applyTo === COUPON_APPLY_TO.BRANDS && formData.brands.length === 0) {
+      toast.warning("Vui lòng chọn ít nhất một thương hiệu");
+      return false;
+    }
+
+    if (formData.applyTo === COUPON_APPLY_TO.PRODUCTS && formData.products.length === 0) {
+      toast.warning("Vui lòng chọn ít nhất một sản phẩm");
+      return false;
+    }
+
     return true;
   };
 
@@ -137,9 +197,10 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
       usageLimit: Number(formData.usageLimit || 0),
       usageLimitPerUser: Number(formData.usageLimitPerUser || 1),
       applyTo: formData.applyTo,
-      categories: [],
-      brands: [],
-      products: [],
+      categories: formData.applyTo === COUPON_APPLY_TO.CATEGORIES ? formData.categories : [],
+      brands: formData.applyTo === COUPON_APPLY_TO.BRANDS ? formData.brands : [],
+      products: formData.applyTo === COUPON_APPLY_TO.PRODUCTS ? formData.products : [],
+      users: [], // Không hỗ trợ set users qua UI lúc này
       isActive: formData.isActive,
     };
   };
@@ -170,6 +231,56 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderMultiSelect = () => {
+    if (formData.applyTo === COUPON_APPLY_TO.ALL) return null;
+
+    let items = [];
+    let stateKey = "";
+    let label = "";
+
+    if (formData.applyTo === COUPON_APPLY_TO.CATEGORIES) {
+      items = categories;
+      stateKey = "categories";
+      label = "Chọn danh mục";
+    } else if (formData.applyTo === COUPON_APPLY_TO.BRANDS) {
+      items = brands;
+      stateKey = "brands";
+      label = "Chọn thương hiệu";
+    } else if (formData.applyTo === COUPON_APPLY_TO.PRODUCTS) {
+      items = products;
+      stateKey = "products";
+      label = "Chọn sản phẩm";
+    }
+
+    if (!items.length) return null;
+
+    return (
+      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+        <label className="mb-2 block text-sm font-semibold text-slate-700">
+          {label}
+        </label>
+        <div className="max-h-48 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+          {items.map((item) => (
+            <label
+              key={item._id}
+              className="flex items-center gap-3 rounded-lg border border-slate-100 p-2 hover:bg-slate-50 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                checked={formData[stateKey].includes(item._id)}
+                onChange={() => handleCheckboxMultiSelect(stateKey, item._id)}
+                className="size-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
+              />
+              <span className="text-sm font-medium text-slate-700">
+                {item.name || item.nameBrand || item.code}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -207,7 +318,7 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
           </button>
         </div>
 
-        <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-5 custom-scrollbar">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="space-y-5">
               <div className="rounded-2xl border border-slate-200 p-5">
@@ -432,11 +543,7 @@ const AddForm = ({ coupon = null, onClose, onSuccess }) => {
                       ))}
                     </select>
 
-                    <p className="mt-2 rounded-xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-700">
-                      Hiện tại form chỉ gửi phạm vi. Nếu chọn danh mục, thương
-                      hiệu hoặc sản phẩm thì cần làm thêm select chọn ID tương
-                      ứng.
-                    </p>
+                    {renderMultiSelect()}
                   </div>
 
                   <label className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
