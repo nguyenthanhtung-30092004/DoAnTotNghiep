@@ -9,6 +9,8 @@ import { Input } from "../../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthLoading, setUser } from "../../redux/slices/authSlice";
 import authService from "../../services/auth.service";
+import cartService from "../../services/cart.service";
+import { setCart } from "../../redux/slices/cartSlice";
 import signupBg from "../../assets/signup-bg.png";
 
 const passwordRules = [
@@ -27,6 +29,26 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((state) => state.auth);
+  const guestCartItems = useSelector((state) => state.cart.items);
+
+  const syncCartAfterSignup = async () => {
+    try {
+      if (guestCartItems.length > 0) {
+        await cartService.syncCart({
+          items: guestCartItems,
+        });
+      }
+
+      const res = await cartService.getCart();
+      const data = res;
+
+      dispatch(setCart(data));
+      localStorage.removeItem("guest_cart");
+    } catch (error) {
+      console.log(error);
+      toast.warning("Đăng ký thành công, nhưng đồng bộ giỏ hàng chưa hoàn tất");
+    }
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -63,7 +85,14 @@ const Signup = () => {
 
       dispatch(setUser(userData));
       toast.success("Đăng ký thành công");
-      navigate(userData?.role === "admin" ? "/admin" : "/");
+      
+      if (userData?.role === "admin") {
+        navigate("/admin", { replace: true });
+        return;
+      }
+
+      await syncCartAfterSignup();
+      navigate("/", { replace: true });
     } catch (error) {
       const message = error.response?.data?.message;
       toast.error(message || "Đăng ký thất bại");

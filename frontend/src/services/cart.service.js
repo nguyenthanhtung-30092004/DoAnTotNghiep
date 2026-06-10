@@ -21,8 +21,8 @@ const clearCart = () => {
   return axiosClient.delete(API_CART);
 };
 
-const syncCart = () => {
-  return axiosClient.post(`${API_CART}/sync`, {});
+const syncCart = (data = {}) => {
+  return axiosClient.post(`${API_CART}/sync`, data);
 };
 
 const cartService = {
