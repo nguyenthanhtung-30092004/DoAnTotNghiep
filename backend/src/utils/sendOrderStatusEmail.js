@@ -17,7 +17,8 @@ const sendOrderStatusEmail = async (email, order, status) => {
     switch (status) {
       case "CONFIRMED":
         statusText = "Đã xác nhận";
-        statusMessage = "Đơn hàng của bạn đã được xác nhận và đang chuẩn bị giao.";
+        statusMessage =
+          "Đơn hàng của bạn đã được xác nhận và đang chuẩn bị giao.";
         break;
       case "SHIPPING":
         statusText = "Đang giao hàng";
@@ -25,7 +26,8 @@ const sendOrderStatusEmail = async (email, order, status) => {
         break;
       case "DELIVERED":
         statusText = "Đã giao hàng";
-        statusMessage = "Đơn hàng của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm!";
+        statusMessage =
+          "Đơn hàng của bạn đã được giao thành công. Cảm ơn bạn đã mua sắm!";
         break;
       case "CANCELLED":
         statusText = "Đã hủy";
@@ -34,10 +36,10 @@ const sendOrderStatusEmail = async (email, order, status) => {
     }
 
     const info = await transport.sendMail({
-      from: `"Runner-Shop" <${process.env.EMAIL_USER}>`,
+      from: `"Runner Store" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `[Runner-Shop] Cập nhật trạng thái đơn hàng: ${statusText}`,
-      text: `Xin chào, ${statusMessage} Mã đơn hàng của bạn là: ${order._id}`,
+      subject: `Cập nhật đơn hàng ${order.orderCode || order._id}`,
+      text: `Xin chào, ${statusMessage} Mã đơn hàng của bạn là: ${order.orderCode || order._id}`,
       html: `
         <!DOCTYPE html>
         <html lang="vi">
@@ -65,7 +67,7 @@ const sendOrderStatusEmail = async (email, order, status) => {
             <div class="status-box">
                 <strong>Trạng thái mới:</strong> ${statusText}<br/>
                 <strong>Mã đơn hàng:</strong> ${order._id}<br/>
-                <strong>Tổng tiền:</strong> ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.finalPrice)}
+                <strong>Tổng tiền:</strong> ${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.finalPrice)}
             </div>
             <p>${statusMessage}</p>
             <p>Cảm ơn bạn đã đồng hành cùng Runner-Shop!</p>
