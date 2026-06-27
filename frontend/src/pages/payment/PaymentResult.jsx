@@ -1,11 +1,12 @@
 import { CheckCircle, XCircle } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const status = searchParams.get("status");
   const method = searchParams.get("method");
@@ -13,6 +14,13 @@ const PaymentResult = () => {
   const message = searchParams.get("message");
 
   const isSuccess = status === "success";
+
+  useEffect(() => {
+    if (isSuccess) {
+      dispatch({ type: "cart/clearCartRedux" });
+      localStorage.removeItem("guest_cart");
+    }
+  }, [isSuccess, dispatch]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background-soft px-4">
