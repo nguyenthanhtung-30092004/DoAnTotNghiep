@@ -41,8 +41,8 @@ class VnpayPayment {
       throw new Error("Thiếu cấu hình VNPAY trong biến môi trường");
     }
 
-    const createDate = moment().format("YYYYMMDDHHmmss");
-    const expireDate = moment().add(15, "minutes").format("YYYYMMDDHHmmss");
+    const createDate = moment().utcOffset(7).format("YYYYMMDDHHmmss");
+    const expireDate = moment().utcOffset(7).add(15, "minutes").format("YYYYMMDDHHmmss");
 
     const returnUrl = `${publicBackendUrl}/payments/vnpay-return`;
 
