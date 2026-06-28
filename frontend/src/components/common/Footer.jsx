@@ -70,46 +70,13 @@ const socialLinks = [
 const Footer = () => {
   return (
     <footer className="bg-foreground text-background">
-      {/* Newsletter strip - Brutalist */}
-      <div className="border-b border-background/20">
-        <div className="container py-24">
-          <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12">
-            <div className="max-w-2xl">
-              <span className="inline-block border border-background/20 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-background mb-8">
-                Bản tin RunVault
-              </span>
-              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-background leading-none">
-                Đăng ký ngay. <br />
-                Đừng bỏ lỡ.
-              </h2>
-            </div>
-            
-            <form onSubmit={(e) => e.preventDefault()} className="w-full lg:w-auto flex flex-col sm:flex-row gap-0">
-              <input
-                type="email"
-                placeholder="EMAIL CỦA BẠN"
-                aria-label="Nhập email nhận bản tin"
-                className="w-full sm:w-[350px] h-16 bg-transparent border border-background/20 px-6 text-sm font-bold uppercase tracking-widest text-background placeholder-background/40 outline-none focus:border-background transition-colors rounded-none"
-              />
-              <button
-                type="submit"
-                className="h-16 px-10 bg-background text-foreground text-sm font-black uppercase tracking-widest hover:bg-background/90 transition-colors flex items-center justify-center gap-3 shrink-0 rounded-none border border-background group"
-              >
-                Gửi
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      {/* Main footer grid */}
       <div className="container py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-y-16 gap-x-12">
-          
-          {/* Brand column */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-3 mb-8 group inline-flex">
+            <Link
+              to="/"
+              className="flex items-center gap-3 mb-8 group inline-flex"
+            >
               <div className="w-12 h-12 bg-background flex items-center justify-center transition-transform group-hover:-translate-y-1">
                 <Footprints className="h-6 w-6 text-foreground" />
               </div>
@@ -119,8 +86,8 @@ const Footer = () => {
             </Link>
 
             <p className="text-sm text-background/60 leading-relaxed mb-10 max-w-sm font-medium">
-              Đồng hành cùng runner Việt Nam trên mọi cung đường. Chạy xa hơn, bứt tốc mạnh hơn với
-              những trang bị thể thao đỉnh cao.
+              Đồng hành cùng runner Việt Nam trên mọi cung đường. Chạy xa hơn,
+              bứt tốc mạnh hơn với những trang bị thể thao đỉnh cao.
             </p>
 
             <div className="space-y-6 text-sm font-medium">
@@ -131,7 +98,7 @@ const Footer = () => {
                 <div className="w-10 h-10 border border-background/20 flex items-center justify-center group-hover:border-background transition-colors">
                   <Mail className="h-4 w-4" />
                 </div>
-                hello@runvault.vn
+                tungnt2k4yyy@gmail.com
               </a>
               <a
                 href="tel:0901234567"
@@ -140,13 +107,15 @@ const Footer = () => {
                 <div className="w-10 h-10 border border-background/20 flex items-center justify-center group-hover:border-background transition-colors">
                   <Phone className="h-4 w-4" />
                 </div>
-                0901 234 567
+                0971684280
               </a>
               <div className="flex items-center gap-4 text-background/60 group">
                 <div className="w-10 h-10 border border-background/20 flex items-center justify-center transition-colors">
                   <MapPin className="h-4 w-4" />
                 </div>
-                <span className="leading-relaxed">123 Đinh Tiên Hoàng, Q.1, TP.HCM</span>
+                <span className="leading-relaxed">
+                  A51 Ngô Thì Nhậm, La Khê, Hà Đông, Hà Nội
+                </span>
               </div>
             </div>
           </div>
@@ -183,10 +152,16 @@ const Footer = () => {
           </p>
 
           <div className="flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-background/40">
-            <Link to="/about" className="hover:text-background transition-colors">
+            <Link
+              to="/about"
+              className="hover:text-background transition-colors"
+            >
               Chính sách bảo mật
             </Link>
-            <Link to="/about" className="hover:text-background transition-colors">
+            <Link
+              to="/about"
+              className="hover:text-background transition-colors"
+            >
               Điều khoản
             </Link>
           </div>
