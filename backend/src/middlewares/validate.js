@@ -1,4 +1,4 @@
-const { BadRequestError } = require("../core/error.response");
+const { BadRequestError } = require('../core/error.response');
 const fs = require("fs/promises");
 
 const cleanupUploadedFiles = (req) => {

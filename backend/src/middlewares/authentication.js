@@ -1,1 +1,1 @@
-module.exports = require("./authUser");
+module.exports = require('./authUser');

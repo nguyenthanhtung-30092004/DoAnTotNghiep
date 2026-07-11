@@ -1,15 +1,15 @@
-const authRoutes = require("../modules/auth/auth.route");
-const userRoutes = require("../modules/users/user.route");
-const categoryRoutes = require("../modules/categories/category.route");
-const brandRoutes = require("../modules/brands/brand.route");
-const productRoutes = require("../modules/products/product.route");
-const cartRoutes = require("../modules/cart/cart.route");
-const couponRoutes = require("../modules/coupons/coupon.route");
-const orderRoutes = require("../modules/orders/order.route");
-const paymentRoutes = require("../modules/payments/payment.route");
-const reviewRoutes = require("../modules/reviews/review.route");
-const dashboardRoutes = require("../modules/dashboard/dashboard.route");
-const chatRoutes = require("../modules/chat/chat.route");
+const authRoutes = require('./auth.route');
+const userRoutes = require('./user.route');
+const categoryRoutes = require('./category.route');
+const brandRoutes = require('./brand.route');
+const productRoutes = require('./product.route');
+const cartRoutes = require('./cart.route');
+const couponRoutes = require('./coupon.route');
+const orderRoutes = require('./order.route');
+const paymentRoutes = require('./payment.route');
+const reviewRoutes = require('./review.route');
+const dashboardRoutes = require('./dashboard.route');
+const chatRoutes = require('./chat.route');
 function routes(app) {
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);

@@ -1,8 +1,8 @@
-const app = require("./app");
-const env = require("./configs/env");
-const connectDatabase = require("./configs/database");
+const app = require('./app');
+const env = require('./config/env');
+const connectDatabase = require('./config/database');
 const http = require("http");
-const { initSocket } = require("./socket/socket")
+const { initSocket } = require('./sockets/socket')
 
 const startServer = async () => {
   try {

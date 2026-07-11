@@ -1,1 +1,1 @@
-module.exports = require("../configs/multer");
+module.exports = require('../config/multer');

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { ErrorResponse } = require("../core/error.response");
+const { ErrorResponse } = require('../core/error.response');
 const Schema = mongoose.Schema;
 
 const couponSchema = new Schema(

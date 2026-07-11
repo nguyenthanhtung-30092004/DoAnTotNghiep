@@ -1,6 +1,6 @@
-const { AuthFailureError } = require("../core/error.response");
+const { AuthFailureError } = require('../core/error.response');
 const jwt = require("jsonwebtoken");
-const userModel = require("../models/user.model");
+const userModel = require('../models/user.model');
 
 const authUser = async (req, res, next) => {
   try {

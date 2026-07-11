@@ -120,7 +120,7 @@ const Categories = () => {
             return (
               <Link
                 key={slug}
-                to={`/shop?category=${slug}`}
+                to={`/shop/${slug}`}
                 className={`group relative block h-[480px] md:h-[640px] w-full overflow-hidden bg-zinc-100 ${gridClass}`}
               >
                 <img
